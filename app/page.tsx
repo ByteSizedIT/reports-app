@@ -1,7 +1,7 @@
 export default function Home() {
   return (
-    <div className="max-w-4xl p-8">
-      <h1 className="text-center text-2xl p-4">PRODUCT NAME</h1>
+    <div className="flex flex-col justify-center items-center max-w-4xl p-8">
+      <h1 className="text-2xl  p-4">PRODUCT NAME</h1>
       <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu
         scelerisque dui. Aliquam erat volutpat. Interdum et malesuada fames ac

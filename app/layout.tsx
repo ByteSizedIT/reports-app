@@ -25,9 +25,7 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground min-h-screen flex flex-col">
         <Nav />
-        <main className="flex flex-col items-center justify-center  flex-1">
-          {children}
-        </main>
+        <main className="flex justify-center flex-1">{children}</main>
         <Footer />
       </body>
     </html>
