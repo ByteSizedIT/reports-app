@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 
+import AuthButton from "@/components/AuthButton";
+
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 
@@ -24,8 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground min-h-screen flex flex-col">
-        <Nav />
-        <main className="flex justify-center flex-1">{children}</main>
+        <Nav>
+          <AuthButton />
+        </Nav>
+        <main className="flex flex-1">{children}</main>
         <Footer />
       </body>
     </html>
