@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 
-import AuthButton from "@/components/AuthButton";
+import AuthButton from "@/components/nav-btns/AuthBtn";
 
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
