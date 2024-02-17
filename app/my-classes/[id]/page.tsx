@@ -1,5 +1,8 @@
 import { supabaseStaticClient } from "@/utils/supabase/static";
 
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
+
 export const generateStaticParams = async () => {
   const supabase = supabaseStaticClient();
   const { data: classes } = await supabase.from("class").select("id::text");
@@ -13,7 +16,18 @@ export const generateStaticParams = async () => {
 };
 
 const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
-  console.log({ id });
+  const cookieStore = cookies();
+
+  // Fetch data for class
+  const supabase = createClient(cookieStore);
+  const { data: thisClass } = await supabase
+    .from("class")
+    .select()
+    .eq("id", id)
+    .single();
+
+  console.log({ thisClass });
+
   return (
     <div className="w-full mt-8">
       <h1 className="text-center text-3xl sm:text-4xl font-bold">
