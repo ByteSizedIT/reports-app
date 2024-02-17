@@ -43,7 +43,37 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     )
     .eq("class_subject.class_id", id);
 
-  console.log({ groups });
+  if (groups) {
+    for (let group of groups) {
+      const { data: students, error } = await supabase
+        .from("class_subject_group_student")
+        .select("student_id")
+        .eq("class_subject_group_id", group.id);
+
+      if (students) {
+        // Extract student IDs from the result
+        const studentIds = students.map((student) => student.student_id);
+
+        // Fetch student details using the extracted student IDs
+        const { data: studentDetails, error: studentError } = await supabase
+          .from("student")
+          .select("id, forename, surname, pronoun, dob, grad_year")
+          .in("id", studentIds);
+
+        if (studentDetails) {
+          group.students = studentDetails; // Assign fetched student details to the group object
+        } else {
+          // Handle error while fetching student details
+          console.error("Error fetching student details:", studentError);
+        }
+      } else {
+        // Handle error while fetching student IDs
+        console.error("Error fetching student IDs:", error);
+      }
+    }
+  }
+
+  console.log({ groups, error });
   console.log({
     groups: groups?.map(
       (item: {
@@ -51,10 +81,12 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
         group_comment: string | null;
         class_subject: object;
         report_group: object;
+        students?: Array<{}>;
       }) => ({
         ...item,
         class_subject: JSON.stringify(item.class_subject),
         report_group: JSON.stringify(item["report_group"]),
+        students: JSON.stringify(item.students),
       })
     ),
     error,
