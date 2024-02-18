@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
 
 import { Students, ReportGroup, ClassSubjectGroup } from "@/types/types";
+import ClientComponent from "@/components/class-pg/ClientComponent";
 
 export const generateStaticParams = async () => {
   const supabase = supabaseStaticClient();
@@ -130,14 +131,17 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     []
   );
 
-  console.log({ groupedSubjectData });
-  console.log(JSON.stringify(groupedSubjectData, null, 2));
+  // console.log({ groupedSubjectData });
+  // console.log(JSON.stringify(groupedSubjectData, null, 2));
 
   return (
     <div className="w-full mt-8">
       <h1 className="text-center text-3xl sm:text-4xl font-bold">
-        Class ID {id}
+        {thisClass.description}
       </h1>
+      {groupedSubjectData && (
+        <ClientComponent groupedSubjectData={groupedSubjectData} />
+      )}
     </div>
   );
 };
