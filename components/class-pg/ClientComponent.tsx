@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { ClassSubjectGroup } from "@/types/types";
+
+import Subjects from "./Subjects";
 
 const ClientComponent = ({
   groupedSubjectData,
@@ -12,15 +14,28 @@ const ClientComponent = ({
   const [groupedSubjectDataState, setGroupedSubjectDataState] =
     useState(groupedSubjectData);
 
+  const [displayedSubjectId, setDisplayedSubjectId] = useState<
+    number | undefined
+  >(undefined);
+
   function updateGroupedSubjectDataState(newData: Array<ClassSubjectGroup>) {
     setGroupedSubjectDataState(newData);
   }
 
+  function updateDisplayedId(id: number) {
+    setDisplayedSubjectId(id);
+  }
+
+  useEffect(() => {
+    console.log(displayedSubjectId);
+  }, [displayedSubjectId]);
+
   return (
     <>
-      {groupedSubjectData?.map((subject, index) => (
-        <div key={index}>{subject.description}</div>
-      ))}
+      <Subjects
+        groupedSubjectDataState={groupedSubjectDataState}
+        updateDisplayedSubject={updateDisplayedId}
+      />
     </>
   );
 };
