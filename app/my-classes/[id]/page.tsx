@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 
 import { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
 
-import { Students, ReportGroup, ClassSubjectGroup } from "@/types/types";
+import { ClassGroup, ClassSubjectGroup } from "@/types/types";
+
 import ClientComponent from "@/components/class-pg/ClientComponent";
 
 export const generateStaticParams = async () => {
@@ -46,43 +47,49 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     `
     )
     .eq("class_subject.class_id", id);
-  type ClassSubjectGroups = QueryData<typeof classSubjectGroupsQuery>;
+  // type ClassSubjectGroups = QueryData<typeof classSubjectGroupsQuery>;
 
   // Query to fetch students for class subject reporting groups
-  let subjectId: number = 0;
-  const studentsQuery = supabase
-    .from("class_subject_group_student")
-    .select("student_id")
-    .eq("class_subject_group_id", subjectId);
+  const studentsQuery = (groupId: number) =>
+    supabase
+      .from("class_subject_group_student")
+      .select("student_id")
+      .eq("class_subject_group_id", groupId);
 
   // Query to fetch student details using the extracted student IDs
-  let studentIds: Array<number> = [];
-  const studentQuery = supabase
-    .from("student")
-    .select("id, forename, surname, pronoun, dob, grad_year")
-    .in("id", studentIds);
+  const studentQuery = (studentIds: Array<number>) =>
+    supabase
+      .from("student")
+      .select("id, forename, surname, pronoun, dob, grad_year")
+      .in("id", studentIds);
   // type Student = QueryData<typeof classSubjectGroupsQuery>;
-  // type Students = { students: Array<Student> | null };
-  type ClassSubjectGroupsStudents = ClassSubjectGroups & Partial<Students>;
+
+  // Fetch subjects and subject reporting groups for class
   const { data, error } = await classSubjectGroupsQuery;
   if (error) throw error;
-  const classWithSubjects: ClassSubjectGroupsStudents = data;
+  const classSubjectReportGroups: Array<ClassGroup> = data;
+  // const classWithSubjectGroups: ClassSubjectGroups & { students: Student[] } =
+  //   data;
 
   // Fetch students for class subject reporting groups
-  for (let subject of classWithSubjects) {
-    const { data: students, error } = await studentsQuery;
+  for (let group of classSubjectReportGroups) {
+    const { data: students, error } = await studentsQuery(group.id);
     if (error) throw error;
     // Extract student IDs from the result
-    studentIds = students.map((student) => student.student_id);
+    const studentIds = students.map((student) => student.student_id);
     // Fetch student details using the extracted student IDs
-    const { data: studentDetails, error: studentError } = await studentQuery;
-    if (error) throw error;
-    classWithSubjects.students = studentDetails;
+    const { data: studentDetails, error: studentError } = await studentQuery(
+      studentIds
+    );
+    if (studentError) throw studentError;
+
+    group.students = studentDetails;
   }
 
-  // console.log({ classWithSubjects, error });
+  // console.log({ classSubjectReportGroups, error });
   // console.log(
-  //   classWithSubjects?.map(
+  //   "class with subjects printed out: ",
+  //   classSubjectReportGroups?.map(
   //     (item: {
   //       id: number;
   //       group_comment: string | null;
@@ -100,7 +107,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   // );
 
   // Group data, nesting a subjects groups (and students) under 1 subject section
-  const groupedSubjectData = classWithSubjects?.reduce(
+  const groupedSubjectData = classSubjectReportGroups?.reduce(
     (acc: Array<ClassSubjectGroup>, item: any) => {
       // Get the subject name
       const classSubjectId = item.class_subject.subject.id;
@@ -116,14 +123,14 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
               ...item.report_group,
               "class_subject.id": item.id,
               students: item.students || [],
-              ...item["report_group"],
             },
           ],
         });
       } else {
         (acc[index]?.["report_groups"]).push({
-          students: [],
           ...item["report_group"],
+          "class_subject.id": item.id,
+          students: item.students || [],
         });
       }
       return acc;

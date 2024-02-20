@@ -25,3 +25,13 @@ export interface ClassSubjectGroup {
   organisation_id: number;
   report_groups: Array<ReportGroup>;
 }
+
+export type ClassGroup = {
+  id: number;
+  group_comment: string | null;
+  report_group: object[];
+  class_subject: {
+    subject: any[];
+  }[];
+  students?: Student[]; // Add this line
+};
