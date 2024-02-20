@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { ClassSubjectGroup } from "@/types/types";
 
 import Subjects from "./Subjects";
+import SubjectReportGroups from "./SubjectReportGroups";
 
 const ClientComponent = ({
   groupedSubjectData,
@@ -26,15 +27,16 @@ const ClientComponent = ({
     setDisplayedSubjectId(id);
   }
 
-  useEffect(() => {
-    console.log(displayedSubjectId);
-  }, [displayedSubjectId]);
-
   return (
     <>
       <Subjects
         groupedSubjectDataState={groupedSubjectDataState}
         updateDisplayedSubject={updateDisplayedId}
+      />
+      <SubjectReportGroups
+        groupedSubjectDataState={groupedSubjectDataState}
+        updateGroupedSubjectDataState={updateGroupedSubjectDataState}
+        displayedSubjectId={displayedSubjectId}
       />
     </>
   );
