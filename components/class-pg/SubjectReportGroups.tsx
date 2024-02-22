@@ -2,6 +2,8 @@
 
 import { ClassSubjectGroup, ReportGroup } from "@/types/types";
 
+import Column from "./Column";
+
 const SubjectReportGroups = ({
   groupedSubjectDataState,
   updateGroupedSubjectDataState,
@@ -41,17 +43,9 @@ const SubjectReportGroups = ({
           {displayedSubjectId !== undefined &&
             groupedSubjectDataState?.[displayedSubjectIndex]?.[
               "report_groups"
-            ].map((group: ReportGroup, index) => {
-              return (
-                <p key={group.id}>
-                  {
-                    groupedSubjectDataState[displayedSubjectIndex][
-                      "report_groups"
-                    ]?.[index].description
-                  }
-                </p>
-              );
-            })}
+            ].map((group: ReportGroup, index) => (
+              <Column key={group.id} group={group} button />
+            ))}
         </div>
       </div>
     </>
