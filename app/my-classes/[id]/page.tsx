@@ -49,7 +49,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     .eq("class_subject.class_id", id);
   // type ClassSubjectGroups = QueryData<typeof classSubjectGroupsQuery>;
 
-  // Query to fetch students for class subject reporting groups
+  // Query to fetch students (array) for class subject reporting groups
   const studentsQuery = (groupId: number) =>
     supabase
       .from("class_subject_group_student")
@@ -64,15 +64,26 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
       .in("id", studentIds);
   // type Student = QueryData<typeof classSubjectGroupsQuery>;
 
+  // Query to fetch Student details for all subject reporting groups
+  async function fetchStudentDetailsForAllGroups(
+    classSubjectReportGroups: ClassGroup[]
+  ) {
+    // Use Promise.all() to execute fetchStudentDetails for each group concurrently
+    const results = await Promise.all(
+      classSubjectReportGroups.map(fetchStudentDetails)
+    );
+    return results;
+  }
+
   // Fetch subjects and subject reporting groups for class
   const { data, error } = await classSubjectGroupsQuery;
   if (error) throw error;
   const classSubjectReportGroups: Array<ClassGroup> = data;
-  // const classWithSubjectGroups: ClassSubjectGroups & { students: Student[] } =
+  // const classSubjectReportGroups: ClassSubjectGroups & { students: Student[] } =
   //   data;
 
-  // Fetch students for class subject reporting groups
-  for (let group of classSubjectReportGroups) {
+  // Fetch Students details
+  async function fetchStudentDetails(group: ClassGroup) {
     const { data: students, error } = await studentsQuery(group.id);
     if (error) throw error;
     // Extract student IDs from the result
@@ -82,14 +93,45 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
       studentIds
     );
     if (studentError) throw studentError;
+    console.log({ studentDetails });
 
-    group.students = studentDetails;
+    return {
+      ...group,
+      students: studentDetails,
+    };
   }
 
-  // console.log({ classSubjectReportGroups, error });
+  // Fetch Student details
+
+  const updatedGroups = await fetchStudentDetailsForAllGroups(
+    classSubjectReportGroups
+  );
+
+  if (error) throw error;
+
+  // console.log(
+  //   "1....",
+  //   updatedGroups?.map(
+  //     (item: {
+  //       id: number;
+  //       group_comment: string | null;
+  //       class_subject: object;
+  //       report_group: object;
+  //       students?: Array<{}>;
+  //     }) => ({
+  //       ...item,
+  //       class_subject: JSON.stringify(item.class_subject),
+  //       report_group: JSON.stringify(item["report_group"]),
+  //       students: JSON.stringify(item.students),
+  //     })
+  //   ),
+  //   error
+  // );
+
+  // console.log({ updatedGroups, error });
   // console.log(
   //   "class with subjects printed out: ",
-  //   classSubjectReportGroups?.map(
+  //   updatedGroups?.map(
   //     (item: {
   //       id: number;
   //       group_comment: string | null;
@@ -107,7 +149,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   // );
 
   // Group data, nesting a subjects groups (and students) under 1 subject section
-  const groupedSubjectData = classSubjectReportGroups?.reduce(
+  const groupedSubjectData = updatedGroups?.reduce(
     (acc: Array<ClassSubjectGroup>, item: any) => {
       // Get the subject name
       const classSubjectId = item.class_subject.subject.id;
@@ -138,8 +180,8 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     []
   );
 
-  // console.log({ groupedSubjectData });
-  // console.log(JSON.stringify(groupedSubjectData, null, 2));
+  console.log("2", { groupedSubjectData });
+  console.log("3", JSON.stringify(groupedSubjectData, null, 2));
 
   return (
     <div className="w-full mt-8">
