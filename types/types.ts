@@ -7,8 +7,14 @@ export interface Student {
   grad_year: number;
 }
 
-export type Students = {
-  students: Array<Student> | null;
+export type ClassReportGroup = {
+  id: number;
+  group_comment: string | null;
+  report_group: object[];
+  class_subject: {
+    subject: any[];
+  }[];
+  students?: Array<Student>;
 };
 
 export interface ReportGroup {
@@ -25,13 +31,3 @@ export interface ClassSubjectGroup {
   organisation_id: number;
   report_groups: Array<ReportGroup>;
 }
-
-export type ClassGroup = {
-  id: number;
-  group_comment: string | null;
-  report_group: object[];
-  class_subject: {
-    subject: any[];
-  }[];
-  students?: Student[]; // Add this line
-};
