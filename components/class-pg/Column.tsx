@@ -2,6 +2,8 @@
 
 import { ReportGroup } from "@/types/types";
 
+import StudentEntry from "./Student";
+
 const Column = ({
   group,
   button,
@@ -16,7 +18,11 @@ const Column = ({
       <h3 key={group.id} className="m-2 font-bold w-full text-center">
         {group?.description}
       </h3>
-      <div className="flex-1"></div>
+      <div className="flex-1">
+        {group.students.map((student) => (
+          <StudentEntry key={student.id} student={student} />
+        ))}
+      </div>
 
       {button && (
         <button

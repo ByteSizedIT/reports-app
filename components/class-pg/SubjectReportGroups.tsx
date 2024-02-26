@@ -41,11 +41,11 @@ const SubjectReportGroups = ({
       <div className="flex gap-4">
         <div className="flex gap-4 overflow-x-auto">
           {displayedSubjectId !== undefined &&
-            groupedSubjectDataState?.[displayedSubjectIndex]?.[
-              "report_groups"
-            ].map((group: ReportGroup, index) => (
-              <Column key={group.id} group={group} button />
-            ))}
+            groupedSubjectDataState?.[displayedSubjectIndex]?.["report_groups"]
+              .sort((a, b) => a.id - b.id)
+              .map((group: ReportGroup, index) => (
+                <Column key={group.id} group={group} button={index !== 0} />
+              ))}
         </div>
       </div>
     </>
