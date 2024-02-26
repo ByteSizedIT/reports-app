@@ -26,12 +26,12 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
 
   // Fetch data for given class
   const supabase = createClient(cookieStore);
-  const { data: thisClass } = await supabase
-    .from("class")
-    .select()
-    .eq("id", id)
-    .single();
-  console.log("1. Class details: ", { thisClass });
+  // const { data: thisClass } = await supabase
+  //   .from("class")
+  //   .select()
+  //   .eq("id", id)
+  //   .single();
+  // console.log("1. Class details: ", { thisClass });
 
   // Query to fetch subject-reporting groups for given class
   const classSubjectGroupsQuery = supabase
@@ -40,13 +40,15 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
       `
       id,
       group_comment,
+      class_id,
+      class(*),
       report_group(*),
       class_subject(
         subject(*)
       )
     `
     )
-    .eq("class_subject.class_id", id);
+    .eq("class_id", id); // by itself is a left join
   // type ClassSubjectGroups = QueryData<typeof classSubjectGroupsQuery>;
 
   // Query to fetch students ids (array) for given class subject-reporting group
@@ -76,10 +78,10 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
       studentIds
     );
     if (studentError) throw studentError;
-    console.log(
-      "3. Fetched student details for given class-subject-reporting group: ",
-      { studentDetails }
-    );
+    // console.log(
+    //   "3. Fetched student details for given class-subject-reporting group: ",
+    //   { studentDetails }
+    // );
 
     return {
       ...group,
@@ -104,15 +106,15 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   const classSubjectReportGroups: Array<ClassReportGroup> = data;
   // const classSubjectReportGroups: ClassSubjectGroups & { students: Student[] } =
   //   data;
-  console.log(
-    "2. Initial subject-report groups for given class",
-    classSubjectReportGroups?.map((item: ClassReportGroup) => ({
-      ...item,
-      class_subject: JSON.stringify(item.class_subject),
-      report_group: JSON.stringify(item["report_group"]),
-    })),
-    error
-  );
+  // console.log(
+  //   "2. Initial subject-report groups for given class",
+  //   classSubjectReportGroups?.map((item: ClassReportGroup) => ({
+  //     ...item,
+  //     class_subject: JSON.stringify(item.class_subject),
+  //     report_group: JSON.stringify(item["report_group"]),
+  //   })),
+  //   error
+  // );
 
   // Fetch Student details, updating the class's subject-reporting groups with them
   const updatedGroups = await fetchStudentDetailsForAllGroups(
@@ -121,36 +123,37 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
 
   if (error) throw error;
 
-  console.log(
-    "4: Updated subject-report groups, with students added, for given class",
-    {
-      updatedGroups,
-      error,
-    }
-  );
-  console.log(
-    "5. Updated subject-report groups, with students added, for given class - objects printed out: ",
-    updatedGroups?.map((item: ClassReportGroup) => ({
-      ...item,
-      class_subject: JSON.stringify(item.class_subject),
-      report_group: JSON.stringify(item["report_group"]),
-      students: JSON.stringify(item.students),
-    })),
-    error
-  );
+  // console.log(
+  //   "4: Updated subject-report groups, with students added, for given class",
+  //   {
+  //     updatedGroups,
+  //     error,
+  //   }
+  // );
+  // console.log(
+  //   "5. Updated subject-report groups, with students added, for given class - objects printed out: ",
+  //   updatedGroups?.map((item: ClassReportGroup) => ({
+  //     ...item,
+  //     class_subject: JSON.stringify(item.class_subject),
+  //     report_group: JSON.stringify(item["report_group"]),
+  //     students: JSON.stringify(item.students),
+  //   })),
+  //   error
+  // );
 
+  // console.log({ updatedGroups });
   // Refactor data, nesting reporting groups (and students) under 1 property for each subject
   const groupedSubjectData = updatedGroups?.reduce(
     (acc: Array<ClassSubjectGroup>, item: any) => {
       // Get the subject name
-      const classSubjectId = item.class_subject.subject.id;
+      const classSubjectId = item.class_subject?.subject?.id;
 
       // Find the index of the class_subject in the accumulator
       const index = acc.findIndex((subject) => subject.id === classSubjectId);
       // If the class_subject is not in the accumulator, add it
       if (index === -1) {
         acc.push({
-          ...item.class_subject.subject,
+          ...item.class_subject?.subject,
           report_groups: [
             {
               ...item.report_group,
@@ -172,10 +175,10 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     []
   );
 
-  console.log(
-    "6. Refactored data, grouped by subject with reporting groups nested",
-    { groupedSubjectData }
-  );
+  // console.log(
+  //   "6. Refactored data, grouped by subject with reporting groups nested",
+  //   { groupedSubjectData }
+  // );
   console.log(
     "7. Refactored data, grouped by subject with reporting groups nested - objects printed out",
     JSON.stringify(groupedSubjectData, null, 2)
@@ -184,7 +187,8 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   return (
     <div className="w-full mt-8">
       <h1 className="text-center text-3xl sm:text-4xl font-bold">
-        {thisClass.description}
+        {/* {thisClass.description} */}
+        {classSubjectReportGroups?.[0]?.class?.[0]?.description}
       </h1>
       {groupedSubjectData && (
         <ClientComponent groupedSubjectData={groupedSubjectData} />

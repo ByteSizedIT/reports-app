@@ -11,6 +11,7 @@ export type ClassReportGroup = {
   id: number;
   group_comment: string | null;
   report_group: object[];
+  class: { description: any }[];
   class_subject: {
     subject: any[];
   }[];
