@@ -1,4 +1,4 @@
-Droppable Component - Reference components/class-pg/Column.tsx:
+DROPPABLE COMPONENT - Reference components/class-pg/Column.tsx:
 
 The Droppable component expects its child to be a function that returns a react component. One reason the render component pattern is used is so that beautiful-dnd does not have to create any DOM nodes for you. You create your components the way you want to and DND latches into your existing structure.
 
@@ -12,7 +12,7 @@ const droppableSnapshot = {
 
 
 
-Draggable Component: Reference components/class-pg/Student.tsx:
+DRAGGABLE COMPONENT: Reference components/class-pg/Student.tsx:
 
 As with Droppable, Draggable expects its child to be a function that returns a react component. Again it's first argument is and object called 'provided' with the follwoing properties..
 - draggableProps are provided to component to respond to user input.
@@ -23,4 +23,50 @@ An example of the draggable Snapshot passed as an arg to the function rendering 
 const draggableSnapshot = {
   isDragging: true,
   draggingOver: "column-1", // the droppable that the draggable is currently dragging over; Can be set to null when the draggable is dragging but not currently over a droppable
+};
+
+
+EXAMPLE OF THE RESULT OBJECT PASSED TO THE onDragEnd FUNCTION:
+
+const result = {
+  draggableId: "task-1",
+  type: "TYPE",
+  reason: "DROP", // could be CANCEL, if cancelled with escape key for example
+  source: {
+    droppableId: "column-1",
+    index: 0,
+  },
+  destination: {
+    // destination can be 'null', like when a user drops soutside of a list
+    droppableId: "column-1",
+    index: 1,
+  },
+};
+
+
+EXAMPLE HOOKS:
+
+// onDragStart
+const start = {
+  draggable: "task-1",
+  type: "TYPE",
+  source: {
+    droppableId: "column-1",
+    index: 0,
+  },
+};
+
+// onDragUpdate
+const update = {
+  ...start,
+  destination: {
+    droppableId: "column-1", // null if not over anuything, otherwise current location
+    index: 1,
+  },
+};
+
+//onDragEnd
+const result = {
+  ...update,
+  reason: "DROP",
 };

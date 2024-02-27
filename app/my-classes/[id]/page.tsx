@@ -179,10 +179,10 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   //   "6. Refactored data, grouped by subject with reporting groups nested",
   //   { groupedSubjectData }
   // );
-  console.log(
-    "7. Refactored data, grouped by subject with reporting groups nested - objects printed out",
-    JSON.stringify(groupedSubjectData, null, 2)
-  );
+  // console.log(
+  //   "7. Refactored data, grouped by subject with reporting groups nested - objects printed out",
+  //   JSON.stringify(groupedSubjectData, null, 2)
+  // );
 
   return (
     <div className="w-full mt-8">
