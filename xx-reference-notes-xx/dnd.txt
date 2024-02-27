@@ -1,0 +1,26 @@
+Droppable Component - Reference components/class-pg/Column.tsx:
+
+The Droppable component expects its child to be a function that returns a react component. One reason the render component pattern is used is so that beautiful-dnd does not have to create any DOM nodes for you. You create your components the way you want to and DND latches into your existing structure.
+
+The first arg to this function is an object called 'provided'; It has a property called droppableprops - these are props that you want to apply to the droppable component. Each of these props are in docs, and can be applied individually, monkey patched or spread the droppable props object directly onto the component (as in this instance). The 'provided' object also has a property called innerRef, a function used to supply the DOM node of your droppable component (Here the Task component) to react-beautiful-dznd. You can assign the provided .innerRef function to the React ref prop.
+
+An example of the droppable Snapshot passed as an arg to the function rendering the child of the Droppable component:
+const droppableSnapshot = {
+  isDraggingOver: true,
+  draggingOverWith: "item-1", // the draggable that the droppable is currently being dragged over; Can be set to null if the droppable is not being dragged over
+};
+
+
+
+Draggable Component: Reference components/class-pg/Student.tsx:
+
+As with Droppable, Draggable expects its child to be a function that returns a react component. Again it's first argument is and object called 'provided' with the follwoing properties..
+- draggableProps are provided to component to respond to user input.
+- dragHandleProps are provided to part of component to control the entire component - dragging a large item by a small item. In this project we want the whole student to be draggable, so applied to same component as the draggableProps.
+- .innerRef as per Droppable component above.
+
+An example of the draggable Snapshot passed as an arg to the function rendering the children of the Draggable component
+const draggableSnapshot = {
+  isDragging: true,
+  draggingOver: "column-1", // the droppable that the draggable is currently dragging over; Can be set to null when the draggable is dragging but not currently over a droppable
+};

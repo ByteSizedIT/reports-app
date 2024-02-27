@@ -1,15 +1,17 @@
 "use client";
 
+import { Droppable } from "@hello-pangea/dnd";
+
 import { ReportGroup } from "@/types/types";
 
 import StudentEntry from "./Student";
 
 const Column = ({
   group,
-  button,
+  reportButton,
 }: {
   group: ReportGroup;
-  button?: boolean;
+  reportButton?: boolean;
 }) => {
   console.log("Inside Column component, group passed in is ...", { group });
 
@@ -19,12 +21,26 @@ const Column = ({
         {group?.description}
       </h3>
       <div className="flex-1">
-        {group.students.map((student) => (
-          <StudentEntry key={student.id} student={student} />
-        ))}
+        <Droppable
+          droppableId={group.id.toString()}
+          isDropDisabled={!reportButton}
+        >
+          {(provided, snapshot) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {group.students.map((student, index) => (
+                <StudentEntry
+                  key={student.id}
+                  student={student}
+                  index={index}
+                />
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       </div>
 
-      {button && (
+      {reportButton && (
         <button
           className="py-2 px-4 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50"
           onClick={() =>
