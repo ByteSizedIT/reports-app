@@ -27,10 +27,11 @@ const SubjectReportGroups = ({
   function onDragUpdate() {}
   function onDragEnd(result: DropResult) {
     // syncronously update state to reflect the drag/drop result
+    // NB this code optimistically updates UI without updates yet persisting in DB
 
     const { draggableId, source, destination } = result;
 
-    // check if there is no destination - it was dropeed outside
+    // check if there is no destination - it was dropped outside
 
     if (!destination) return;
 
@@ -43,31 +44,53 @@ const SubjectReportGroups = ({
       return;
     }
 
-    const column =
+    const startColumn =
       displayedSubjectReportGroups[
         displayedSubjectReportGroups.findIndex(
           (group) => group.id === Number(source.droppableId)
         )
       ];
 
-    // create copy of studentsArr and move student from old index to new index
+    const finishColumn =
+      displayedSubjectReportGroups[
+        displayedSubjectReportGroups.findIndex(
+          (group) => group.id === Number(destination.droppableId)
+        )
+      ];
 
-    const newStudentsArr = Array.from(column.students);
+    const newGroupedSubjectData = [...groupedSubjectDataState];
 
-    const movedItem = newStudentsArr.splice(source.index, 1); // move 1 item from the position of sourceindex
-    newStudentsArr.splice(destination.index, 0, ...movedItem); // add item back into the destination index, removing 0 items
+    const newStartStudentsArr = Array.from(startColumn.students); // create copy of studentsArr in start column
 
-    // update state with updated copy of studentsArr
+    const movedItem = newStartStudentsArr.splice(source.index, 1); // move student from source index in copy of start studentArr
 
-    const newData = [...groupedSubjectDataState];
+    if (startColumn.id === finishColumn.id) {
+      // if student is dragged and dropped within same reportGroup column...
+      // ... add student into the destination index in the start studentArr, removing 0 items
+      newStartStudentsArr.splice(destination.index, 0, ...movedItem);
+    } else {
+      // if studfent is dragged and dropped between differeing reportGroup columns...
+      // ... move student to new index in copy of destination studentArr, removing 0 items
+      const newFinishStudentsArr = Array.from(finishColumn.students);
+      newFinishStudentsArr.splice(destination.index, 0, ...movedItem);
 
-    newData[displayedSubjectIndex].report_groups[
+      // update destination studentArr in a copy of classData
+      newGroupedSubjectData[displayedSubjectIndex].report_groups[
+        displayedSubjectReportGroups.findIndex(
+          (group) => group.id === Number(destination.droppableId)
+        )
+      ].students = [...newFinishStudentsArr];
+    }
+
+    // update startStudentsArr in a copy of classData
+    newGroupedSubjectData[displayedSubjectIndex].report_groups[
       displayedSubjectReportGroups.findIndex(
         (group) => group.id === Number(source.droppableId)
       )
-    ].students = [...newStudentsArr];
+    ].students = [...newStartStudentsArr];
 
-    updateGroupedSubjectDataState(newData);
+    // update state with newClassData
+    updateGroupedSubjectDataState(newGroupedSubjectData);
   }
 
   return (
