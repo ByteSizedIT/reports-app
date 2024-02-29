@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={GeistSans.className}>
-      <body className="bg-background text-foreground min-h-screen flex flex-col">
+      <body className="bg-background text-foreground min-h-screen flex flex-col px-8">
         <Nav>
           <AuthButton />
         </Nav>

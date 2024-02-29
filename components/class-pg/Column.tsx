@@ -13,7 +13,7 @@ const Column = ({
   group: ReportGroup;
   reportButton?: boolean;
 }) => {
-  console.log("Inside Column component, group passed in is ...", { group });
+  // console.log("Inside Column component, group passed in is ...", { group });
 
   return (
     <div className="border-2 border-slate-500 rounded-lg flex flex-col items-center min-w-36 md:min-w-72 p-4 h-full">

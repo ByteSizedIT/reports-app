@@ -106,15 +106,15 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   const classSubjectReportGroups: Array<ClassReportGroup> = data;
   // const classSubjectReportGroups: ClassSubjectGroups & { students: Student[] } =
   //   data;
-  // console.log(
-  //   "2. Initial subject-report groups for given class",
-  //   classSubjectReportGroups?.map((item: ClassReportGroup) => ({
-  //     ...item,
-  //     class_subject: JSON.stringify(item.class_subject),
-  //     report_group: JSON.stringify(item["report_group"]),
-  //   })),
-  //   error
-  // );
+  console.log(
+    "2. Initial subject-report groups for given class",
+    classSubjectReportGroups?.map((item: ClassReportGroup) => ({
+      ...item,
+      class_subject: JSON.stringify(item.class_subject),
+      report_group: JSON.stringify(item["report_group"]),
+    })),
+    error
+  );
 
   // Fetch Student details, updating the class's subject-reporting groups with them
   const updatedGroups = await fetchStudentDetailsForAllGroups(
@@ -186,9 +186,8 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
 
   return (
     <div className="w-full mt-8">
-      <h1 className="text-center text-3xl sm:text-4xl font-bold">
-        {/* {thisClass.description} */}
-        {classSubjectReportGroups?.[0]?.class?.[0]?.description}
+      <h1 className="text-center">
+        {`${classSubjectReportGroups?.[0]?.class.description} (${classSubjectReportGroups?.[0]?.class.year_group} / ${classSubjectReportGroups?.[0]?.class.academic_year_end})`}
       </h1>
       {groupedSubjectData && (
         <ClientComponent groupedSubjectData={groupedSubjectData} />

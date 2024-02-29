@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ClassSubjectGroup } from "@/types/types";
+import { ClassSubjectGroup, Class } from "@/types/types";
 
 import Subjects from "./Subjects";
 import SubjectReportGroups from "./SubjectReportGroups";
@@ -28,9 +28,10 @@ const ClientComponent = ({
   }
 
   return (
-    <>
+    <div className="w-full flex-col justify-center text-center mt-6 mb-6 ">
       <Subjects
         groupedSubjectDataState={groupedSubjectDataState}
+        displayedSubjectId={displayedSubjectId}
         updateDisplayedSubject={updateDisplayedId}
       />
       <SubjectReportGroups
@@ -38,7 +39,7 @@ const ClientComponent = ({
         updateGroupedSubjectDataState={updateGroupedSubjectDataState}
         displayedSubjectId={displayedSubjectId}
       />
-    </>
+    </div>
   );
 };
 export default ClientComponent;
