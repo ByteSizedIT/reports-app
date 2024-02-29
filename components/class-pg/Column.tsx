@@ -20,26 +20,23 @@ const Column = ({
       <h3 key={group.id} className="m-2 font-bold w-full text-center">
         {group?.description}
       </h3>
-      <div className="flex-1">
-        <Droppable
-          droppableId={group.id.toString()}
-          isDropDisabled={!reportButton}
-        >
-          {(provided, snapshot) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              {group.students.map((student, index) => (
-                <StudentEntry
-                  key={student.id}
-                  student={student}
-                  index={index}
-                />
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </div>
-
+      <Droppable
+        droppableId={group.id.toString()}
+        isDropDisabled={!reportButton}
+      >
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className="min-h-1 min-w-1"
+          >
+            {group.students.map((student, index) => (
+              <StudentEntry key={student.id} student={student} index={index} />
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
       {reportButton && (
         <button
           className="py-2 px-4 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50"
