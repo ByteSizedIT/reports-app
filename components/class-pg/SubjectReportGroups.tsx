@@ -118,6 +118,10 @@ const SubjectReportGroups = ({
                         key={group.id}
                         group={group}
                         reportButton={index !== 0}
+                        groupedSubjectDataState={groupedSubjectDataState}
+                        updateGroupedSubjectDataState={
+                          updateGroupedSubjectDataState
+                        }
                       />
                     ))}
                 <NewColumn />
