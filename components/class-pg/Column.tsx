@@ -10,8 +10,8 @@ import { FaPen } from "react-icons/fa";
 import { ClassSubjectGroup, ReportGroup } from "@/types/types";
 
 import StudentEntry from "./Student";
-import ModalOuter from "../ModalOuter";
-import ModalInnerConfirmation from "../ModalInnerConfirmation";
+
+import DeleteColumnModal from "./DeleteColumnModal";
 
 interface ColumnProps {
   group: ReportGroup;
@@ -39,22 +39,14 @@ const Column = ({
     console.log("Need to add functionality to delete from state");
   }
 
-  const confirmDeleteMessage = `Are you sure you want to delete the '${group.description}' column?`;
-
   return (
     <>
       {showDeleteModal && (
-        <ModalOuter
-          updateShowModal={updateShowDeleteModal}
-          height="h-1/3"
-          width="w-1/3"
-        >
-          <ModalInnerConfirmation
-            message={confirmDeleteMessage}
-            confirmSelection={deleteColumnFromState}
-            updateShowModal={updateShowDeleteModal}
-          />
-        </ModalOuter>
+        <DeleteColumnModal
+          group={group}
+          updateShowDeleteModal={updateShowDeleteModal}
+          deleteColumnFromState={deleteColumnFromState}
+        />
       )}
       <div className="border-2 border-slate-500 rounded-lg min-w-36 md:min-w-72 p-2 pb-8 h-full relative">
         <div className="flex flex-col items-center">
