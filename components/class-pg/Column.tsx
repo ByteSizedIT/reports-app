@@ -11,7 +11,9 @@ import { ClassSubjectGroup, ReportGroup } from "@/types/types";
 
 import StudentEntry from "./Student";
 
+import ModalInnerAdd from "../ModalInnerAdd";
 import DeleteColumnModal from "./DeleteColumnModal";
+import WriteReportModal from "./WriteReportModal";
 
 interface ColumnProps {
   group: ReportGroup;
@@ -27,6 +29,7 @@ const Column = ({
   updateGroupedSubjectDataState,
 }: ColumnProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   console.log("Inside Column component, group passed in is ...", { group });
   console.log({ thisGroupedSubjectDataState });
@@ -37,6 +40,14 @@ const Column = ({
 
   function deleteColumnFromState() {
     console.log("Need to add functionality to delete from state");
+  }
+
+  function updateShowReportModal(bool: boolean) {
+    setShowReportModal(bool);
+  }
+
+  function saveReportToState() {
+    console.log("Need to add functionality to add report to state");
   }
 
   return (
@@ -77,6 +88,7 @@ const Column = ({
           {reportButton && (
             <button
               className="py-1 px-2 mb-2 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50"
+              onClick={() => updateShowReportModal(true)}
               disabled={group.students.length < 1}
             >
               <div className="flex items-center">
@@ -85,6 +97,14 @@ const Column = ({
             </button>
           )}
         </div>
+        {showReportModal && (
+          <WriteReportModal
+            group={group}
+            thisGroupedSubjectDataState={thisGroupedSubjectDataState}
+            updateShowReportModal={updateShowReportModal}
+            saveReportToState={saveReportToState}
+          />
+        )}
         {reportButton && (
           <MdDeleteForever
             className="text-green-700 hover:text-green-800 text-xl sm:text-2xl absolute bottom-2 right-2"
