@@ -118,7 +118,9 @@ const SubjectReportGroups = ({
                         key={group.id}
                         group={group}
                         reportButton={index !== 0}
-                        groupedSubjectDataState={groupedSubjectDataState}
+                        thisGroupedSubjectDataState={
+                          groupedSubjectDataState[displayedSubjectIndex]
+                        }
                         updateGroupedSubjectDataState={
                           updateGroupedSubjectDataState
                         }
