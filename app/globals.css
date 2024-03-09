@@ -40,7 +40,7 @@
   }
 
   /* Responsive variations */
-  @screen sm {
+  @screen md {
     h1 {
       @apply text-4xl font-bold text-center; /* Apply larger text size on small screens and up */
     }
