@@ -1,7 +1,7 @@
 "use client";
 
-import ModalInnerAdd from "../ModalInnerAdd";
-import ModalOuter from "../ModalOuter";
+import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
+import ModalOuter from "../modal-parent-components/ModalOuter";
 
 const AddColumnModal = ({
   updateShowAddModal,

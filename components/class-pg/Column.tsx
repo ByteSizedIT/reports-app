@@ -11,7 +11,7 @@ import { ClassSubjectGroup, ReportGroup } from "@/types/types";
 
 import StudentEntry from "./Student";
 
-import ModalInnerAdd from "../ModalInnerAdd";
+import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 import DeleteColumnModal from "./DeleteColumnModal";
 import WriteReportModal from "./WriteReportModal";
 

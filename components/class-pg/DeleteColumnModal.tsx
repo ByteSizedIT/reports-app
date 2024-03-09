@@ -1,7 +1,7 @@
 "use client";
 
-import ModalOuter from "../ModalOuter";
-import ModalInnerConfirmation from "../ModalInnerConfirmation";
+import ModalOuter from "../modal-parent-components/ModalOuter";
+import ModalInnerConfirmation from "../modal-parent-components/ModalInnerConfirmation";
 import { ReportGroup } from "@/types/types";
 
 const DeleteColumnModal = ({

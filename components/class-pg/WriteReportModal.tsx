@@ -1,7 +1,7 @@
 "use client";
 
-import ModalOuter from "../ModalOuter";
-import ModalInnerAdd from "../ModalInnerAdd";
+import ModalOuter from "../modal-parent-components/ModalOuter";
+import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 
 import { ReportGroup, ClassSubjectGroup } from "@/types/types";
 

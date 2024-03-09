@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { FaPlus } from "react-icons/fa";
 
-import OuterModal from "../ModalOuter";
+import OuterModal from "../modal-parent-components/ModalOuter";
 import AddColumnModal from "./AddColumnModal";
 
 const NewColumn = () => {
