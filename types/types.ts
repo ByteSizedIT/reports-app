@@ -62,3 +62,15 @@ export interface ClassSubjectGroup {
   organisation_id: number;
   report_groups: Array<ReportGroup>;
 }
+
+////////
+
+export type ReportGroupTableItem = {
+  id?: number;
+  description: string;
+  organisation_id: number;
+};
+
+export type ReportGroupTableData = {
+  ReportGroups: Array<ReportGroupTableItem>;
+};

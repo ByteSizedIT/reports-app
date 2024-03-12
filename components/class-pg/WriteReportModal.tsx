@@ -23,15 +23,10 @@ const WriteReportModal = ({
       width="w-3/4"
     >
       <ModalInnerAdd
+        title={`${thisGroupedSubjectDataState.description} ${group.description} Report Group`}
         updateShowModal={updateShowReportModal}
         saveContent={saveReportToState}
-      >
-        <h3 className="text-black">
-          {thisGroupedSubjectDataState.description} {group.description} Report
-          Group
-        </h3>
-        <form></form>
-      </ModalInnerAdd>
+      ></ModalInnerAdd>
     </ModalOuter>
   );
 };

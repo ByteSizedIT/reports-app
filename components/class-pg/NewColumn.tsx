@@ -4,26 +4,36 @@ import { useState } from "react";
 
 import { FaPlus } from "react-icons/fa";
 
-import OuterModal from "../modal-parent-components/ModalOuter";
 import AddColumnModal from "./AddColumnModal";
 
-const NewColumn = () => {
+import { ClassSubjectGroup } from "@/types/types";
+
+const NewColumn = ({
+  classId,
+  groupedSubjectDataState,
+  displayedSubjectIndex,
+  updateGroupedSubjectDataState,
+}: {
+  classId: string;
+  groupedSubjectDataState: Array<ClassSubjectGroup>;
+  displayedSubjectIndex: number;
+  updateGroupedSubjectDataState: (newData: Array<ClassSubjectGroup>) => void;
+}) => {
   const [showAddModal, setShowAddModal] = useState(false);
 
   function updateShowAddModal(bool: boolean) {
     setShowAddModal(bool);
   }
 
-  function addColumnToState() {
-    console.log("Need to add functionality Add ReportGroup column to state");
-  }
-
   return (
     <>
       {showAddModal && (
         <AddColumnModal
+          classId={classId}
           updateShowAddModal={updateShowAddModal}
-          addColumnToState={addColumnToState}
+          groupedSubjectDataState={groupedSubjectDataState}
+          displayedSubjectIndex={displayedSubjectIndex}
+          updateGroupedSubjectDataState={updateGroupedSubjectDataState}
         />
       )}
       <button

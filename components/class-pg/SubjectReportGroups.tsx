@@ -10,10 +10,12 @@ import Column from "./Column";
 import NewColumn from "./NewColumn";
 
 const SubjectReportGroups = ({
+  classId,
   groupedSubjectDataState,
   updateGroupedSubjectDataState,
   displayedSubjectId,
 }: {
+  classId: string;
   groupedSubjectDataState: Array<ClassSubjectGroup>;
   updateGroupedSubjectDataState: (newData: Array<ClassSubjectGroup>) => void;
   displayedSubjectId: number | undefined;
@@ -126,7 +128,12 @@ const SubjectReportGroups = ({
                         }
                       />
                     ))}
-                <NewColumn />
+                <NewColumn
+                  classId={classId}
+                  groupedSubjectDataState={groupedSubjectDataState}
+                  displayedSubjectIndex={displayedSubjectIndex}
+                  updateGroupedSubjectDataState={updateGroupedSubjectDataState}
+                />
               </div>
             </div>
           </DragDropContext>

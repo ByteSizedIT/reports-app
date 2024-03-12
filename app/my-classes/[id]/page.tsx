@@ -21,6 +21,8 @@ export const generateStaticParams = async () => {
   return classes ?? [];
 };
 
+export const revalidate = 0;
+
 const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   const cookieStore = cookies();
 
@@ -130,16 +132,16 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   //     error,
   //   }
   // );
-  // console.log(
-  //   // "5. Updated subject-report groups, with students added, for given class - objects printed out: ",
-  //   updatedGroups?.map((item: ClassReportGroup) => ({
-  //     ...item,
-  //     class_subject: JSON.stringify(item.class_subject),
-  //     report_group: JSON.stringify(item["report_group"]),
-  //     students: JSON.stringify(item.students),
-  //   })),
-  //   error
-  // );
+  console.log(
+    // "5. Updated subject-report groups, with students added, for given class - objects printed out: ",
+    updatedGroups?.map((item: ClassReportGroup) => ({
+      ...item,
+      class_subject: JSON.stringify(item.class_subject),
+      report_group: JSON.stringify(item["report_group"]),
+      students: JSON.stringify(item.students),
+    })),
+    error
+  );
 
   // console.log({ updatedGroups });
   // Refactor data, nesting reporting groups (and students) under 1 property for each subject
@@ -192,7 +194,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
         {`${classSubjectReportGroups?.[0]?.class.description} (${classSubjectReportGroups?.[0]?.class.year_group} / ${classSubjectReportGroups?.[0]?.class.academic_year_end})`}
       </h1>
       {groupedSubjectData && (
-        <ClientComponent groupedSubjectData={groupedSubjectData} />
+        <ClientComponent groupedSubjectData={groupedSubjectData} classId={id} />
       )}
     </div>
   );
