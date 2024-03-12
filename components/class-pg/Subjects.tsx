@@ -11,7 +11,7 @@ const Subjects = ({
   displayedSubjectId: number | undefined;
   updateDisplayedSubject: (id: number) => void;
 }) => {
-  console.log({ groupedSubjectDataState });
+  // console.log({ groupedSubjectDataState });
   return (
     <>
       <p className="mb-2">Select or add a subject to report...</p>

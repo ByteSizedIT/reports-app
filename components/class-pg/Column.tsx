@@ -11,7 +11,6 @@ import { ClassSubjectGroup, ReportGroup } from "@/types/types";
 
 import StudentEntry from "./Student";
 
-import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 import DeleteColumnModal from "./DeleteColumnModal";
 import WriteReportModal from "./WriteReportModal";
 
@@ -31,15 +30,15 @@ const Column = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
-  console.log("Inside Column component, group passed in is ...", { group });
-  console.log({ thisGroupedSubjectDataState });
+  // console.log("Inside Column component, group passed in is ...", { group });
+  // console.log({ thisGroupedSubjectDataState });
 
   function updateShowDeleteModal(bool: boolean) {
     setShowDeleteModal(bool);
   }
 
   function deleteColumnFromState() {
-    console.log("Need to add functionality to delete from state");
+    // console.log("Need to add functionality to delete from state");
   }
 
   function updateShowReportModal(bool: boolean) {
@@ -47,7 +46,7 @@ const Column = ({
   }
 
   function saveReportToState() {
-    console.log("Need to add functionality to add report to state");
+    // console.log("Need to add functionality to add report to state");
   }
 
   return (
