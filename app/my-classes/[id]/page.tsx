@@ -131,7 +131,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   //   }
   // );
   // console.log(
-  //   "5. Updated subject-report groups, with students added, for given class - objects printed out: ",
+  //   // "5. Updated subject-report groups, with students added, for given class - objects printed out: ",
   //   updatedGroups?.map((item: ClassReportGroup) => ({
   //     ...item,
   //     class_subject: JSON.stringify(item.class_subject),
@@ -157,7 +157,8 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
           report_groups: [
             {
               ...item.report_group,
-              "class_subject.id": item.id,
+              // "class_subject.id": item.id,
+              "class_subject.id": item.class_subject?.subject.id,
               students: item.students || [],
             },
           ],
@@ -166,7 +167,8 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
         // Else add it
         (acc[index]?.["report_groups"]).push({
           ...item["report_group"],
-          "class_subject.id": item.id,
+          // "class_subject.id": item.id,
+          "class_subject.id": item.class_subject?.subject.id,
           students: item.students || [],
         });
       }
