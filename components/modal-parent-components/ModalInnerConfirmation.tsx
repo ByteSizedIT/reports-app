@@ -14,7 +14,7 @@ const ModalInnerConfirmation = ({
       <div>
         <button
           className="m-1 py-2 px-2 rounded-md no-underline bg-btn-background hover:bg-green-700 focus:bg-green-700"
-          onClick={() => confirmSelection}
+          onClick={confirmSelection}
         >
           Yes
         </button>

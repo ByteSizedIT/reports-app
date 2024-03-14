@@ -53,6 +53,7 @@ export interface ReportGroup {
   description: string;
   organisation_id: number;
   "class_subject.id"?: number;
+  "class_subject_group.id"?: number;
   students: Array<Student>;
 }
 

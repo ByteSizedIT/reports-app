@@ -120,12 +120,11 @@ const SubjectReportGroups = ({
                         key={group.id}
                         group={group}
                         reportButton={index !== 0}
-                        thisGroupedSubjectDataState={
-                          groupedSubjectDataState[displayedSubjectIndex]
-                        }
+                        groupedSubjectDataState={groupedSubjectDataState}
                         updateGroupedSubjectDataState={
                           updateGroupedSubjectDataState
                         }
+                        displayedSubjectIndex={displayedSubjectIndex}
                       />
                     ))}
                 <NewColumn

@@ -87,9 +87,7 @@ const AddColumnModal = ({
           .insert([
             {
               class_subject_id:
-                groupedSubjectDataState[displayedSubjectIndex].report_groups[0][
-                  "class_subject.id"
-                ],
+                groupedSubjectDataState[displayedSubjectIndex].id,
               report_group_id: newReportGroup.id,
               group_comment: null,
               class_id: classId,
@@ -100,7 +98,12 @@ const AddColumnModal = ({
         if (error) {
           console.error("Error adding class_subject_group:", error.message);
         } else {
-          addReportToGroupedSubjectState(newReportGroup);
+          console.log({ newReportGroup, newClassSubjectGroup });
+          addReportToGroupedSubjectState({
+            ...newReportGroup,
+            "class_subject.id": newClassSubjectGroup.class_subject_id,
+            "class_subject_group.id": newClassSubjectGroup.id,
+          });
         }
       }
     } catch (error) {

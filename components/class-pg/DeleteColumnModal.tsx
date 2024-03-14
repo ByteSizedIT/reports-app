@@ -7,11 +7,11 @@ import { ReportGroup } from "@/types/types";
 const DeleteColumnModal = ({
   group,
   updateShowDeleteModal,
-  deleteColumnFromState,
+  deleteColumn,
 }: {
   group: ReportGroup;
   updateShowDeleteModal: (bool: boolean) => void;
-  deleteColumnFromState: () => void;
+  deleteColumn: () => void;
 }) => {
   const confirmDeleteMessage = `Are you sure you want to delete the '${group.description}' column?`;
 
@@ -23,7 +23,7 @@ const DeleteColumnModal = ({
     >
       <ModalInnerConfirmation
         message={confirmDeleteMessage}
-        confirmSelection={deleteColumnFromState}
+        confirmSelection={deleteColumn}
         updateShowModal={updateShowDeleteModal}
       />
     </ModalOuter>

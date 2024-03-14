@@ -14,31 +14,104 @@ import StudentEntry from "./Student";
 import DeleteColumnModal from "./DeleteColumnModal";
 import WriteReportModal from "./WriteReportModal";
 
+import { supabaseBrowserClient } from "@/utils/supabase/client";
+import deepClone from "@/utils/functions/deepClone";
+
 interface ColumnProps {
   group: ReportGroup;
   reportButton?: boolean;
-  thisGroupedSubjectDataState: ClassSubjectGroup;
+  groupedSubjectDataState: Array<ClassSubjectGroup>;
   updateGroupedSubjectDataState: (newData: Array<ClassSubjectGroup>) => void;
+  displayedSubjectIndex: number;
 }
 
 const Column = ({
   group,
   reportButton,
-  thisGroupedSubjectDataState,
+  groupedSubjectDataState,
   updateGroupedSubjectDataState,
+  displayedSubjectIndex,
 }: ColumnProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
-  // console.log("Inside Column component, group passed in is ...", { group });
-  // console.log({ thisGroupedSubjectDataState });
+  const supabase = supabaseBrowserClient();
 
   function updateShowDeleteModal(bool: boolean) {
     setShowDeleteModal(bool);
   }
 
-  function deleteColumnFromState() {
-    // console.log("Need to add functionality to delete from state");
+  function deleteColumn() {
+    deleteReportGroupFromDB();
+  }
+
+  async function deleteReportGroupFromDB() {
+    try {
+      const deleteClassSubjectGroupResult = await supabase
+        .from("class_subject_group")
+        .delete()
+        .eq("id", group["class_subject_group.id"]);
+
+      if (deleteClassSubjectGroupResult.error) {
+        throw new Error(
+          `Error deleting column ${group.description} from class_subject_group table, id no. ${group["class_subject_group.id"]}: ${deleteClassSubjectGroupResult.error.message}`
+        );
+      }
+
+      const {
+        data: classSubjectGroupInstances,
+        error: fetchClassSubjectGroupError,
+      } = await supabase
+        .from("class_subject_group")
+        .select("*")
+        .eq("report_group_id", group.id);
+
+      if (fetchClassSubjectGroupError) {
+        throw new Error(
+          `Error fetching class_subject_groups as part of deleting columns: ${fetchClassSubjectGroupError.message}`
+        );
+      }
+
+      if (!classSubjectGroupInstances?.length) {
+        const [deleteGroupResult, deleteClassSubjectGroupResult] =
+          await Promise.all([
+            supabase.from("report_group").delete().eq("id", group.id),
+            supabase
+              .from("class_subject_group")
+              .delete()
+              .eq("id", group["class_subject_group.id"]),
+          ]);
+
+        if (deleteGroupResult.error) {
+          throw new Error(
+            `Error deleting column ${group.description} from report_group table, id no. ${group.id}: ${deleteGroupResult.error.message}`
+          );
+        }
+
+        if (deleteClassSubjectGroupResult.error) {
+          throw new Error(
+            `Error deleting column ${group.description} from class_subject_group table, id no. ${group["class_subject_group.id"]}: ${deleteClassSubjectGroupResult.error.message}`
+          );
+        }
+      }
+
+      deleteReportGroupFromGroupedSubjectState();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function deleteReportGroupFromGroupedSubjectState() {
+    const copyGroupedSubjectDataState = deepClone(groupedSubjectDataState);
+    const index = copyGroupedSubjectDataState[
+      displayedSubjectIndex
+    ].report_groups.findIndex((item) => item.id === group.id);
+    copyGroupedSubjectDataState[displayedSubjectIndex].report_groups.splice(
+      index,
+      1
+    );
+    updateGroupedSubjectDataState(copyGroupedSubjectDataState);
+    updateShowDeleteModal(false);
   }
 
   function updateShowReportModal(bool: boolean) {
@@ -55,7 +128,7 @@ const Column = ({
         <DeleteColumnModal
           group={group}
           updateShowDeleteModal={updateShowDeleteModal}
-          deleteColumnFromState={deleteColumnFromState}
+          deleteColumn={deleteColumn}
         />
       )}
       <div className="border-2 border-slate-500 rounded-lg min-w-36 md:min-w-72 p-2 pb-8 h-full relative">
@@ -99,7 +172,9 @@ const Column = ({
         {showReportModal && (
           <WriteReportModal
             group={group}
-            thisGroupedSubjectDataState={thisGroupedSubjectDataState}
+            thisGroupedSubjectDataState={
+              groupedSubjectDataState[displayedSubjectIndex]
+            }
             updateShowReportModal={updateShowReportModal}
             saveReportToState={saveReportToState}
           />
