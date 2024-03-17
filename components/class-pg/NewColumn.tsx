@@ -6,18 +6,16 @@ import { FaPlus } from "react-icons/fa";
 
 import AddColumnModal from "./AddColumnModal";
 
-import { ClassSubjectGroup } from "@/types/types";
+import { ClassDetails } from "@/types/types";
 
 const NewColumn = ({
-  classId,
-  groupedSubjectDataState,
+  classDataState,
   displayedSubjectIndex,
-  updateGroupedSubjectDataState,
+  updateClassDataState,
 }: {
-  classId: string;
-  groupedSubjectDataState: Array<ClassSubjectGroup>;
+  classDataState: ClassDetails;
   displayedSubjectIndex: number;
-  updateGroupedSubjectDataState: (newData: Array<ClassSubjectGroup>) => void;
+  updateClassDataState: (newData: ClassDetails) => void;
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -29,11 +27,10 @@ const NewColumn = ({
     <>
       {showAddModal && (
         <AddColumnModal
-          classId={classId}
           updateShowAddModal={updateShowAddModal}
-          groupedSubjectDataState={groupedSubjectDataState}
+          classDataState={classDataState}
           displayedSubjectIndex={displayedSubjectIndex}
-          updateGroupedSubjectDataState={updateGroupedSubjectDataState}
+          updateClassDataState={updateClassDataState}
         />
       )}
       <button

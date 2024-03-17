@@ -2,17 +2,25 @@
 
 import { Draggable } from "@hello-pangea/dnd";
 
-import { Student } from "@/types/types";
-
 const StudentEntry = ({
   student,
   index,
 }: {
-  student: Student;
+  student: {
+    student: {
+      id: number;
+      dob: string;
+      pronoun: string;
+      surname: string;
+      forename: string;
+      grad_year: number;
+      organisation_id: number;
+    };
+  };
   index: number;
 }) => {
   return (
-    <Draggable draggableId={student.id.toString()} index={index}>
+    <Draggable draggableId={student.student.id.toString()} index={index}>
       {(provided, snapshot) => (
         <p
           className={`text-center rounded-md border ${
@@ -22,8 +30,13 @@ const StudentEntry = ({
           {...provided.dragHandleProps}
           ref={provided.innerRef}
         >
-          {`${student.forename}  ${student.surname}`.slice(0, 15)}{" "}
-          {`${student.forename} ${student.surname}`.length > 15 ? "..." : ""}
+          {`${student.student.forename}  ${student.student.surname}`.slice(
+            0,
+            15
+          )}{" "}
+          {`${student.student.forename} ${student.student.surname}`.length > 15
+            ? "..."
+            : ""}
         </p>
       )}
     </Draggable>

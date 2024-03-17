@@ -1,35 +1,34 @@
 "use client";
 
-import { ClassSubjectGroup } from "@/types/types";
+import { ClassDetails } from "@/types/types";
 
 const Subjects = ({
-  groupedSubjectDataState,
+  classDataState,
   displayedSubjectId,
   updateDisplayedSubject,
 }: {
-  groupedSubjectDataState: Array<ClassSubjectGroup>;
+  classDataState: ClassDetails;
   displayedSubjectId: number | undefined;
   updateDisplayedSubject: (id: number) => void;
 }) => {
-  // console.log({ groupedSubjectDataState });
   return (
     <>
       <p className="mb-2">Select or add a subject to report...</p>
       <div className="flex items-center justify-center gap-2 flex-wrap mb-6 sm:mb-8">
-        {groupedSubjectDataState.length > 0 &&
-          groupedSubjectDataState?.map(
-            (s: ClassSubjectGroup, index: number) => (
+        {classDataState[0].class_subject.length > 0 &&
+          classDataState[0].class_subject?.map(
+            (c: { id: number; subject: any }, index: number) => (
               <button
-                key={s.id}
+                key={c.id}
                 className={`py-1 px-2
                ${
-                 displayedSubjectId === s.id
+                 displayedSubjectId === c.id
                    ? "border-2 border-green-700"
                    : "border border-slate-500"
                }  rounded-md no-underline bg-btn-background hover:bg-btn-background-hover`}
-                onClick={() => updateDisplayedSubject(s.id)}
+                onClick={() => updateDisplayedSubject(c.id)}
               >
-                {s.description}
+                {c.subject.description}
               </button>
             )
           )}
@@ -43,21 +42,6 @@ const Subjects = ({
         </button>
       </div>
     </>
-
-    // {/* <div className="flex items-center justify-center gap-2 flex-wrap mb-6 sm:mb-12">
-    //   {groupedSubjectDataState.length > 0 &&
-    //     groupedSubjectDataState?.map(
-    //       (s: ClassSubjectGroup, index: number) => (
-    //         <button
-    //           key={s.id}
-    //           className="py-1 px-2 border border-slate-500 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover"
-    //           onClick={() => updateDisplayedSubject(s.id)}
-    //         >
-    //           {s.description}
-    //         </button>
-    //       )
-    //     )}
-    // </div> */}
   );
 };
 export default Subjects;

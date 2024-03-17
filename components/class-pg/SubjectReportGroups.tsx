@@ -1,30 +1,28 @@
 "use client";
 
 import { DragDropContext } from "@hello-pangea/dnd";
-
 import type { DropResult } from "@hello-pangea/dnd";
 
-import { ClassSubjectGroup, ReportGroup } from "@/types/types";
+import { ClassDetails } from "@/types/types";
 
 import Column from "./Column";
 import NewColumn from "./NewColumn";
 
 const SubjectReportGroups = ({
-  classId,
-  groupedSubjectDataState,
-  updateGroupedSubjectDataState,
+  classDataState,
+  updateClassDataState,
   displayedSubjectId,
 }: {
-  classId: string;
-  groupedSubjectDataState: Array<ClassSubjectGroup>;
-  updateGroupedSubjectDataState: (newData: Array<ClassSubjectGroup>) => void;
+  classDataState: ClassDetails;
+  updateClassDataState: (newData: ClassDetails) => void;
   displayedSubjectId: number | undefined;
 }) => {
-  const displayedSubjectIndex = groupedSubjectDataState.findIndex(
-    (subject) => subject.id === displayedSubjectId
+  const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
+    (s) => s.id === displayedSubjectId
   );
   const displayedSubjectReportGroups =
-    groupedSubjectDataState?.[displayedSubjectIndex]?.report_groups;
+    classDataState[0]?.class_subject?.[displayedSubjectIndex]
+      ?.class_subject_group;
 
   function onDragStart() {}
   function onDragUpdate() {}
@@ -35,11 +33,9 @@ const SubjectReportGroups = ({
     const { draggableId, source, destination } = result;
 
     // check if there is no destination - it was dropped outside
-
     if (!destination) return;
 
     // check whether location of draggable didn't changed
-
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
@@ -50,50 +46,56 @@ const SubjectReportGroups = ({
     const startColumn =
       displayedSubjectReportGroups[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.id === Number(source.droppableId)
+          (group) => group.report_group.id === Number(source.droppableId)
         )
       ];
 
     const finishColumn =
       displayedSubjectReportGroups[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.id === Number(destination.droppableId)
+          (group) => group.report_group.id === Number(destination.droppableId)
         )
       ];
 
-    const newGroupedSubjectData = [...groupedSubjectDataState];
+    const newClassData = [...classDataState];
 
-    const newStartStudentsArr = Array.from(startColumn.students); // create copy of studentsArr in start column
+    // create copy of studentsArr in start column
+    const newStartStudentsArr = Array.from(
+      startColumn.class_subject_group_student
+    );
 
-    const movedItem = newStartStudentsArr.splice(source.index, 1); // move student from source index in copy of start studentArr
+    // move student from source index in copy of start studentArr
+    const movedItem = newStartStudentsArr.splice(source.index, 1);
 
-    if (startColumn.id === finishColumn.id) {
+    if (startColumn.report_group.id === finishColumn.report_group.id) {
       // if student is dragged and dropped within same reportGroup column...
       // ... add student into the destination index in the start studentArr, removing 0 items
       newStartStudentsArr.splice(destination.index, 0, ...movedItem);
     } else {
       // if studfent is dragged and dropped between differeing reportGroup columns...
       // ... move student to new index in copy of destination studentArr, removing 0 items
-      const newFinishStudentsArr = Array.from(finishColumn.students);
+      const newFinishStudentsArr = Array.from(
+        finishColumn.class_subject_group_student
+      );
       newFinishStudentsArr.splice(destination.index, 0, ...movedItem);
 
       // update destination studentArr in a copy of classData
-      newGroupedSubjectData[displayedSubjectIndex].report_groups[
+      newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.id === Number(destination.droppableId)
+          (group) => group.report_group.id === Number(destination.droppableId)
         )
-      ].students = [...newFinishStudentsArr];
+      ].class_subject_group_student = [...newFinishStudentsArr];
     }
 
     // update startStudentsArr in a copy of classData
-    newGroupedSubjectData[displayedSubjectIndex].report_groups[
+    newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
       displayedSubjectReportGroups.findIndex(
-        (group) => group.id === Number(source.droppableId)
+        (group) => group.report_group.id === Number(source.droppableId)
       )
-    ].students = [...newStartStudentsArr];
+    ].class_subject_group_student = [...newStartStudentsArr];
 
     // update state with newClassData
-    updateGroupedSubjectDataState(newGroupedSubjectData);
+    updateClassDataState(newClassData);
   }
 
   return (
@@ -111,27 +113,22 @@ const SubjectReportGroups = ({
             <div className="flex gap-4">
               <div className="flex gap-4 overflow-x-auto">
                 {displayedSubjectId !== undefined &&
-                  groupedSubjectDataState?.[displayedSubjectIndex]?.[
-                    "report_groups"
-                  ]
-                    .sort((a, b) => a.id - b.id)
-                    .map((group: ReportGroup, index) => (
+                  displayedSubjectReportGroups
+                    .sort((a, b) => a.report_group.id - b.report_group.id)
+                    .map((group, index) => (
                       <Column
-                        key={group.id}
+                        key={group.report_group.id}
                         group={group}
                         reportButton={index !== 0}
-                        groupedSubjectDataState={groupedSubjectDataState}
-                        updateGroupedSubjectDataState={
-                          updateGroupedSubjectDataState
-                        }
+                        classDataState={classDataState}
+                        updateClassDataState={updateClassDataState}
                         displayedSubjectIndex={displayedSubjectIndex}
                       />
                     ))}
                 <NewColumn
-                  classId={classId}
-                  groupedSubjectDataState={groupedSubjectDataState}
+                  classDataState={classDataState}
                   displayedSubjectIndex={displayedSubjectIndex}
-                  updateGroupedSubjectDataState={updateGroupedSubjectDataState}
+                  updateClassDataState={updateClassDataState}
                 />
               </div>
             </div>

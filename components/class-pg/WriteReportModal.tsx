@@ -2,19 +2,27 @@
 
 import ModalOuter from "../modal-parent-components/ModalOuter";
 import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
-
-import { ReportGroup, ClassSubjectGroup } from "@/types/types";
+import { ClassSubjectGroup } from "@/types/types";
 
 const WriteReportModal = ({
   group,
   updateShowReportModal,
   saveReportToState,
-  thisGroupedSubjectDataState,
+  thisClassDataState,
 }: {
-  group: ReportGroup;
+  group: ClassSubjectGroup;
   updateShowReportModal: (bool: boolean) => void;
   saveReportToState: () => void;
-  thisGroupedSubjectDataState: ClassSubjectGroup;
+  thisClassDataState: {
+    id: any;
+    subject: { id: number; description: string };
+    class_subject_group: {
+      report_group: { id: number; description: string };
+      class_subject_group_student: {
+        student: { id: number };
+      }[];
+    }[];
+  };
 }) => {
   return (
     <ModalOuter
@@ -23,7 +31,7 @@ const WriteReportModal = ({
       width="w-3/4"
     >
       <ModalInnerAdd
-        title={`${thisGroupedSubjectDataState.description} ${group.description} Report Group`}
+        title={`${thisClassDataState.subject.description} ${group.report_group.description} Report Group`}
         updateShowModal={updateShowReportModal}
         saveContent={saveReportToState}
       ></ModalInnerAdd>

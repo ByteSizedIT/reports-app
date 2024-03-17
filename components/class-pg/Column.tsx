@@ -7,7 +7,7 @@ import { Droppable } from "@hello-pangea/dnd";
 import { MdDeleteForever } from "react-icons/md";
 import { FaPen } from "react-icons/fa";
 
-import { ClassSubjectGroup, ReportGroup } from "@/types/types";
+import { ClassDetails, ClassSubjectGroup } from "@/types/types";
 
 import StudentEntry from "./Student";
 
@@ -18,18 +18,18 @@ import { supabaseBrowserClient } from "@/utils/supabase/client";
 import deepClone from "@/utils/functions/deepClone";
 
 interface ColumnProps {
-  group: ReportGroup;
+  group: ClassSubjectGroup;
   reportButton?: boolean;
-  groupedSubjectDataState: Array<ClassSubjectGroup>;
-  updateGroupedSubjectDataState: (newData: Array<ClassSubjectGroup>) => void;
+  classDataState: ClassDetails;
+  updateClassDataState: (newData: ClassDetails) => void;
   displayedSubjectIndex: number;
 }
 
 const Column = ({
   group,
   reportButton,
-  groupedSubjectDataState,
-  updateGroupedSubjectDataState,
+  classDataState,
+  updateClassDataState,
   displayedSubjectIndex,
 }: ColumnProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -47,14 +47,14 @@ const Column = ({
 
   async function deleteReportGroupFromDB() {
     try {
-      const deleteClassSubjectGroupResult = await supabase
+      const deleteClassSubjectGroupResponse = await supabase
         .from("class_subject_group")
         .delete()
-        .eq("id", group["class_subject_group.id"]);
+        .eq("id", group.id);
 
-      if (deleteClassSubjectGroupResult.error) {
+      if (deleteClassSubjectGroupResponse.error) {
         throw new Error(
-          `Error deleting column ${group.description} from class_subject_group table, id no. ${group["class_subject_group.id"]}: ${deleteClassSubjectGroupResult.error.message}`
+          `Error deleting column ${group.report_group.description} from class_subject_group table, id no. ${group.id}: ${deleteClassSubjectGroupResponse.error.message}`
         );
       }
 
@@ -64,7 +64,7 @@ const Column = ({
       } = await supabase
         .from("class_subject_group")
         .select("*")
-        .eq("report_group_id", group.id);
+        .eq("report_group_id", group.report_group.id);
 
       if (fetchClassSubjectGroupError) {
         throw new Error(
@@ -73,28 +73,23 @@ const Column = ({
       }
 
       if (!classSubjectGroupInstances?.length) {
-        const [deleteGroupResult, deleteClassSubjectGroupResult] =
-          await Promise.all([
-            supabase.from("report_group").delete().eq("id", group.id),
-            supabase
-              .from("class_subject_group")
-              .delete()
-              .eq("id", group["class_subject_group.id"]),
-          ]);
+        const deleteGroupResponse = await supabase
+          .from("report_group")
+          .delete()
+          .eq("id", group.report_group.id);
 
-        if (deleteGroupResult.error) {
+        if (deleteGroupResponse.error) {
           throw new Error(
-            `Error deleting column ${group.description} from report_group table, id no. ${group.id}: ${deleteGroupResult.error.message}`
+            `Error deleting column ${group.report_group.description} from report_group table, id no. ${group.report_group.id}: ${deleteGroupResponse.error.message}`
           );
         }
 
-        if (deleteClassSubjectGroupResult.error) {
+        if (deleteClassSubjectGroupResponse.error) {
           throw new Error(
-            `Error deleting column ${group.description} from class_subject_group table, id no. ${group["class_subject_group.id"]}: ${deleteClassSubjectGroupResult.error.message}`
+            `Error deleting column ${group.report_group.description} from class_subject_group table, id no. ${group.report_group.id}:`
           );
         }
       }
-
       deleteReportGroupFromGroupedSubjectState();
     } catch (error) {
       console.error(error);
@@ -102,15 +97,16 @@ const Column = ({
   }
 
   function deleteReportGroupFromGroupedSubjectState() {
-    const copyGroupedSubjectDataState = deepClone(groupedSubjectDataState);
-    const index = copyGroupedSubjectDataState[
+    const copyGroupedSubjectDataState = deepClone(classDataState);
+    const index = copyGroupedSubjectDataState[0].class_subject[
       displayedSubjectIndex
-    ].report_groups.findIndex((item) => item.id === group.id);
-    copyGroupedSubjectDataState[displayedSubjectIndex].report_groups.splice(
-      index,
-      1
+    ].class_subject_group.findIndex(
+      (item) => item.report_group.id === group.report_group.id
     );
-    updateGroupedSubjectDataState(copyGroupedSubjectDataState);
+    copyGroupedSubjectDataState[0].class_subject[
+      displayedSubjectIndex
+    ].class_subject_group.splice(index, 1);
+    updateClassDataState(copyGroupedSubjectDataState);
     updateShowDeleteModal(false);
   }
 
@@ -133,11 +129,14 @@ const Column = ({
       )}
       <div className="border-2 border-slate-500 rounded-lg min-w-36 md:min-w-72 p-2 pb-8 h-full relative">
         <div className="flex flex-col items-center">
-          <h4 key={group.id} className="m-2 font-bold w-full text-center">
-            {group?.description}
+          <h4
+            key={group.report_group.id}
+            className="m-2 font-bold w-full text-center"
+          >
+            {group?.report_group.description}
           </h4>
           <Droppable
-            droppableId={group.id.toString()}
+            droppableId={group.report_group.id.toString()}
             isDropDisabled={!reportButton}
           >
             {(provided, snapshot) => (
@@ -146,9 +145,9 @@ const Column = ({
                 {...provided.droppableProps}
                 className="min-h-1 min-w-1"
               >
-                {group.students.map((student, index) => (
+                {group.class_subject_group_student.map((student, index) => (
                   <StudentEntry
-                    key={student.id}
+                    key={student.student.id}
                     student={student}
                     index={index}
                   />
@@ -161,7 +160,7 @@ const Column = ({
             <button
               className="py-1 px-2 mb-2 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50"
               onClick={() => updateShowReportModal(true)}
-              disabled={group.students.length < 1}
+              disabled={group.class_subject_group_student.length < 1}
             >
               <div className="flex items-center">
                 <FaPen /> <p className="pl-2"> Report</p>
@@ -172,8 +171,8 @@ const Column = ({
         {showReportModal && (
           <WriteReportModal
             group={group}
-            thisGroupedSubjectDataState={
-              groupedSubjectDataState[displayedSubjectIndex]
+            thisClassDataState={
+              classDataState[0].class_subject[displayedSubjectIndex]
             }
             updateShowReportModal={updateShowReportModal}
             saveReportToState={saveReportToState}

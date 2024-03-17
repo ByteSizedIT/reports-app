@@ -2,27 +2,20 @@
 
 import { useState } from "react";
 
-import { ClassSubjectGroup } from "@/types/types";
+import { ClassDetails } from "@/types/types";
 
 import Subjects from "./Subjects";
 import SubjectReportGroups from "./SubjectReportGroups";
 
-const ClientComponent = ({
-  groupedSubjectData,
-  classId,
-}: {
-  groupedSubjectData: Array<ClassSubjectGroup>;
-  classId: string;
-}) => {
-  const [groupedSubjectDataState, setGroupedSubjectDataState] =
-    useState(groupedSubjectData);
+const ClientComponent = ({ classData }: { classData: ClassDetails }) => {
+  const [classDataState, setClassDataState] = useState(classData);
 
   const [displayedSubjectId, setDisplayedSubjectId] = useState<
     number | undefined
   >(undefined);
 
-  function updateGroupedSubjectDataState(newData: Array<ClassSubjectGroup>) {
-    setGroupedSubjectDataState(newData);
+  function updateClassDataState(newData: ClassDetails) {
+    setClassDataState(newData);
   }
 
   function updateDisplayedId(id: number) {
@@ -32,14 +25,13 @@ const ClientComponent = ({
   return (
     <div className="w-full flex-col justify-center text-center mt-6 mb-6 ">
       <Subjects
-        groupedSubjectDataState={groupedSubjectDataState}
+        classDataState={classDataState}
         displayedSubjectId={displayedSubjectId}
         updateDisplayedSubject={updateDisplayedId}
       />
       <SubjectReportGroups
-        classId={classId}
-        groupedSubjectDataState={groupedSubjectDataState}
-        updateGroupedSubjectDataState={updateGroupedSubjectDataState}
+        classDataState={classDataState}
+        updateClassDataState={updateClassDataState}
         displayedSubjectId={displayedSubjectId}
       />
     </div>

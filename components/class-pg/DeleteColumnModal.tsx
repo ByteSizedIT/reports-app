@@ -2,18 +2,18 @@
 
 import ModalOuter from "../modal-parent-components/ModalOuter";
 import ModalInnerConfirmation from "../modal-parent-components/ModalInnerConfirmation";
-import { ReportGroup } from "@/types/types";
+import { ClassSubjectGroup } from "@/types/types";
 
 const DeleteColumnModal = ({
   group,
   updateShowDeleteModal,
   deleteColumn,
 }: {
-  group: ReportGroup;
+  group: ClassSubjectGroup;
   updateShowDeleteModal: (bool: boolean) => void;
   deleteColumn: () => void;
 }) => {
-  const confirmDeleteMessage = `Are you sure you want to delete the '${group.description}' column?`;
+  const confirmDeleteMessage = `Are you sure you want to delete the '${group.report_group.description}' column?`;
 
   return (
     <ModalOuter
