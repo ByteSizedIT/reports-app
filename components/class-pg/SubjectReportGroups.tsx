@@ -46,14 +46,14 @@ const SubjectReportGroups = ({
     const startColumn =
       displayedSubjectReportGroups[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.report_group.id === Number(source.droppableId)
+          (group) => group.id === Number(source.droppableId)
         )
       ];
 
     const finishColumn =
       displayedSubjectReportGroups[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.report_group.id === Number(destination.droppableId)
+          (group) => group.id === Number(destination.droppableId)
         )
       ];
 
@@ -82,7 +82,7 @@ const SubjectReportGroups = ({
       // update destination studentArr in a copy of classData
       newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.report_group.id === Number(destination.droppableId)
+          (group) => group.id === Number(destination.droppableId)
         )
       ].class_subject_group_student = [...newFinishStudentsArr];
     }
@@ -90,7 +90,7 @@ const SubjectReportGroups = ({
     // update startStudentsArr in a copy of classData
     newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
       displayedSubjectReportGroups.findIndex(
-        (group) => group.report_group.id === Number(source.droppableId)
+        (group) => group.id === Number(source.droppableId)
       )
     ].class_subject_group_student = [...newStartStudentsArr];
 

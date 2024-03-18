@@ -136,7 +136,7 @@ const Column = ({
             {group?.report_group.description}
           </h4>
           <Droppable
-            droppableId={group.report_group.id.toString()}
+            droppableId={group.id.toString()}
             isDropDisabled={!reportButton}
           >
             {(provided, snapshot) => (
