@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { DragDropContext } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 
@@ -7,6 +9,8 @@ import { ClassDetails } from "@/types/types";
 
 import Column from "./Column";
 import NewColumn from "./NewColumn";
+
+import { supabaseBrowserClient } from "@/utils/supabase/client";
 
 const SubjectReportGroups = ({
   classDataState,
@@ -17,6 +21,12 @@ const SubjectReportGroups = ({
   updateClassDataState: (newData: ClassDetails) => void;
   displayedSubjectId: number | undefined;
 }) => {
+  const [reportsComplete, setReportsComplete] = useState(() =>
+    classDataState[0].class_subject
+      .flatMap((subject) => subject.class_subject_group)
+      .every((group) => group.group_comment !== null)
+  );
+
   const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
     (s) => s.id === displayedSubjectId
   );
@@ -42,6 +52,12 @@ const SubjectReportGroups = ({
     ) {
       return;
     }
+
+    updateDBStudentGroupings(
+      Number(source.droppableId),
+      Number(destination.droppableId),
+      Number(draggableId)
+    );
 
     const startColumn =
       displayedSubjectReportGroups[
@@ -72,7 +88,7 @@ const SubjectReportGroups = ({
       // ... add student into the destination index in the start studentArr, removing 0 items
       newStartStudentsArr.splice(destination.index, 0, ...movedItem);
     } else {
-      // if studfent is dragged and dropped between differeing reportGroup columns...
+      // if student is dragged and dropped between differeing reportGroup columns...
       // ... move student to new index in copy of destination studentArr, removing 0 items
       const newFinishStudentsArr = Array.from(
         finishColumn.class_subject_group_student
@@ -96,6 +112,34 @@ const SubjectReportGroups = ({
 
     // update state with newClassData
     updateClassDataState(newClassData);
+  }
+
+  async function updateDBStudentGroupings(
+    oldColumnId: number,
+    newColumnId: number,
+    studentId: number
+  ) {
+    const supabase = supabaseBrowserClient();
+    try {
+      const { data, error } = await supabase
+        .from("class_subject_group_student")
+        .update({
+          class_subject_group_id: newColumnId,
+          student_comment: null,
+        })
+        .eq("class_subject_group_id", oldColumnId)
+        .eq("student_id", studentId);
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error(
+        `Error updating row: ${
+          error instanceof Error ? error.message : "Unknown error occurred"
+        }`
+      );
+    }
   }
 
   return (
