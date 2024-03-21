@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { DragDropContext } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 
@@ -21,12 +19,6 @@ const SubjectReportGroups = ({
   updateClassDataState: (newData: ClassDetails) => void;
   displayedSubjectId: number | undefined;
 }) => {
-  const [reportsComplete, setReportsComplete] = useState(() =>
-    classDataState[0].class_subject
-      .flatMap((subject) => subject.class_subject_group)
-      .every((group) => group.group_comment !== null)
-  );
-
   const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
     (s) => s.id === displayedSubjectId
   );
@@ -42,34 +34,43 @@ const SubjectReportGroups = ({
 
     const { draggableId, source, destination } = result;
 
+    updateLocalColumns(
+      source.droppableId,
+      source.index,
+      draggableId,
+      false,
+      destination?.droppableId,
+      destination?.index
+    );
+  }
+
+  function updateLocalColumns(
+    oldColumn: string,
+    oldColumnIndex: number,
+    studentId: string,
+    resolvingError: boolean,
+    newColumn?: string,
+    newColumnIndex?: number
+  ) {
     // check if there is no destination - it was dropped outside
-    if (!destination) return;
+    if (!newColumn || newColumnIndex === undefined) return;
 
     // check whether location of draggable didn't changed
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
+    if (newColumn === oldColumn && newColumnIndex === oldColumnIndex) {
       return;
     }
-
-    updateDBStudentGroupings(
-      Number(source.droppableId),
-      Number(destination.droppableId),
-      Number(draggableId)
-    );
 
     const startColumn =
       displayedSubjectReportGroups[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.id === Number(source.droppableId)
+          (group) => group.id === Number(oldColumn)
         )
       ];
 
     const finishColumn =
       displayedSubjectReportGroups[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.id === Number(destination.droppableId)
+          (group) => group.id === Number(newColumn)
         )
       ];
 
@@ -81,24 +82,24 @@ const SubjectReportGroups = ({
     );
 
     // move student from source index in copy of start studentArr
-    const movedItem = newStartStudentsArr.splice(source.index, 1);
+    const movedItem = newStartStudentsArr.splice(oldColumnIndex, 1);
 
     if (startColumn.report_group.id === finishColumn.report_group.id) {
       // if student is dragged and dropped within same reportGroup column...
       // ... add student into the destination index in the start studentArr, removing 0 items
-      newStartStudentsArr.splice(destination.index, 0, ...movedItem);
+      newStartStudentsArr.splice(newColumnIndex, 0, ...movedItem);
     } else {
       // if student is dragged and dropped between differeing reportGroup columns...
       // ... move student to new index in copy of destination studentArr, removing 0 items
       const newFinishStudentsArr = Array.from(
         finishColumn.class_subject_group_student
       );
-      newFinishStudentsArr.splice(destination.index, 0, ...movedItem);
+      newFinishStudentsArr.splice(newColumnIndex, 0, ...movedItem);
 
       // update destination studentArr in a copy of classData
       newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
         displayedSubjectReportGroups.findIndex(
-          (group) => group.id === Number(destination.droppableId)
+          (group) => group.id === Number(newColumn)
         )
       ].class_subject_group_student = [...newFinishStudentsArr];
     }
@@ -106,18 +107,29 @@ const SubjectReportGroups = ({
     // update startStudentsArr in a copy of classData
     newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
       displayedSubjectReportGroups.findIndex(
-        (group) => group.id === Number(source.droppableId)
+        (group) => group.id === Number(oldColumn)
       )
     ].class_subject_group_student = [...newStartStudentsArr];
 
     // update state with newClassData
     updateClassDataState(newClassData);
+
+    if (!resolvingError)
+      updateDBStudentGroupings(
+        oldColumn,
+        oldColumnIndex,
+        studentId,
+        newColumn,
+        newColumnIndex
+      );
   }
 
   async function updateDBStudentGroupings(
-    oldColumnId: number,
-    newColumnId: number,
-    studentId: number
+    oldColumnId: string,
+    oldColumnIndex: number,
+    studentId: string,
+    newColumnId: string,
+    newColumnIndex: number
   ) {
     const supabase = supabaseBrowserClient();
     try {
@@ -128,12 +140,20 @@ const SubjectReportGroups = ({
           student_comment: null,
         })
         .eq("class_subject_group_id", oldColumnId)
-        .eq("student_id", studentId);
+        .eq("student_id", Number(studentId));
 
       if (error) {
         throw error;
       }
     } catch (error) {
+      updateLocalColumns(
+        newColumnId,
+        newColumnIndex,
+        studentId,
+        true,
+        oldColumnId,
+        oldColumnIndex
+      );
       console.error(
         `Error updating row: ${
           error instanceof Error ? error.message : "Unknown error occurred"
