@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { DragDropContext } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -12,6 +12,7 @@ import NewColumn from "./NewColumn";
 import WarningModal from "./WarningModal";
 
 import { supabaseBrowserClient } from "@/utils/supabase/client";
+import Link from "next/link";
 
 const SubjectReportGroups = ({
   classDataState,
@@ -24,6 +25,19 @@ const SubjectReportGroups = ({
 }) => {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
+  const [reportsComplete, setReportsComplete] = useState(() =>
+    classDataState[0].class_subject
+      .flatMap((subject) => subject.class_subject_group)
+      .every((group) => group.group_comment !== null)
+  );
+
+  useEffect(() => {
+    setReportsComplete(
+      classDataState[0].class_subject
+        .flatMap((subject) => subject.class_subject_group)
+        .every((group) => group.group_comment !== null)
+    );
+  }, [classDataState]);
 
   const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
     (s) => s.id === displayedSubjectId
@@ -224,6 +238,13 @@ const SubjectReportGroups = ({
               </div>
             </div>
           </DragDropContext>
+          {reportsComplete && (
+            <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
+              <button className="py-1 px-2 m-2 w-40 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50">
+                Pupil Reports
+              </button>
+            </Link>
+          )}
         </>
       )}
       {showWarningModal && (
