@@ -1,11 +1,11 @@
-const ModalInnerConfirmation = ({
+"use client";
+
+const ModalInnerMessageOnly = ({
   message,
   updateShowModal,
-  confirmAction,
 }: {
   message?: string;
   updateShowModal: (bool: boolean) => void;
-  confirmAction: () => void;
 }) => {
   return (
     <div className="flex flex-col w-full h-full justify-center items-center text-xs md:text-base">
@@ -14,18 +14,12 @@ const ModalInnerConfirmation = ({
       <div>
         <button
           className="m-1 py-2 px-2 rounded-md no-underline bg-btn-background hover:bg-green-700 focus:bg-green-700"
-          onClick={confirmAction}
-        >
-          Yes
-        </button>
-        <button
-          className="m-1 py-2 px-2 rounded-md no-underline bg-btn-background hover:bg-green-700 focus:bg-green-700"
           onClick={() => updateShowModal(false)}
         >
-          No
+          Ok
         </button>
       </div>
     </div>
   );
 };
-export default ModalInnerConfirmation;
+export default ModalInnerMessageOnly;

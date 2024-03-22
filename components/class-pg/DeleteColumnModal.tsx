@@ -23,7 +23,7 @@ const DeleteColumnModal = ({
     >
       <ModalInnerConfirmation
         message={confirmDeleteMessage}
-        confirmSelection={deleteColumn}
+        confirmAction={deleteColumn}
         updateShowModal={updateShowDeleteModal}
       />
     </ModalOuter>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { DragDropContext } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 
@@ -7,6 +9,7 @@ import { ClassDetails } from "@/types/types";
 
 import Column from "./Column";
 import NewColumn from "./NewColumn";
+import WarningModal from "./WarningModal";
 
 import { supabaseBrowserClient } from "@/utils/supabase/client";
 
@@ -19,6 +22,9 @@ const SubjectReportGroups = ({
   updateClassDataState: (newData: ClassDetails) => void;
   displayedSubjectId: number | undefined;
 }) => {
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
+
   const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
     (s) => s.id === displayedSubjectId
   );
@@ -159,7 +165,28 @@ const SubjectReportGroups = ({
           error instanceof Error ? error.message : "Unknown error occurred"
         }`
       );
+      setShowWarningModal(true);
+      const student = displayedSubjectReportGroups
+        .flatMap((group) => group.class_subject_group_student)
+        .find((student) => student.student.id === Number(studentId))?.student;
+      const oldColumnName = displayedSubjectReportGroups.find(
+        (group) => group.id === Number(oldColumnId)
+      )?.report_group.description;
+      const newColumnName = displayedSubjectReportGroups.find(
+        (group) => group.id === Number(newColumnId)
+      )?.report_group.description;
+
+      setWarningMessage(
+        `Failed to save ${student?.forename} ${student?.surname.slice(
+          0,
+          1
+        )}'s move from the ${oldColumnName} group to ${newColumnName}. Please try again. Contact support if the problem persists.`
+      );
     }
+  }
+
+  function updateShowWarningModal(bool: boolean) {
+    setShowWarningModal(bool);
   }
 
   return (
@@ -198,6 +225,12 @@ const SubjectReportGroups = ({
             </div>
           </DragDropContext>
         </>
+      )}
+      {showWarningModal && (
+        <WarningModal
+          message={warningMessage}
+          updateShowModal={updateShowWarningModal}
+        />
       )}
     </>
   );
