@@ -16,6 +16,7 @@ import WriteReportModal from "./WriteReportModal";
 
 import { supabaseBrowserClient } from "@/utils/supabase/client";
 import deepClone from "@/utils/functions/deepClone";
+import WarningModal from "./WarningModal";
 
 interface ColumnProps {
   group: ClassSubjectGroup;
@@ -33,13 +34,11 @@ const Column = ({
   displayedSubjectIndex,
 }: ColumnProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showWarningModal, setWarningModal] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
 
   const supabase = supabaseBrowserClient();
-
-  function updateShowDeleteModal(bool: boolean) {
-    setShowDeleteModal(bool);
-  }
 
   function deleteColumn() {
     deleteReportGroupFromDB();
@@ -110,6 +109,20 @@ const Column = ({
     updateShowDeleteModal(false);
   }
 
+  function updateShowDeleteModal(bool: boolean) {
+    if (group.class_subject_group_student.length === 0 || bool === false)
+      setShowDeleteModal(bool);
+    else
+      setWarningModal(true),
+        setWarningMessage(
+          `The ${group.report_group.description} report group has students assigned. Please reassign them before deleting the group`
+        );
+  }
+
+  function updateShowWarningModal(bool: boolean) {
+    setWarningModal(bool);
+  }
+
   function updateShowReportModal(bool: boolean) {
     setShowReportModal(bool);
   }
@@ -125,6 +138,12 @@ const Column = ({
           group={group}
           updateShowDeleteModal={updateShowDeleteModal}
           deleteColumn={deleteColumn}
+        />
+      )}
+      {showWarningModal && (
+        <WarningModal
+          message={warningMessage}
+          updateShowModal={updateShowWarningModal}
         />
       )}
       <div className="border-2 border-slate-500 rounded-lg min-w-36 md:min-w-72 p-2 pb-8 h-full relative">
