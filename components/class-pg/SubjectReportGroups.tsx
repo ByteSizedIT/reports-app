@@ -25,18 +25,20 @@ const SubjectReportGroups = ({
 }) => {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
-  const [reportsComplete, setReportsComplete] = useState(() =>
+  const [groupReportsComplete, setGroupReportsComplete] = useState(() =>
     classDataState[0].class_subject
       .flatMap((subject) => subject.class_subject_group)
+      .filter((subject) => subject.report_group.description !== "Class Default")
       .every((group) => group.group_comment !== null)
   );
 
   useEffect(() => {
-    setReportsComplete(
-      classDataState[0].class_subject
-        .flatMap((subject) => subject.class_subject_group)
-        .every((group) => group.group_comment !== null)
-    );
+    const reportsWritten = classDataState[0].class_subject
+      .flatMap((subject) => subject.class_subject_group)
+      .filter((subject) => subject.report_group.description !== "Class Default")
+      .every((group) => group.group_comment !== null);
+
+    setGroupReportsComplete(reportsWritten);
   }, [classDataState]);
 
   const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
@@ -238,7 +240,7 @@ const SubjectReportGroups = ({
               </div>
             </div>
           </DragDropContext>
-          {reportsComplete && (
+          {groupReportsComplete && (
             <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
               <button className="py-1 px-2 m-2 w-40 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50">
                 Pupil Reports
