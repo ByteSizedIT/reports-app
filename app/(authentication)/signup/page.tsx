@@ -35,7 +35,9 @@ export default function Login({
           </label>
           <input
             className="rounded-md px-4 py-2 bg-inherit border mb-6"
+            type="email"
             name="email"
+            autoComplete="username"
             placeholder="you@example.com"
             required
           />
@@ -46,6 +48,7 @@ export default function Login({
             className="rounded-md px-4 py-2 bg-inherit border mb-6"
             type="password"
             name="password"
+            autoComplete="new-password"
             placeholder="••••••••"
             required
           />
