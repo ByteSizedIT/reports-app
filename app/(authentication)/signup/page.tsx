@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server-client";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export default function Login({
@@ -13,8 +14,11 @@ export default function Login({
 
     console.log(formData);
     const origin = headers().get("origin");
+
+    // TODO: Validate inputs instead of casting types
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+
     const supabase = createClient();
 
     const { error } = await supabase.auth.signUp({
@@ -28,7 +32,7 @@ export default function Login({
     if (error) {
       return redirect("/signup?message=Could not authenticate user");
     }
-
+    revalidatePath("/", "layout");
     return redirect("/signup?message=Check email to continue sign in process");
   };
 
