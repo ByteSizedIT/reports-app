@@ -1,3 +1,4 @@
+import FormSubmitButton from "@/components/authentication/FormSubmitButton";
 import { logIn } from "../actions";
 import Link from "next/link";
 
@@ -29,7 +30,10 @@ export default function Login({
         Back
       </Link>
       <div className="flex flex-col w-full justify-center items-center">
-        <form className="animate-in flex-1 flex flex-col md:w-full max-w-lg justify-center gap-2 py-6 text-foreground">
+        <form
+          className="animate-in flex-1 flex flex-col md:w-full max-w-lg justify-center gap-2 py-6 text-foreground"
+          action={logIn}
+        >
           <label className="text-md" htmlFor="email">
             Email
           </label>
@@ -52,12 +56,7 @@ export default function Login({
             placeholder="••••••••"
             required
           />
-          <button
-            formAction={logIn}
-            className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2"
-          >
-            Log In
-          </button>
+          <FormSubmitButton buttonLabel="Log In" />
           <p className="text-center text-sm text-foreground/50">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-white">
@@ -72,6 +71,5 @@ export default function Login({
         </form>
       </div>
     </>
-    // </div>
   );
 }
