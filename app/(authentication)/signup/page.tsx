@@ -1,13 +1,17 @@
+"use client";
+
+import { useFormState } from "react-dom";
+
 import FormSubmitButton from "@/components/authentication/FormSubmitButton";
 
 import { signUp } from "../actions";
 import Link from "next/link";
 
-export default function Login({
-  searchParams,
-}: {
-  searchParams: { message: string };
-}) {
+const initialState = { errorMessage: "", infoMessage: "" };
+
+export default function Login() {
+  const [state, formAction] = useFormState(signUp, initialState);
+
   return (
     <>
       <Link
@@ -32,8 +36,8 @@ export default function Login({
       </Link>
       <div className="flex flex-col w-full justify-center items-center">
         <form
-          className="animate-in flex-1 flex flex-col md:w-full max-w-lg justify-center gap-2 py-6 text-foreground"
-          action={signUp}
+          className="animate-in flex-1 flex flex-col md:w-full max-w-lg justify-center gap-2 py-12 text-foreground"
+          action={formAction}
         >
           <label className="text-md" htmlFor="email">
             Email
@@ -58,18 +62,30 @@ export default function Login({
             required
           />
           <FormSubmitButton buttonLabel="Sign Up" />
+          {state?.errorMessage && (
+            <p
+              className="p-2 bg-foreground/10 text-foreground text-center text-sm text-red-500"
+              aria-live="assertive"
+            >
+              {state.errorMessage}
+            </p>
+          )}
+
+          {state?.infoMessage && (
+            <p
+              className="p-2 bg-foreground/10 text-foreground text-center"
+              aria-live="assertive"
+            >
+              {state.infoMessage}
+            </p>
+          )}
+
           <p className="text-center text-sm text-foreground/50">
             Already have an account?{" "}
             <Link href="/login" className="text-white">
               Log In Now
             </Link>
           </p>
-
-          {searchParams?.message && (
-            <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
-              {searchParams.message}
-            </p>
-          )}
         </form>
       </div>
     </>

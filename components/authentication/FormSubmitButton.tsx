@@ -6,12 +6,19 @@ import { useFormStatus } from "react-dom";
 const FormSubmitButton = ({ buttonLabel }: { buttonLabel: string }) => {
   const { pending } = useFormStatus();
   return (
-    <button
-      className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2 aria-disabled:opacity-50"
-      aria-disabled={pending}
-    >
-      {buttonLabel}
-    </button>
+    <>
+      <button
+        className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2 disabled:opacity-50"
+        disabled={pending}
+        aria-live="off"
+        aria-atomic="true"
+      >
+        {pending ? "Submitting" : buttonLabel}
+      </button>
+      {/* <p className="sr-only" aria-live="assertive">
+        {pending ? "logging in" : "login failed"}
+      </p> */}
+    </>
   );
 };
 export default FormSubmitButton;

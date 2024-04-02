@@ -5,8 +5,26 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
-export async function logIn(formData: FormData) {
-  // TODO: Validate inputs instead of casting types
+import { FormDataSchema } from "@/schemas/zod";
+
+export async function logIn(
+  state: { errorMessage: string },
+  formData: FormData
+) {
+  const result = FormDataSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!result?.success) {
+    console.log(
+      `Error running LogIn server action. Error: ${result.error.message}`
+    );
+    return {
+      errorMessage: `⚠️ ${JSON.parse(result.error.message)[0].message}`,
+    };
+  }
+
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -22,18 +40,34 @@ export async function logIn(formData: FormData) {
       `Error running LogIn server action for ${email}. Error: ${error}`
     );
     // TODO: Send to logging service, e.g Sentry
-    return redirect("/login?message=Could not authenticate user");
+    // return redirect("/login?message=Could not authenticate user");
+    return { errorMessage: `⚠️ Could not authenticate user: ${error.message}` };
   }
   revalidatePath("/", "layout");
   return redirect("/");
 }
 
-export async function signUp(formData: FormData) {
-  "use server";
+export async function signUp(
+  state: { errorMessage: string; infoMessage: string },
+  formData: FormData
+) {
+  const result = FormDataSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!result?.success) {
+    console.log(
+      `Error running LogIn server action. Error: ${result.error.message}`
+    );
+    return {
+      errorMessage: `⚠️ ${JSON.parse(result.error.message)[0].message}`,
+      infoMessage: "",
+    };
+  }
 
   const origin = headers().get("origin");
 
-  // TODO: Validate inputs instead of casting types
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -52,8 +86,16 @@ export async function signUp(formData: FormData) {
       `Error running signUp server action for ${email}. Error: ${error}`
     );
     // TODO: Send to logging service, e.g Sentry
-    return redirect("/signup?message=Could not authenticate user");
+    // return redirect("/signup?message=Could not authenticate user");
+    return {
+      errorMessage: `⚠️ Could not authenticate user: ${error.message}`,
+      infoMessage: "",
+    };
   }
   revalidatePath("/", "layout");
-  return redirect("/signup?message=Check email to continue sign in process");
+  // return redirect("/signup?message=Check email to continue sign in process");
+  return {
+    errorMessage: "",
+    infoMessage: `ℹ️ Check email to continue sign in process`,
+  };
 }
