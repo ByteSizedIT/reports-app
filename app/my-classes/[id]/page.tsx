@@ -1,6 +1,6 @@
 import { supabaseStaticClient } from "@/utils/supabase/static";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server-client";
 import { cookies } from "next/headers";
 
 // import { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
@@ -28,7 +28,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
 
   // Fetch data for given class
 
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   // subject_id, report_group_id student_id
   const classQuery = supabase

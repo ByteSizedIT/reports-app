@@ -1,21 +1,34 @@
-import { createClient } from "@/utils/supabase/server";
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { type EmailOtpType } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/server-client";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-  // The `/auth/callback` route is required for the server-side auth flow implemented
-  // by the Auth Helpers package. It exchanges an auth code for the user's session.
-  // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-sign-in-with-code-exchange
-  const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get("code");
+export async function GET(request: NextRequest) {
+  // When a user clicks their confirmation email link, exchange their secure code for an Auth token.
+  const { searchParams } = new URL(request.url);
+  const token_hash = searchParams.get("token_hash");
+  const type = searchParams.get("type") as EmailOtpType | null;
+  const next = searchParams.get("next") ?? "/";
 
-  if (code) {
-    const cookieStore = cookies();
-    // console.log({ cookieStore });
-    const supabase = createClient(cookieStore);
-    await supabase.auth.exchangeCodeForSession(code);
+  const redirectTo = request.nextUrl.clone();
+  redirectTo.pathname = next;
+  redirectTo.searchParams.delete("token_hash");
+  redirectTo.searchParams.delete("type");
+
+  if (token_hash && type) {
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.verifyOtp({
+      type,
+      token_hash,
+    });
+
+    if (!error) {
+      console.log(`Error confirming account. Error: ${error}`);
+      // TODO: Send to logging service, e.g Sentry
+      redirectTo.searchParams.delete("next");
+      return NextResponse.redirect(redirectTo);
+    }
   }
-
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(requestUrl.origin);
+  redirectTo.pathname = "/account-confirmation-error";
+  return NextResponse.redirect(redirectTo);
 }
