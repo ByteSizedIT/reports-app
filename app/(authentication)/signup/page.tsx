@@ -1,37 +1,16 @@
+"use client";
+
+import { useFormState } from "react-dom";
+
+import FormSubmitButton from "@/components/authentication/FormSubmitButton";
+
+import { signUp } from "../actions";
 import Link from "next/link";
-import { headers, cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 
-export default function Login({
-  searchParams,
-}: {
-  searchParams: { message: string };
-}) {
-  const signUp = async (formData: FormData) => {
-    "use server";
+const initialState = { errorMessage: "", infoMessage: "" };
 
-    console.log(formData);
-    const origin = headers().get("origin");
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${origin}/auth/callback`,
-      },
-    });
-
-    if (error) {
-      return redirect("/signup?message=Could not authenticate user");
-    }
-
-    return redirect("/signup?message=Check email to continue sign in process");
-  };
+export default function Login() {
+  const [state, formAction] = useFormState(signUp, initialState);
 
   return (
     <>
@@ -56,13 +35,18 @@ export default function Login({
         Back
       </Link>
       <div className="flex flex-col w-full justify-center items-center">
-        <form className="animate-in flex-1 flex flex-col md:w-full max-w-lg justify-center gap-2 py-6 text-foreground">
+        <form
+          className="animate-in flex-1 flex flex-col md:w-full max-w-lg justify-center gap-2 py-12 text-foreground"
+          action={formAction}
+        >
           <label className="text-md" htmlFor="email">
             Email
           </label>
           <input
             className="rounded-md px-4 py-2 bg-inherit border mb-6"
+            type="email"
             name="email"
+            autoComplete="username"
             placeholder="you@example.com"
             required
           />
@@ -73,30 +57,37 @@ export default function Login({
             className="rounded-md px-4 py-2 bg-inherit border mb-6"
             type="password"
             name="password"
+            autoComplete="new-password"
             placeholder="••••••••"
             required
           />
-          <button
-            formAction={signUp}
-            className="bg-green-700  rounded-md px-4 py-2 text-foreground mb-2"
-          >
-            Sign Up
-          </button>
+          <FormSubmitButton buttonLabel="Sign Up" />
+          {state?.errorMessage && (
+            <p
+              className="p-2 bg-foreground/10 text-foreground text-center text-sm text-red-500"
+              aria-live="assertive"
+            >
+              {state.errorMessage}
+            </p>
+          )}
+
+          {state?.infoMessage && (
+            <p
+              className="p-2 bg-foreground/10 text-foreground text-center"
+              aria-live="assertive"
+            >
+              {state.infoMessage}
+            </p>
+          )}
+
           <p className="text-center text-sm text-foreground/50">
-            Have an account?{" "}
+            Already have an account?{" "}
             <Link href="/login" className="text-white">
               Log In Now
             </Link>
           </p>
-
-          {searchParams?.message && (
-            <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
-              {searchParams.message}
-            </p>
-          )}
         </form>
       </div>
-      {/* </div> */}
     </>
   );
 }
