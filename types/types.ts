@@ -1,11 +1,22 @@
+export type SubjectDetails = {
+  organisation_id: number;
+  subject: Subject;
+}[];
+
+export interface Subject {
+  id: number;
+  description: string;
+}
+
 export type ClassDetails = {
   id: any;
   description: any;
   academic_year_end: any;
   year_group: any;
+  organisation_id: any;
   class_subject: {
     id: any;
-    subject: { id: number; description: string };
+    subject: Subject;
     class_subject_group: Array<ClassSubjectGroup>;
   }[];
 }[];

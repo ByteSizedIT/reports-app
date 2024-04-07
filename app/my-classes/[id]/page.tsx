@@ -1,36 +1,31 @@
-import { supabaseStaticClient } from "@/utils/supabase/static";
+import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server-client";
-import { cookies } from "next/headers";
 
 // import { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
 
-import { ClassDetails } from "@/types/types";
+import { ClassDetails, SubjectDetails } from "@/types/types";
 
 import ClientComponent from "@/components/class-pg/ClientComponent";
 
-export const generateStaticParams = async () => {
-  const supabase = supabaseStaticClient();
-  const { data: classes } = await supabase.from("class").select("id::text");
-  // nb "id::text" is SQL syntax to cast id as string, or data type of text, similar to what cld be achieved using JS below
-  // const { data: classes } = await supabase.from("class").select("id");
-  // const stringIDs = classes?.map((c) => {
-  //   id: c.id.toString();
-  // });
-  // return stringIds ?? [];
-  return classes ?? [];
-};
-
-export const revalidate = 0;
-
 const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
-  const cookieStore = cookies();
-
-  // Fetch data for given class
-
   const supabase = createClient();
 
-  // subject_id, report_group_id student_id
+  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  // Protect page, checking users's organisation matches that requested
+  const userQuery = supabase.from("user_info").select("*").eq("uuid", user.id);
+  const { data: userInfoData, error: userInfoError } = await userQuery;
+  // TODO: add error handling
+
+  // Fetch data for given class
   const classQuery = supabase
     .from("class")
     .select(
@@ -39,6 +34,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
       description, 
       academic_year_end, 
       year_group, 
+      organisation_id,
       class_subject(
         id, 
         subject(*),
@@ -56,13 +52,32 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     .eq("id", id)
     .returns<ClassDetails>();
   // type ClassSubjectGroups = QueryData<typeof classQuery>;
-
   const { data: classData, error } = await classQuery;
+  // TODO: add error handling
 
   console.log(
     classData?.map((item) => ({
       ...item,
       class_subject: JSON.stringify(item.class_subject),
+    }))
+  );
+
+  if (classData?.[0]?.organisation_id !== userInfoData?.[0]?.organisation_id) {
+    notFound();
+  }
+
+  const organisationSubjectQuery = supabase
+    .from("organisation_subject")
+    .select("organisation_id, subject(*)")
+    .eq("organisation_id", userInfoData?.[0]?.organisation_id)
+    .returns<SubjectDetails | null>();
+  const { data: organisationSubjectData, error: subjectError } =
+    await organisationSubjectQuery;
+  // TODO: add error handling
+
+  console.log(
+    organisationSubjectData?.map((item) => ({
+      ...item,
     }))
   );
 
@@ -77,3 +92,10 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
 };
 
 export default ClassPage;
+
+// *
+// https://supabase.com/docs/guides/auth/server-side/nextjs
+// Be careful when protecting pages. The server gets the user session from the cookies, which can be spoofed by anyone.
+// Always use supabase.auth.getUser() to protect pages and user data.
+// Never trust supabase.auth.getSession() inside Server Components. It isn't guaranteed to revalidate the Auth token.
+// It's safe to trust getUser() because it sends a request to the Supabase Auth server every time to revalidate the Auth token.
