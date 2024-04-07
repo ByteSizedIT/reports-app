@@ -2,14 +2,14 @@
 
 import ModalOuter from "../modal-parent-components/ModalOuter";
 import ModalInnerConfirmation from "../modal-parent-components/ModalInnerConfirmation";
-import { ClassSubjectGroup } from "@/types/types";
+import { ClassSubjectGroupStudent } from "@/types/types";
 
 const DeleteColumnModal = ({
   group,
   updateShowDeleteModal,
   deleteColumn,
 }: {
-  group: ClassSubjectGroup;
+  group: ClassSubjectGroupStudent;
   updateShowDeleteModal: (bool: boolean) => void;
   deleteColumn: () => void;
 }) => {

@@ -2,7 +2,7 @@
 
 import ModalOuter from "../modal-parent-components/ModalOuter";
 import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
-import { ClassSubjectGroup } from "@/types/types";
+import { ClassSubjectGroupStudent } from "@/types/types";
 
 const WriteReportModal = ({
   group,
@@ -10,7 +10,7 @@ const WriteReportModal = ({
   saveReportToState,
   thisClassDataState,
 }: {
-  group: ClassSubjectGroup;
+  group: ClassSubjectGroupStudent;
   updateShowReportModal: (bool: boolean) => void;
   saveReportToState: () => void;
   thisClassDataState: {

@@ -86,7 +86,12 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
       <h1 className="text-center">
         {`${classData?.[0]?.description} (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
       </h1>
-      {classData && <ClientComponent classData={classData} />}
+      {classData && (
+        <ClientComponent
+          classData={classData}
+          organisationSubjectData={organisationSubjectData}
+        />
+      )}
     </div>
   );
 };

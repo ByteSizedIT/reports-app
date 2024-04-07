@@ -1,16 +1,31 @@
 "use client";
 
-import { ClassDetails } from "@/types/types";
+import { useState } from "react";
+
+import { ClassDetails, SubjectDetails } from "@/types/types";
+import AddSubjectModal from "./AddSubjectModal";
 
 const Subjects = ({
+  organisationSubjectDataState,
+  updateOrganisationSubjectDataState,
   classDataState,
+  updateClassDataState,
   displayedSubjectId,
-  updateDisplayedSubject,
+  updateDisplayedSubjectId,
 }: {
+  organisationSubjectDataState: SubjectDetails | [];
+  updateOrganisationSubjectDataState: (newData: SubjectDetails) => void;
   classDataState: ClassDetails;
+  updateClassDataState: (newData: ClassDetails) => void;
   displayedSubjectId: number | undefined;
-  updateDisplayedSubject: (id: number) => void;
+  updateDisplayedSubjectId: (id: number) => void;
 }) => {
+  const [showSubjectModal, setshowSubjectModal] = useState(false);
+
+  function updateShowSubjectModal(bool: boolean) {
+    setshowSubjectModal(bool);
+  }
+
   return (
     <>
       <p className="mb-2">Select or add a subject to report...</p>
@@ -26,7 +41,7 @@ const Subjects = ({
                    ? "border-2 border-green-700"
                    : "border border-slate-500"
                }  rounded-md no-underline bg-btn-background hover:bg-btn-background-hover`}
-                onClick={() => updateDisplayedSubject(c.id)}
+                onClick={() => updateDisplayedSubjectId(c.id)}
               >
                 {c.subject.description}
               </button>
@@ -36,11 +51,23 @@ const Subjects = ({
           className="px-2 rounded-md no-underline bg-green-700 hover:bg-green-800"
           onClick={() => {
             console.log("Add subject Clicked: functionality to be added");
+            updateShowSubjectModal(true);
           }}
         >
           {"+"}
         </button>
       </div>
+      {showSubjectModal && (
+        <AddSubjectModal
+          organisationSubjectDataState={organisationSubjectDataState}
+          updateOrganisationSubjectDataState={
+            updateOrganisationSubjectDataState
+          }
+          updateShowSubjectModal={updateShowSubjectModal}
+          classDataState={classDataState}
+          updateClassDataState={updateClassDataState}
+        />
+      )}
     </>
   );
 };

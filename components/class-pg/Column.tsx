@@ -7,7 +7,7 @@ import { Droppable } from "@hello-pangea/dnd";
 import { MdDeleteForever } from "react-icons/md";
 import { FaPen } from "react-icons/fa";
 
-import { ClassDetails, ClassSubjectGroup } from "@/types/types";
+import { ClassDetails, ClassSubjectGroupStudent } from "@/types/types";
 
 import StudentEntry from "./Student";
 
@@ -19,7 +19,7 @@ import deepClone from "@/utils/functions/deepClone";
 import WarningModal from "./WarningModal";
 
 interface ColumnProps {
-  group: ClassSubjectGroup;
+  group: ClassSubjectGroupStudent;
   reportButton?: boolean;
   classDataState: ClassDetails;
   updateClassDataState: (newData: ClassDetails) => void;
