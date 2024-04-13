@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ClassDetails, SubjectDetails } from "@/types/types";
+import { ClassDetails, ReportGroup, SubjectDetails } from "@/types/types";
 
 import Subjects from "./Subjects";
 import SubjectReportGroups from "./SubjectReportGroups";
@@ -10,9 +10,11 @@ import SubjectReportGroups from "./SubjectReportGroups";
 const ClientComponent = ({
   classData,
   organisationSubjectData,
+  organisationReportGroupData,
 }: {
   classData: ClassDetails;
   organisationSubjectData: SubjectDetails | null;
+  organisationReportGroupData: Array<ReportGroup> | null;
 }) => {
   const [classDataState, setClassDataState] = useState(classData);
   const [organisationSubjectDataState, setOrganisationSubjectDataState] =
@@ -38,6 +40,7 @@ const ClientComponent = ({
       <Subjects
         organisationSubjectDataState={organisationSubjectDataState}
         updateOrganisationSubjectDataState={updateOrganisationSubjectDataState}
+        organisationReportGroupData={organisationReportGroupData}
         classDataState={classDataState}
         updateClassDataState={updateClassDataState}
         displayedSubjectId={displayedSubjectId}

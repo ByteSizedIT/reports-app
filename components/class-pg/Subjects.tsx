@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 
-import { ClassDetails, SubjectDetails } from "@/types/types";
+import { ClassDetails, ReportGroup, SubjectDetails } from "@/types/types";
 import AddSubjectModal from "./AddSubjectModal";
 
 const Subjects = ({
   organisationSubjectDataState,
   updateOrganisationSubjectDataState,
+  organisationReportGroupData,
   classDataState,
   updateClassDataState,
   displayedSubjectId,
@@ -15,6 +16,7 @@ const Subjects = ({
 }: {
   organisationSubjectDataState: SubjectDetails | [];
   updateOrganisationSubjectDataState: (newData: SubjectDetails) => void;
+  organisationReportGroupData: Array<ReportGroup> | null;
   classDataState: ClassDetails;
   updateClassDataState: (newData: ClassDetails) => void;
   displayedSubjectId: number | undefined;
@@ -63,9 +65,11 @@ const Subjects = ({
           updateOrganisationSubjectDataState={
             updateOrganisationSubjectDataState
           }
+          organisationReportGroupData={organisationReportGroupData}
           updateShowSubjectModal={updateShowSubjectModal}
           classDataState={classDataState}
           updateClassDataState={updateClassDataState}
+          updateDisplayedSubjectId={updateDisplayedSubjectId}
         />
       )}
     </>

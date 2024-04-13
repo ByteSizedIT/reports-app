@@ -1,4 +1,4 @@
-// Database query types
+// Database query only types
 
 export type SubjectDetails = Array<{
   organisation_id: number;
@@ -11,6 +11,10 @@ export type ClassDetails = Array<{
   academic_year_end: any;
   year_group: any;
   organisation_id: any;
+  class_student: Array<{
+    class_id: number;
+    student_id: number;
+  }>;
   class_subject: Array<{
     id: any;
     subject: Subject;
@@ -27,7 +31,7 @@ export type ClassSubjectGroupStudent = {
   }>;
 };
 
-// Datanase table interfaces
+// Database table interfaces
 
 export interface Subject {
   id: number;

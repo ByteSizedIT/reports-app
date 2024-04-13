@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server-client";
 
 // import { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
 
-import { ClassDetails, SubjectDetails } from "@/types/types";
+import { ClassDetails, SubjectDetails, ReportGroup } from "@/types/types";
 
 import ClientComponent from "@/components/class-pg/ClientComponent";
 
@@ -35,6 +35,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
       academic_year_end, 
       year_group, 
       organisation_id,
+      class_student(*),
       class_subject(
         id, 
         subject(*),
@@ -58,6 +59,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   console.log(
     classData?.map((item) => ({
       ...item,
+      class_student: JSON.stringify(item.class_student),
       class_subject: JSON.stringify(item.class_subject),
     }))
   );
@@ -81,6 +83,17 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     }))
   );
 
+  const organisationReportGroupQuery = supabase
+    .from("report_group")
+    .select("*")
+    .eq("organisation_id", userInfoData?.[0]?.organisation_id)
+    .returns<Array<ReportGroup> | null>();
+  const { data: organisationReportGroupData, error: reportGroupError } =
+    await organisationReportGroupQuery;
+  // TODO: add error handling
+
+  console.log(organisationReportGroupData?.map((item) => ({ ...item })));
+
   return (
     <div className="w-full mt-8">
       <h1 className="text-center">
@@ -90,6 +103,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
         <ClientComponent
           classData={classData}
           organisationSubjectData={organisationSubjectData}
+          organisationReportGroupData={organisationReportGroupData}
         />
       )}
     </div>

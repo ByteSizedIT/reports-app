@@ -14,23 +14,27 @@ import {
   OrganisationSubject,
   ClassSubject,
   ClassSubjectGroup,
+  ReportGroup,
 } from "@/types/types";
 
 import { supabaseBrowserClient } from "../../utils/supabase/client";
-import deepClone from "@/utils/functions/deepClone";
 
 const AddSubjectModal = ({
   organisationSubjectDataState,
   updateOrganisationSubjectDataState,
+  organisationReportGroupData,
   updateShowSubjectModal,
   classDataState,
   updateClassDataState,
+  updateDisplayedSubjectId,
 }: {
   organisationSubjectDataState: SubjectDetails | [];
   updateOrganisationSubjectDataState: (newData: SubjectDetails) => void;
+  organisationReportGroupData: Array<ReportGroup> | null;
   updateShowSubjectModal: (bool: boolean) => void;
   classDataState: ClassDetails;
   updateClassDataState: (newData: ClassDetails) => void;
+  updateDisplayedSubjectId: (id: number) => void;
 }) => {
   const [newSubject, setNewSubject] = useState<boolean>(false);
   const [subject, setSubject] = useState<{
@@ -58,6 +62,9 @@ const AddSubjectModal = ({
       }) || []
   );
 
+  const organisationClassRegisterReportGroup =
+    organisationReportGroupData?.sort((a, b) => a.id - b.id)[0];
+
   const supabase = supabaseBrowserClient();
 
   async function handleSaveSubject() {
@@ -83,35 +90,77 @@ const AddSubjectModal = ({
     updateOrganisationSubjectDataState(copyOrganisationSubjectState);
   }
 
-  function addClassSubjectToClassDataState(
+  async function updateState(
+    insertedSubjectData: Subject,
+    insertedClassSubjectData: ClassSubject,
+    insertedOrganisationSubjectData?: OrganisationSubject
+  ) {
+    // Fetch data for given class
+    const classQuery = supabase
+      .from("class")
+      .select(
+        `
+    id, 
+    description, 
+    academic_year_end, 
+    year_group, 
+    organisation_id,
+    class_student(*),
+    class_subject(
+      id, 
+      subject(*),
+      class_subject_group(
+        id,
+        group_comment, 
+        report_group(*),
+        class_subject_group_student(
+          student(*)
+        )
+      )
+    )
+      `
+      )
+      .eq("id", classDataState?.[0].id)
+      .returns<ClassDetails>();
+    // type ClassSubjectGroups = QueryData<typeof classQuery>;
+    const { data: classData, error } = await classQuery;
+    // TODO: add error handling
+
+    if (classData) updateClassDataState(classData);
+    if (insertedOrganisationSubjectData)
+      addToOrganisationSubjectDataState(insertedSubjectData);
+    updateDisplayedSubjectId(insertedClassSubjectData.id);
+  }
+
+  async function insertClassStudentRegister(
     insertedSubjectData: Subject,
     insertedClassSubjectData: ClassSubject,
     insertedClassSubjectGroupData: ClassSubjectGroup,
     insertedOrganisationSubjectData?: OrganisationSubject
   ) {
-    const copyGroupedSubjectDataState = deepClone(classDataState);
-    copyGroupedSubjectDataState[0].class_subject.push({
-      id: insertedClassSubjectData.id,
-      subject: {
-        id: insertedSubjectData.id,
-        description: insertedSubjectData.description,
-      },
-      class_subject_group: [
-        {
-          id: insertedClassSubjectGroupData.id,
-          report_group: {
-            id: insertedClassSubjectGroupData.report_group_id,
-            description: "Class Register",
-            organisation_id: classDataState[0].organisation_id,
-          },
-          group_comment: insertedClassSubjectGroupData.group_comment,
-          class_subject_group_student: [],
-        },
-      ],
-    });
-    updateClassDataState(copyGroupedSubjectDataState);
-    if (insertedOrganisationSubjectData) {
-      addToOrganisationSubjectDataState(insertedSubjectData);
+    let classStudents = classDataState[0].class_student.map((student) => ({
+      student_comment: null,
+      class_subject_group_id: insertedClassSubjectGroupData.id,
+      student_id: student.student_id,
+    }));
+    try {
+      const { data: insertedClassSubjectGroupStudentData } = await supabase
+        .from("class_subject_group_student")
+        .insert(classStudents)
+        .select();
+      updateState(
+        insertedSubjectData,
+        insertedClassSubjectData,
+        insertedOrganisationSubjectData
+      );
+    } catch (error) {
+      console.error(
+        `Error occurred adding students for ${
+          subject?.label
+        } to class_student table in Supabase: ${
+          error instanceof Error ? error.message : ""
+        }`
+      );
     }
   }
 
@@ -121,17 +170,17 @@ const AddSubjectModal = ({
     insertedOrganisationSubjectData?: OrganisationSubject
   ) {
     try {
-      const response = await supabase
+      const { data: insertedClassSubjectGroupData } = await supabase
         .from("class_subject_group")
         .insert({
           group_comment: null,
           class_subject_id: insertedClassSubjectData.id,
-          report_group_id: 138, // Class Register report_group ID is 138; TODO: extract Class Register from report_groups table and manage separately with pupil names associated, still rendering it as the first 'Report Group' column for puils to be dragged and dropped from
+          report_group_id: organisationClassRegisterReportGroup?.id,
         })
         .select()
         .single();
-      const { data: insertedClassSubjectGroupData } = response;
-      addClassSubjectToClassDataState(
+
+      insertClassStudentRegister(
         insertedSubjectData,
         insertedClassSubjectData,
         insertedClassSubjectGroupData,
