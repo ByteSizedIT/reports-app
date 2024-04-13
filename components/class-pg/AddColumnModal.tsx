@@ -7,7 +7,11 @@ import CreatableSelect from "react-select/creatable";
 import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 import ModalOuter from "../modal-parent-components/ModalOuter";
 
-import { ReportGroup, ClassDetails, ClassSubjectGroup } from "@/types/types";
+import {
+  ClassDetails,
+  ClassSubjectGroupStudent,
+  ReportGroup,
+} from "@/types/types";
 
 import { supabaseBrowserClient } from "../../utils/supabase/client";
 import deepClone from "@/utils/functions/deepClone";
@@ -39,11 +43,11 @@ const AddColumnModal = ({
       .flatMap((subject) => subject.class_subject_group)
       .map((group) => {
         return {
-          label: group.report_group.description,
+          label: group.report_group?.description,
           value: {
-            id: group.report_group.id,
-            description: group.report_group.description,
-            organisation_id: group.report_group.organisation_id,
+            id: group.report_group?.id,
+            description: group.report_group?.description,
+            organisation_id: group.report_group?.organisation_id,
           },
         };
       })
@@ -65,7 +69,7 @@ const AddColumnModal = ({
 
   function addClassSubjectGroupToClassDataState(
     newReportGroup: ReportGroup,
-    newClassSubjectGroup: ClassSubjectGroup
+    newClassSubjectGroup: ClassSubjectGroupStudent
   ) {
     const copyGroupedSubjectDataState = deepClone(classDataState);
     copyGroupedSubjectDataState[0].class_subject[
@@ -94,14 +98,10 @@ const AddColumnModal = ({
         ])
         .select()
         .single();
-      if (error) {
-        throw new Error(`Error adding class_subject_group: ${error.message}`);
-      } else {
-        addClassSubjectGroupToClassDataState(
-          newReportGroup,
-          newClassSubjectGroup
-        );
-      }
+      addClassSubjectGroupToClassDataState(
+        newReportGroup,
+        newClassSubjectGroup
+      );
     } catch (error) {
       console.error(
         error instanceof Error ? error.message : "Unknown error occurred"
@@ -121,12 +121,7 @@ const AddColumnModal = ({
         ])
         .select()
         .single();
-
-      if (error) {
-        throw new Error(`Error adding report_group: ${error.message}`);
-      } else {
-        addClassSubjectGroupToSupabase(newReportGroup);
-      }
+      addClassSubjectGroupToSupabase(newReportGroup);
     } catch (error) {
       console.error(
         error instanceof Error ? error.message : "Unknown error occurred"
@@ -142,10 +137,10 @@ const AddColumnModal = ({
     } = {
       label: inputValue,
       value: {
-        id: 0, //
+        id: 0, // temp value
         organisation_id:
           classDataState[0].class_subject[displayedSubjectIndex]
-            .class_subject_group[0].report_group.organisation_id,
+            .class_subject_group[0]?.report_group?.organisation_id,
         description: inputValue,
       },
     };
@@ -169,6 +164,7 @@ const AddColumnModal = ({
         <div className="flex-1 flex flex-col justify-center items-center">
           <label htmlFor="columnName">Group Name: </label>
           <CreatableSelect
+            id="columnName"
             isClearable
             isDisabled={isLoading}
             isLoading={isLoading}
