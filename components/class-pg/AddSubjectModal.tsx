@@ -18,6 +18,7 @@ import {
 } from "@/types/types";
 
 import { supabaseBrowserClient } from "../../utils/supabase/client";
+import { capitaliseEachWord } from "@/utils/functions/capitaliseWords";
 
 const AddSubjectModal = ({
   organisationSubjectDataState,
@@ -257,7 +258,7 @@ const AddSubjectModal = ({
     try {
       const { data: insertedSubjectData } = await supabase
         .from("subject")
-        .insert({ description: subject?.label })
+        .insert({ description: capitaliseEachWord(subject?.label ?? "") })
         .select()
         .single();
       insertOrganisationSubjectInSupabase(insertedSubjectData);

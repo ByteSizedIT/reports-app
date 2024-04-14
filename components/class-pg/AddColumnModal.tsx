@@ -15,6 +15,7 @@ import {
 
 import { supabaseBrowserClient } from "../../utils/supabase/client";
 import deepClone from "@/utils/functions/deepClone";
+import { capitaliseEachWord } from "@/utils/functions/capitaliseWords";
 
 const AddColumnModal = ({
   updateShowAddModal,
@@ -116,7 +117,7 @@ const AddColumnModal = ({
         .insert([
           {
             organisation_id: column?.value.organisation_id,
-            description: column?.value.description,
+            description: capitaliseEachWord(column?.value.description ?? ""),
           },
         ])
         .select()
