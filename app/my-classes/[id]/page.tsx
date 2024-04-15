@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/server-client";
 import { SubjectDetails, ReportGroup } from "@/types/types";
 
 import ClientComponent from "@/components/class-pg/ClientComponent";
+import { getOrganisationSubjects } from "@/utils/supabase/db-server-queries/getOrganisationSubjects";
 
 const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   const supabase = createClient();
@@ -30,19 +31,8 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     notFound();
   }
 
-  const organisationSubjectQuery = supabase
-    .from("organisation_subject")
-    .select("organisation_id, subject(*)")
-    .eq("organisation_id", userInfoData?.[0]?.organisation_id)
-    .returns<SubjectDetails | null>();
-  const { data: organisationSubjectData, error: subjectError } =
-    await organisationSubjectQuery;
-  // TODO: add error handling
-
-  console.log(
-    organisationSubjectData?.map((item) => ({
-      ...item,
-    }))
+  const organisationSubjectData = await getOrganisationSubjects(
+    userInfoData?.[0].organisation_id
   );
 
   const organisationReportGroupQuery = supabase
