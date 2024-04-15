@@ -19,6 +19,7 @@ import {
 
 import { supabaseBrowserClient } from "../../utils/supabase/client";
 import { capitaliseEachWord } from "@/utils/functions/capitaliseWords";
+import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 
 const AddSubjectModal = ({
   organisationSubjectDataState,
@@ -96,37 +97,7 @@ const AddSubjectModal = ({
     insertedClassSubjectData: ClassSubject,
     insertedOrganisationSubjectData?: OrganisationSubject
   ) {
-    // Fetch data for given class
-    const classQuery = supabase
-      .from("class")
-      .select(
-        `
-    id, 
-    description, 
-    academic_year_end, 
-    year_group, 
-    organisation_id,
-    class_student(*),
-    class_subject(
-      id, 
-      subject(*),
-      class_subject_group(
-        id,
-        group_comment, 
-        report_group(*),
-        class_subject_group_student(
-          student(*)
-        )
-      )
-    )
-      `
-      )
-      .eq("id", classDataState?.[0].id)
-      .returns<ClassDetails>();
-    // type ClassSubjectGroups = QueryData<typeof classQuery>;
-    const { data: classData, error } = await classQuery;
-    // TODO: add error handling
-
+    const classData = await getClassDetails(classDataState?.[0].id);
     if (classData) updateClassDataState(classData);
     if (insertedOrganisationSubjectData)
       addToOrganisationSubjectDataState(insertedSubjectData);
@@ -156,11 +127,7 @@ const AddSubjectModal = ({
       );
     } catch (error) {
       console.error(
-        `Error occurred adding students for ${
-          subject?.label
-        } to class_student table in Supabase: ${
-          error instanceof Error ? error.message : ""
-        }`
+        `Error occurred adding students for ${subject?.label} to class_student table in Supabase: ${error}`
       );
     }
   }

@@ -1,10 +1,10 @@
+import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
+
 import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server-client";
 
-// import { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
-
-import { ClassDetails, SubjectDetails, ReportGroup } from "@/types/types";
+import { SubjectDetails, ReportGroup } from "@/types/types";
 
 import ClientComponent from "@/components/class-pg/ClientComponent";
 
@@ -25,45 +25,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   const { data: userInfoData, error: userInfoError } = await userQuery;
   // TODO: add error handling
 
-  // Fetch data for given class
-  const classQuery = supabase
-    .from("class")
-    .select(
-      `
-      id, 
-      description, 
-      academic_year_end, 
-      year_group, 
-      organisation_id,
-      class_student(*),
-      class_subject(
-        id, 
-        subject(*),
-        class_subject_group(
-          id,
-          group_comment, 
-          report_group(*),
-          class_subject_group_student(
-            student(*)
-          )
-        )
-      )
-        `
-    )
-    .eq("id", id)
-    .returns<ClassDetails>();
-  // type ClassSubjectGroups = QueryData<typeof classQuery>;
-  const { data: classData, error } = await classQuery;
-  // TODO: add error handling
-
-  console.log(
-    classData?.map((item) => ({
-      ...item,
-      class_student: JSON.stringify(item.class_student),
-      class_subject: JSON.stringify(item.class_subject),
-    }))
-  );
-
+  const classData = await getClassDetails(id);
   if (classData?.[0]?.organisation_id !== userInfoData?.[0]?.organisation_id) {
     notFound();
   }
