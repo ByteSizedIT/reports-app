@@ -1,13 +1,12 @@
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
+import { getOrganisationSubjects } from "@/utils/supabase/db-server-queries/getOrganisationSubjects";
+import { getOrganisationReportGroups } from "@/utils/supabase/db-server-queries/getOrganisationReportGroups";
 
 import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server-client";
 
-import { SubjectDetails, ReportGroup } from "@/types/types";
-
 import ClientComponent from "@/components/class-pg/ClientComponent";
-import { getOrganisationSubjects } from "@/utils/supabase/db-server-queries/getOrganisationSubjects";
 
 const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   const supabase = createClient();
@@ -35,16 +34,9 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     userInfoData?.[0].organisation_id
   );
 
-  const organisationReportGroupQuery = supabase
-    .from("report_group")
-    .select("*")
-    .eq("organisation_id", userInfoData?.[0]?.organisation_id)
-    .returns<Array<ReportGroup> | null>();
-  const { data: organisationReportGroupData, error: reportGroupError } =
-    await organisationReportGroupQuery;
-  // TODO: add error handling
-
-  console.log(organisationReportGroupData?.map((item) => ({ ...item })));
+  const organisationReportGroupData = await getOrganisationReportGroups(
+    userInfoData?.[0].organisation_id
+  );
 
   return (
     <div className="w-full mt-8">
