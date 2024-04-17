@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server-client";
+import { createClient } from "@/utils/supabase/clients/serverClient";
 
 // import { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
 import { ClassDetails } from "@/types/types";

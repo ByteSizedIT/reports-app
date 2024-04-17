@@ -13,7 +13,7 @@ import {
   ReportGroup,
 } from "@/types/types";
 
-import { supabaseBrowserClient } from "../../utils/supabase/client";
+import { createClient } from "../../utils/supabase/clients/browserClient";
 import deepClone from "@/utils/functions/deepClone";
 import { capitaliseEachWord } from "@/utils/functions/capitaliseWords";
 
@@ -58,7 +58,7 @@ const AddColumnModal = ({
       )
   );
 
-  const supabase = supabaseBrowserClient();
+  const supabase = createClient();
 
   function handleSaveNewColumn() {
     if (newReportGroup && column) {

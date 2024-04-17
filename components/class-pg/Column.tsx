@@ -14,7 +14,7 @@ import StudentEntry from "./Student";
 import DeleteColumnModal from "./DeleteColumnModal";
 import WriteReportModal from "./WriteReportModal";
 
-import { supabaseBrowserClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/clients/browserClient";
 import deepClone from "@/utils/functions/deepClone";
 import WarningModal from "./WarningModal";
 
@@ -38,7 +38,7 @@ const Column = ({
   const [warningMessage, setWarningMessage] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const supabase = supabaseBrowserClient();
+  const supabase = createClient();
 
   function deleteColumn() {
     deleteReportGroupFromDB();

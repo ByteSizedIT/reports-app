@@ -4,7 +4,7 @@ import { getOrganisationReportGroups } from "@/utils/supabase/db-server-queries/
 
 import { notFound, redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server-client";
+import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import ClientComponent from "@/components/class-pg/ClientComponent";
 

@@ -11,7 +11,7 @@ import Column from "./Column";
 import NewColumn from "./NewColumn";
 import WarningModal from "./WarningModal";
 
-import { supabaseBrowserClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/clients/browserClient";
 import Link from "next/link";
 
 const SubjectReportGroups = ({
@@ -153,7 +153,7 @@ const SubjectReportGroups = ({
     newColumnId: string,
     newColumnIndex: number
   ) {
-    const supabase = supabaseBrowserClient();
+    const supabase = createClient();
     try {
       const { data, error } = await supabase
         .from("class_subject_group_student")

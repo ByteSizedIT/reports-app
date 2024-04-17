@@ -17,7 +17,7 @@ import {
   ReportGroup,
 } from "@/types/types";
 
-import { supabaseBrowserClient } from "../../utils/supabase/client";
+import { createClient } from "../../utils/supabase/clients/browserClient";
 import { capitaliseEachWord } from "@/utils/functions/capitaliseWords";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 
@@ -67,7 +67,7 @@ const AddSubjectModal = ({
   const organisationClassRegisterReportGroup =
     organisationReportGroupData?.sort((a, b) => a.id - b.id)[0];
 
-  const supabase = supabaseBrowserClient();
+  const supabase = createClient();
 
   async function handleSaveSubject() {
     if (newSubject && subject) {

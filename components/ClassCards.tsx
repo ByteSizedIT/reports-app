@@ -5,12 +5,12 @@ import Link from "next/link";
 
 import { FaPlus } from "react-icons/fa";
 
-import { supabaseBrowserClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/clients/browserClient";
 
 export default function ClassCards({ myClasses }: { myClasses: any }) {
   const [classes, setClasses] = useState(myClasses);
 
-  const supabase = supabaseBrowserClient();
+  const supabase = createClient();
 
   //   useEffect(() => {
   //     setClasses(myClasses);
