@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 
-import AuthButton from "@/components/nav-btns/AuthBtn";
-
-import Nav from "@/components/Nav";
+import NavBar from "@/components/nav-bar/NavBar";
 import Footer from "@/components/Footer";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -26,9 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className}>
       <body className="bg-background text-foreground min-h-screen flex flex-col px-8">
-        <Nav>
-          <AuthButton />
-        </Nav>
+        <NavBar />
         <main className="flex flex-1">{children}</main>
         <Footer />
       </body>
