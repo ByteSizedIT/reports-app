@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server-client";
+import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -15,7 +15,6 @@ const MyClasses = async () => {
 
   if (!myClasses) notFound();
 
-  //   return <pre>{JSON.stringify(myClasses, null, 2)}</pre>;
   return (
     <div className="w-full flex flex-col mt-8">
       <h1 className="text-center text-3xl sm:text-4xl font-bold">My Classes</h1>
