@@ -13,7 +13,7 @@ const error = () => {
         If the problem persists and you think it&apos;s an error, please contact
         support
       </p>
-      <p>🤙</p>
+      <p className="text-center">🤙</p>
     </div>
   );
 };
