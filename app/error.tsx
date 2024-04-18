@@ -9,11 +9,11 @@ const error = () => {
       <p className="text-center">
         Return <Link href="/">Home</Link> and try again
       </p>
-      <p>
+      <p className="text-center">
         If the problem persists and you think it&apos;s an error, please contact
         support
       </p>
-      <p>🤙</p>
+      <p className="text-center">🤙</p>
     </div>
   );
 };
