@@ -1,19 +1,32 @@
-import { createClient } from "@/utils/supabase/clients/serverClient";
+import { redirect } from "next/navigation";
 
-import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
+import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import ClassCards from "@/components/ClassCards";
 
-export const revalidate = 0;
-
 const MyClasses = async () => {
-  const cookieStore = cookies();
   const supabase = createClient();
 
-  const { data: myClasses } = await supabase.from("class").select("*");
+  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  if (!myClasses) notFound();
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: userInfo } = await supabase
+    .from("user_info")
+    .select("*")
+    .eq("uuid", user.id)
+    .single();
+
+  const { data: myClasses } = await supabase
+    .from("class")
+    .select("*")
+    .eq("organisation_id", userInfo.organisation_id);
 
   return (
     <div className="w-full flex flex-col mt-8">
