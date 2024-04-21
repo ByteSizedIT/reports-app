@@ -8,7 +8,9 @@ import CardAsLink from "./CardAsLink";
 import CardAsButton from "./CardAsButton";
 import AddNewClassModal from "./AddNewClassModal";
 
-const ClassCards = ({ myClasses }: { myClasses: any }) => {
+import { Class } from "@/types/types";
+
+const ClassCards = ({ myClasses }: { myClasses: Array<Class> | null }) => {
   const [showNewClassModal, setShowNewClassModal] = useState(false);
 
   function updateShowNewClassModal(bool: boolean) {
@@ -24,7 +26,7 @@ const ClassCards = ({ myClasses }: { myClasses: any }) => {
           <FaPlus className="text-green-700 text-2xl sm:text-3xl " />
         </CardAsButton>
 
-        {myClasses.map(
+        {myClasses?.map(
           (c: { id: number; description: string; year_group: string }) => (
             <CardAsLink
               key={c.id}
@@ -38,6 +40,7 @@ const ClassCards = ({ myClasses }: { myClasses: any }) => {
       {showNewClassModal && (
         <AddNewClassModal
           updateShowNewClassModal={updateShowNewClassModal}
+          myClasses={myClasses}
           saveNewClass={saveNewClass}
         />
       )}

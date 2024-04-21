@@ -16,10 +16,10 @@ const ModalInnerAdd = ({
   }
 
   return (
-    <div className="text-black flex flex-col h-full">
-      <h4 className="">{title}</h4>
+    <div className="text-black flex flex-col min-h-full items-center text-xs sm:text-base">
+      <h4>{title}</h4>
       {children}
-      <div className=" ">
+      <div>
         <button
           type="button"
           className="m-1 py-2 px-2 rounded-md no-underline bg-btn-background hover:bg-green-700 focus:bg-green-700  text-white"

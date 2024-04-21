@@ -14,7 +14,7 @@ const ModalOuter = ({
   return (
     <div className="fixed inset-0 z-50 bg-gray-500 bg-opacity-50 flex items-center justify-center">
       <div
-        className={`relative bg-white p-4 border-8 border-green-700 ${height} ${width}`}
+        className={`relative bg-white p-4 border-8 border-green-700 ${height} ${width} overflow-y-auto`}
       >
         <button
           className="absolute text-gray-500 hover:text-black focus:text-black font-bold text-xl md:text-3xl top-0 right-2 leading-none"
