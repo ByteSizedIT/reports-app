@@ -6,12 +6,12 @@ import { MdDeleteForever } from "react-icons/md";
 
 import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
 import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
-import { generateYearsArray } from "@/utils/functions/generateYearsArray";
 
 import ModalOuter from "./modal-parent-components/ModalOuter";
 import ModalInnerAdd from "./modal-parent-components/ModalInnerAdd";
 
 import { Class, PreSaveStudent } from "@/types/types";
+import AddNewStudent from "./AddNewStudent";
 
 const initialAddStudentState = {
   display: false,
@@ -79,26 +79,25 @@ const AddNewClassModal = ({
 
   const addInputToList = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault;
-    if (addStudent.forename !== "" && addStudent.surname !== "") {
-      setStudentList(
-        [
-          ...studentList,
-          {
-            ...addStudent,
-          },
-        ].sort((a, b) => {
-          if (a.surname > b.surname) return 1;
-          if (a.surname < b.surname) return -1;
-          if (a.forename > b.forename) return 1;
-          if (a.forename < b.forename) return -1;
-          return 0;
-        })
-      );
-      setAddStudent({
-        ...initialAddStudentState,
-        organisation_id: organisationId,
-      });
-    }
+    setStudentList(
+      [
+        ...studentList,
+        {
+          ...addStudent,
+        },
+      ].sort((a, b) => {
+        if (a.surname > b.surname) return 1;
+        if (a.surname < b.surname) return -1;
+        if (a.forename > b.forename) return 1;
+        if (a.forename < b.forename) return -1;
+        return 0;
+      })
+    );
+    setAddStudent({
+      ...initialAddStudentState,
+      organisation_id: organisationId,
+      display: true,
+    });
   };
 
   const handleDeleteStudentFromList = (index: number) => {
@@ -230,112 +229,12 @@ const AddNewClassModal = ({
             />
           </div>
           {addStudent.display && (
-            <fieldset className="border border-black p-2 mb-4">
-              <legend>Add New Student</legend>
-              <div className="flex flex-col sm:flex-row">
-                <label htmlFor="firstName" className="sm:w-1/4">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  className="sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
-                  value={addStudent.forename}
-                  onChange={(e) =>
-                    updateAddStudentState(e.target.value.trim(), "forename")
-                  }
-                  placeholder="e.g. Jo"
-                />
-              </div>
-              <div className="w-full flex flex-col items-center sm:flex-row">
-                <label htmlFor="secondName" className="sm:w-1/4">
-                  Second Name
-                </label>
-                <input
-                  type="text"
-                  id="secondName"
-                  className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
-                  value={addStudent.surname}
-                  onChange={(e) =>
-                    updateAddStudentState(e.target.value.trim(), "surname")
-                  }
-                  placeholder="e.g Bloggs"
-                />
-              </div>
-              <div className="flex flex-col md:flex-row items-center mb-4">
-                <label htmlFor="pronouns" className="sm:w-1/4">
-                  Pronouns
-                </label>
-                <select
-                  id="pronouns"
-                  className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={addStudent.pronoun}
-                  onChange={(e) =>
-                    updateAddStudentState(e.target.value, "pronoun")
-                  }
-                >
-                  <option value={""}>Select an option...</option>
-                  {pronouns.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col md:flex-row items-center mb-4">
-                <label htmlFor="className" className="sm:w-1/4">
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  id="className"
-                  className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={addStudent.dob}
-                  onChange={(e) =>
-                    updateAddStudentState(e.target.value.trim(), "dob")
-                  }
-                  placeholder="e.g. Year 6"
-                />
-              </div>
-              <div className="flex flex-col md:flex-row items-center mb-4">
-                <label htmlFor="gradYear" className="sm:w-1/4">
-                  Graduation Year
-                </label>
-                <select
-                  id="gradYear"
-                  className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={addStudent.grad_year}
-                  onChange={(e) =>
-                    updateAddStudentState(e.target.value.trim(), "grad_year")
-                  }
-                >
-                  <option value={""}>Select an option...</option>
-                  {generateYearsArray(6).map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="text-center">
-                <button
-                  type="button"
-                  className={`px-2 rounded-md no-underline border border-black ${
-                    addStudent.forename.length === 0 ||
-                    addStudent.surname.length === 0
-                      ? "disabled:bg-slate-300"
-                      : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
-                  }`}
-                  onClick={(e) => addInputToList(e)}
-                  disabled={
-                    addStudent.forename.length === 0 ||
-                    addStudent.surname.length === 0
-                  }
-                >
-                  Add Student
-                </button>
-              </div>
-            </fieldset>
+            <AddNewStudent
+              addStudentState={addStudent}
+              updateAddStudentState={updateAddStudentState}
+              pronounsState={pronouns}
+              addInputToList={addInputToList}
+            />
           )}
 
           {(addPreviousStudents.display || addStudent.display) && (
