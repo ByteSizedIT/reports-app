@@ -10,7 +10,13 @@ import AddNewClassModal from "./AddNewClassModal";
 
 import { Class } from "@/types/types";
 
-const ClassCards = ({ myClasses }: { myClasses: Array<Class> | null }) => {
+const ClassCards = ({
+  myClasses,
+  organisationId,
+}: {
+  myClasses: Array<Class> | null;
+  organisationId: number;
+}) => {
   const [showNewClassModal, setShowNewClassModal] = useState(false);
 
   function updateShowNewClassModal(bool: boolean) {
@@ -41,6 +47,7 @@ const ClassCards = ({ myClasses }: { myClasses: Array<Class> | null }) => {
         <AddNewClassModal
           updateShowNewClassModal={updateShowNewClassModal}
           myClasses={myClasses}
+          organisationId={organisationId}
           saveNewClass={saveNewClass}
         />
       )}

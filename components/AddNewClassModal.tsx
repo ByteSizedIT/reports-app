@@ -11,42 +11,39 @@ import { generateYearsArray } from "@/utils/functions/generateYearsArray";
 import ModalOuter from "./modal-parent-components/ModalOuter";
 import ModalInnerAdd from "./modal-parent-components/ModalInnerAdd";
 
-import { Class } from "@/types/types";
+import { Class, PreSaveStudent } from "@/types/types";
+
+const initialAddStudentState = {
+  display: false,
+  forename: "",
+  surname: "",
+  pronoun: "",
+  dob: "",
+  grad_year: 0,
+};
 
 const AddNewClassModal = ({
   myClasses,
+  organisationId,
   updateShowNewClassModal,
   saveNewClass,
 }: {
   myClasses: Array<Class> | null;
+  organisationId: number;
   updateShowNewClassModal: (bool: boolean) => void;
   saveNewClass: () => void;
 }) => {
-  const [newClassInput, setNewClassInput] = useState<string | undefined>(
-    undefined
-  );
-  const [yearGroupInput, setYearGroupInput] = useState("");
-  const [showPreviousClass, setShowPreviousClass] = useState(false);
-  const [selectedClass, setSelectedClass] = useState("");
-  const [showAddStudent, setShowAddStudent] = useState(false);
-  const [firstNameInput, setFirstNameInput] = useState("");
-  const [secondNameInput, setSecondNameInput] = useState("");
   const [pronouns, setPronouns] = useState([]);
-  const [pronounInput, setPronounInput] = useState("");
-  const [dobInput, setDobInput] = useState<string>("");
-  const [gradYearInput, setGradYearInput] = useState<number | undefined>(
-    undefined
-  );
-  const [studentList, setStudentList] = useState<
-    Array<{
-      id?: number;
-      forename: string;
-      surname: string;
-      pronoun: string;
-      dob: string;
-      grad_year: number;
-    }>
-  >([]);
+  const [newClassName, setNewClassName] = useState<string>("");
+  const [yearGroupInput, setYearGroupInput] = useState("");
+  const [addPreviousStudents, setAddPreviousStudents] = useState({
+    display: false,
+    selectedClass: "",
+  });
+  const [addStudent, setAddStudent] = useState<
+    PreSaveStudent & { display?: boolean }
+  >({ ...initialAddStudentState, organisation_id: organisationId });
+  const [studentList, setStudentList] = useState<Array<PreSaveStudent>>([]);
 
   useEffect(() => {
     async function fetchPronouns() {
@@ -56,28 +53,22 @@ const AddNewClassModal = ({
     fetchPronouns();
   }, []);
 
-  useEffect(() => {
-    setSelectedClass("");
-  }, [showPreviousClass]);
-
-  useEffect(() => {
-    setFirstNameInput("");
-    setSecondNameInput("");
-    setPronounInput("");
-    setDobInput("");
-    setGradYearInput(undefined);
-  }, [showAddStudent]);
+  // e: React.ChangeEvent<HTMLInputElement>,
+  function updateAddStudentState(value: string | boolean, field: string) {
+    setAddStudent((oldState) => ({
+      ...oldState,
+      [field]: value,
+    }));
+  }
 
   const addPrevClassStudentsToList = (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault;
-    console.log({ selectedClass });
     async function fetchClassStudents() {
       const selectedClassStudents = await getClassStudentDetails(
-        Number(selectedClass)
+        Number(addPreviousStudents.selectedClass)
       );
-      console.log(selectedClassStudents);
       setStudentList([
         ...studentList,
         ...selectedClassStudents.map((s) => s.student),
@@ -88,16 +79,12 @@ const AddNewClassModal = ({
 
   const addInputToList = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault;
-    if (firstNameInput?.trim() !== "" && secondNameInput?.trim() !== "") {
+    if (addStudent.forename !== "" && addStudent.surname !== "") {
       setStudentList(
         [
           ...studentList,
           {
-            forename: firstNameInput?.trim(),
-            surname: secondNameInput?.trim(),
-            pronoun: pronounInput,
-            dob: dobInput,
-            grad_year: gradYearInput || 0, // Set a default value of 0 if gradYearInput is undefined
+            ...addStudent,
           },
         ].sort((a, b) => {
           if (a.surname > b.surname) return 1;
@@ -107,11 +94,10 @@ const AddNewClassModal = ({
           return 0;
         })
       );
-      setFirstNameInput("");
-      setSecondNameInput("");
-      setPronounInput("");
-      setDobInput("");
-      setGradYearInput(undefined);
+      setAddStudent({
+        ...initialAddStudentState,
+        organisation_id: organisationId,
+      });
     }
   };
 
@@ -151,8 +137,8 @@ const AddNewClassModal = ({
               type="text"
               id="className"
               className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-              value={newClassInput}
-              onChange={(e) => setNewClassInput(e.target.value)}
+              value={newClassName}
+              onChange={(e) => setNewClassName(e.target.value)}
               placeholder="e.g. Mulberry"
             />
           </div>
@@ -178,12 +164,17 @@ const AddNewClassModal = ({
                 type="checkbox"
                 id="prevClass"
                 className="accent-gray ml-4"
-                checked={showPreviousClass}
-                onChange={() => setShowPreviousClass(!showPreviousClass)}
+                checked={addPreviousStudents.display}
+                onChange={() =>
+                  setAddPreviousStudents({
+                    ...addPreviousStudents,
+                    display: !addPreviousStudents.display,
+                  })
+                }
               />
             </div>
           )}
-          {showPreviousClass && (
+          {addPreviousStudents.display && (
             <fieldset className="border border-black p-2 mb-4">
               <legend>Select Previous Class</legend>
               <div className="flex flex-col md:flex-row items-center mb-4">
@@ -193,8 +184,13 @@ const AddNewClassModal = ({
                 <select
                   id="prevClassName"
                   className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
+                  value={addPreviousStudents.selectedClass}
+                  onChange={(e) =>
+                    setAddPreviousStudents(() => ({
+                      ...addPreviousStudents,
+                      selectedClass: e.target.value,
+                    }))
+                  }
                 >
                   <option value={""}>Select an option...</option>
                   {myClasses?.map((c: Class) => (
@@ -208,12 +204,12 @@ const AddNewClassModal = ({
                 <button
                   type="button"
                   className={`px-2 rounded-md no-underline border border-black ${
-                    selectedClass.length === 0
+                    addPreviousStudents.selectedClass.length === 0
                       ? "disabled:bg-slate-300"
                       : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
                   }`}
                   onClick={(e) => addPrevClassStudentsToList(e)}
-                  disabled={selectedClass.length === 0}
+                  disabled={addPreviousStudents.selectedClass.length === 0}
                 >
                   Add Class&apos; Students
                 </button>
@@ -227,11 +223,13 @@ const AddNewClassModal = ({
               type="checkbox"
               id="addStudent"
               className="accent-gray ml-4"
-              checked={showAddStudent}
-              onChange={() => setShowAddStudent(!showAddStudent)}
+              checked={addStudent.display}
+              onChange={(e) =>
+                updateAddStudentState(e.target.checked, "display")
+              }
             />
           </div>
-          {showAddStudent && (
+          {addStudent.display && (
             <fieldset className="border border-black p-2 mb-4">
               <legend>Add New Student</legend>
               <div className="flex flex-col sm:flex-row">
@@ -242,8 +240,10 @@ const AddNewClassModal = ({
                   type="text"
                   id="firstName"
                   className="sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
-                  value={firstNameInput}
-                  onChange={(e) => setFirstNameInput(e.target.value)}
+                  value={addStudent.forename}
+                  onChange={(e) =>
+                    updateAddStudentState(e.target.value.trim(), "forename")
+                  }
                   placeholder="e.g. Jo"
                 />
               </div>
@@ -255,8 +255,10 @@ const AddNewClassModal = ({
                   type="text"
                   id="secondName"
                   className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
-                  value={secondNameInput}
-                  onChange={(e) => setSecondNameInput(e.target.value)}
+                  value={addStudent.surname}
+                  onChange={(e) =>
+                    updateAddStudentState(e.target.value.trim(), "surname")
+                  }
                   placeholder="e.g Bloggs"
                 />
               </div>
@@ -267,8 +269,10 @@ const AddNewClassModal = ({
                 <select
                   id="pronouns"
                   className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={pronounInput}
-                  onChange={(e) => setPronounInput(e.target.value)}
+                  value={addStudent.pronoun}
+                  onChange={(e) =>
+                    updateAddStudentState(e.target.value, "pronoun")
+                  }
                 >
                   <option value={""}>Select an option...</option>
                   {pronouns.map((p) => (
@@ -286,8 +290,10 @@ const AddNewClassModal = ({
                   type="date"
                   id="className"
                   className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={dobInput}
-                  onChange={(e) => setDobInput(e.target.value)}
+                  value={addStudent.dob}
+                  onChange={(e) =>
+                    updateAddStudentState(e.target.value.trim(), "dob")
+                  }
                   placeholder="e.g. Year 6"
                 />
               </div>
@@ -298,8 +304,10 @@ const AddNewClassModal = ({
                 <select
                   id="gradYear"
                   className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={gradYearInput}
-                  onChange={(e) => setGradYearInput(Number(e.target.value))}
+                  value={addStudent.grad_year}
+                  onChange={(e) =>
+                    updateAddStudentState(e.target.value.trim(), "grad_year")
+                  }
                 >
                   <option value={""}>Select an option...</option>
                   {generateYearsArray(6).map((year) => (
@@ -313,13 +321,15 @@ const AddNewClassModal = ({
                 <button
                   type="button"
                   className={`px-2 rounded-md no-underline border border-black ${
-                    firstNameInput.length === 0 || secondNameInput.length === 0
+                    addStudent.forename.length === 0 ||
+                    addStudent.surname.length === 0
                       ? "disabled:bg-slate-300"
                       : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
                   }`}
                   onClick={(e) => addInputToList(e)}
                   disabled={
-                    firstNameInput.length === 0 || secondNameInput.length === 0
+                    addStudent.forename.length === 0 ||
+                    addStudent.surname.length === 0
                   }
                 >
                   Add Student
@@ -328,7 +338,7 @@ const AddNewClassModal = ({
             </fieldset>
           )}
 
-          {(showPreviousClass || showAddStudent) && (
+          {(addPreviousStudents.display || addStudent.display) && (
             <div className="flex flex-col items-center mb-4">
               <label htmlFor="studentList">New Class Students</label>
               <div

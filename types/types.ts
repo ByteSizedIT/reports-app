@@ -72,8 +72,7 @@ export interface ReportGroup {
   organisation_id: number;
 }
 
-export interface Student {
-  id: number;
+export interface PreSaveStudent {
   dob: string;
   pronoun: string;
   surname: string;
@@ -81,3 +80,4 @@ export interface Student {
   grad_year: number;
   organisation_id: number;
 }
+export type Student = PreSaveStudent & { id: number };
