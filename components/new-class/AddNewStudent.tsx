@@ -24,16 +24,16 @@ const AddNewStudent = ({
   );
 
   return (
-    <fieldset className="border border-black p-2 mb-4">
+    <fieldset className="border border-black w-full p-2 mb-4">
       <legend>Add New Student</legend>
-      <div className="flex flex-col sm:flex-row">
+      <div className="flex flex-col items-center sm:flex-row">
         <label htmlFor="firstName" className="sm:w-1/4">
           First Name
         </label>
         <input
           type="text"
           id="firstName"
-          className="sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
+          className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
           value={addStudentState.forename}
           onChange={(e) =>
             updateAddStudentState(e.target.value.trim(), "forename")
@@ -41,7 +41,7 @@ const AddNewStudent = ({
           placeholder="e.g. Jo"
         />
       </div>
-      <div className="w-full flex flex-col items-center sm:flex-row">
+      <div className="flex flex-col items-center sm:flex-row">
         <label htmlFor="secondName" className="sm:w-1/4">
           Second Name
         </label>

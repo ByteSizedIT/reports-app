@@ -162,19 +162,17 @@ const AddColumnModal = ({
         updateShowModal={updateShowAddModal}
         saveContent={handleSaveNewColumn}
       >
-        <div className="flex-1 flex flex-col justify-center items-center">
-          <label htmlFor="columnName">Group Name: </label>
-          <CreatableSelect
-            id="columnName"
-            isClearable
-            isDisabled={isLoading}
-            isLoading={isLoading}
-            onChange={(newValue) => setColumn(newValue)}
-            onCreateOption={handleCreate}
-            options={options}
-            value={column}
-          />
-        </div>
+        <label htmlFor="columnName">Group Name: </label>
+        <CreatableSelect
+          id="columnName"
+          isClearable
+          isDisabled={isLoading}
+          isLoading={isLoading}
+          onChange={(newValue) => setColumn(newValue)}
+          onCreateOption={handleCreate}
+          options={options}
+          value={column}
+        />
       </ModalInnerAdd>
     </ModalOuter>
   );

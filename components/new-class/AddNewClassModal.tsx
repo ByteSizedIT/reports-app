@@ -127,145 +127,138 @@ const AddNewClassModal = ({
         updateShowModal={updateShowNewClassModal}
         saveContent={handleSaveNewClass}
       >
-        {/* <form className="w-full flex-1 flex flex-col max-h-full sm:w-3/4 md:w-1/2 mt-4 md:mt-8"> */}
-        <form className="w-full flex-1 flex flex-col max-h-full sm:w-3/4 md:w-1/2 mt-4 md:mt-8">
-          <div className="flex flex-col md:flex-row items-center mb-4">
-            <label htmlFor="className" className="sm:w-1/4">
-              Class Name
-            </label>
-            <input
-              type="text"
-              id="className"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-              value={newClassName}
-              onChange={(e) => setNewClassName(e.target.value)}
-              placeholder="e.g. Mulberry"
-            />
-          </div>
-          <div className="flex flex-col md:flex-row items-center mb-4">
-            <label htmlFor="yearGroup" className="sm:w-1/4">
-              Year Group
-            </label>
-            <input
-              type="text"
-              id="yearGroup"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-              value={yearGroupInput}
-              onChange={(e) => setYearGroupInput(e.target.value)}
-              placeholder="e.g. Year 6"
-            />
-          </div>
-          {myClasses?.length && (
-            <div className="flex flex-row items-center mb-4">
-              <label htmlFor="prevClass">
-                Use previous class&apos; students
-              </label>
-              <input
-                type="checkbox"
-                id="prevClass"
-                className="accent-gray ml-4"
-                checked={addPreviousStudents.display}
-                onChange={() =>
-                  setAddPreviousStudents({
-                    ...addPreviousStudents,
-                    display: !addPreviousStudents.display,
-                  })
-                }
-              />
-            </div>
-          )}
-          {addPreviousStudents.display && (
-            <fieldset className="border border-black p-2 mb-4">
-              <legend>Select Previous Class</legend>
-              <div className="flex flex-col md:flex-row items-center mb-4">
-                <label htmlFor="prevClassName" className="sm:w-1/4">
-                  Previous Class
-                </label>
-                <select
-                  id="prevClassName"
-                  className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-                  value={addPreviousStudents.selectedClass}
-                  onChange={(e) =>
-                    setAddPreviousStudents(() => ({
-                      ...addPreviousStudents,
-                      selectedClass: e.target.value,
-                    }))
-                  }
-                >
-                  <option value={""}>Select an option...</option>
-                  {myClasses?.map((c: Class) => (
-                    <option key={c.id} value={c.id}>
-                      {`${c.description} | ${c.year_group} | ${c.academic_year_end} `}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="text-center">
-                <button
-                  type="button"
-                  className={`px-2 rounded-md no-underline border border-black ${
-                    addPreviousStudents.selectedClass.length === 0
-                      ? "disabled:bg-slate-300"
-                      : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
-                  }`}
-                  onClick={(e) => addPrevClassStudentsToList(e)}
-                  disabled={addPreviousStudents.selectedClass.length === 0}
-                >
-                  Add Class&apos; Students
-                </button>
-              </div>
-            </fieldset>
-          )}
-
-          <div className="flex flex-row items-center mb-4">
-            <label htmlFor="addStudent">Add new individual student[s]</label>
+        <div className="flex flex-col md:flex-row w-full items-center mb-4">
+          <label htmlFor="className" className="sm:w-1/4">
+            Class Name
+          </label>
+          <input
+            type="text"
+            id="className"
+            className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+            value={newClassName}
+            onChange={(e) => setNewClassName(e.target.value)}
+            placeholder="e.g. Mulberry"
+          />
+        </div>
+        <div className="flex flex-col md:flex-row w-full items-center mb-4">
+          <label htmlFor="yearGroup" className="sm:w-1/4">
+            Year Group
+          </label>
+          <input
+            type="text"
+            id="yearGroup"
+            className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+            value={yearGroupInput}
+            onChange={(e) => setYearGroupInput(e.target.value)}
+            placeholder="e.g. Year 6"
+          />
+        </div>
+        {myClasses?.length && (
+          <div className="flex flex-row items-center w-full mb-4">
+            <label htmlFor="prevClass">Use previous class&apos; students</label>
             <input
               type="checkbox"
-              id="addStudent"
+              id="prevClass"
               className="accent-gray ml-4"
-              checked={addStudent.display}
-              onChange={(e) =>
-                updateAddStudentState(e.target.checked, "display")
+              checked={addPreviousStudents.display}
+              onChange={() =>
+                setAddPreviousStudents({
+                  ...addPreviousStudents,
+                  display: !addPreviousStudents.display,
+                })
               }
             />
           </div>
-          {addStudent.display && (
-            <AddNewStudent
-              addStudentState={addStudent}
-              updateAddStudentState={updateAddStudentState}
-              pronounsState={pronouns}
-              addInputToList={addInputToList}
-            />
-          )}
-
-          {(addPreviousStudents.display || addStudent.display) && (
-            <div className="flex flex-col items-center mb-4">
-              <label htmlFor="studentList">New Class Students</label>
-              <div
-                id="studentList"
-                className="px-4 py-2 bg-inherit border border-black w-full h-16 md:h-32 overflow-y-auto"
+        )}
+        {addPreviousStudents.display && (
+          <fieldset className="border border-black w-full p-2 mb-4">
+            <legend>Select Previous Class</legend>
+            <div className="flex flex-col md:flex-row items-center mb-4">
+              <label htmlFor="prevClassName" className="sm:w-1/4">
+                Previous Class
+              </label>
+              <select
+                id="prevClassName"
+                className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 border border-black bg-inherit"
+                value={addPreviousStudents.selectedClass}
+                onChange={(e) =>
+                  setAddPreviousStudents(() => ({
+                    ...addPreviousStudents,
+                    selectedClass: e.target.value,
+                  }))
+                }
               >
-                <ul>
-                  {studentList.map((student, index) => (
-                    <div
-                      key={index}
-                      className="w-full flex flex-row items-center justify-between"
-                    >
-                      <li>{`${student.surname}, ${student.forename}`}</li>
-
-                      <MdDeleteForever
-                        className="text-xl sm:text-2xl"
-                        onClick={() => {
-                          handleDeleteStudentFromList(index);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </ul>
-              </div>
+                <option value={""}>Select an option...</option>
+                {myClasses?.map((c: Class) => (
+                  <option key={c.id} value={c.id}>
+                    {`${c.description} | ${c.year_group} | ${c.academic_year_end} `}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
-        </form>
+            <div className="text-center">
+              <button
+                type="button"
+                className={`px-2 rounded-md no-underline border border-black ${
+                  addPreviousStudents.selectedClass.length === 0
+                    ? "disabled:bg-slate-300"
+                    : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
+                }`}
+                onClick={(e) => addPrevClassStudentsToList(e)}
+                disabled={addPreviousStudents.selectedClass.length === 0}
+              >
+                Add Class&apos; Students
+              </button>
+            </div>
+          </fieldset>
+        )}
+
+        <div className="flex flex-row w-full items-center mb-4">
+          <label htmlFor="addStudent">Add new individual student[s]</label>
+          <input
+            type="checkbox"
+            id="addStudent"
+            className="accent-gray ml-4"
+            checked={addStudent.display}
+            onChange={(e) => updateAddStudentState(e.target.checked, "display")}
+          />
+        </div>
+        {addStudent.display && (
+          <AddNewStudent
+            addStudentState={addStudent}
+            updateAddStudentState={updateAddStudentState}
+            pronounsState={pronouns}
+            addInputToList={addInputToList}
+          />
+        )}
+
+        {(addPreviousStudents.display || addStudent.display) && (
+          <div className="flex flex-col w-full items-center mb-4">
+            <label htmlFor="studentList">New Class Students</label>
+            <div
+              id="studentList"
+              className="px-4 py-2 bg-inherit border border-black w-full h-16 md:h-32 overflow-y-auto"
+            >
+              <ul>
+                {studentList.map((student, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-row w-full items-center justify-between"
+                  >
+                    <li>{`${student.surname}, ${student.forename}`}</li>
+
+                    <MdDeleteForever
+                      className="text-xl sm:text-2xl"
+                      onClick={() => {
+                        handleDeleteStudentFromList(index);
+                      }}
+                    />
+                  </div>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
       </ModalInnerAdd>
     </ModalOuter>
   );
