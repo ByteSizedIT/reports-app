@@ -5,17 +5,17 @@ import { PreSaveStudent } from "@/types/types";
 import { generateYearsArray } from "@/utils/functions/generateYearsArray";
 
 const AddNewStudent = ({
-  addStudentState,
-  updateAddStudentState,
+  newStudent,
+  updateNewStudent,
   pronounsState,
-  addInputToList,
+  addNewStudentToList,
 }: {
-  addStudentState: PreSaveStudent & { display?: boolean };
+  newStudent: PreSaveStudent & { display?: boolean };
   pronounsState: Array<string>;
-  updateAddStudentState: (value: string, field: string) => void;
-  addInputToList: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  updateNewStudent: (value: string, field: string) => void;
+  addNewStudentToList: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) => {
-  const { forename, surname, pronoun, dob, grad_year } = addStudentState;
+  const { forename, surname, pronoun, dob, grad_year } = newStudent;
   const missingDetails = [forename, surname, pronoun, dob, grad_year].some(
     (value) =>
       !value ||
@@ -34,10 +34,8 @@ const AddNewStudent = ({
           type="text"
           id="firstName"
           className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
-          value={addStudentState.forename}
-          onChange={(e) =>
-            updateAddStudentState(e.target.value.trim(), "forename")
-          }
+          value={newStudent.forename}
+          onChange={(e) => updateNewStudent(e.target.value.trim(), "forename")}
           placeholder="e.g. Jo"
         />
       </div>
@@ -49,10 +47,8 @@ const AddNewStudent = ({
           type="text"
           id="secondName"
           className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
-          value={addStudentState.surname}
-          onChange={(e) =>
-            updateAddStudentState(e.target.value.trim(), "surname")
-          }
+          value={newStudent.surname}
+          onChange={(e) => updateNewStudent(e.target.value.trim(), "surname")}
           placeholder="e.g Bloggs"
         />
       </div>
@@ -63,8 +59,8 @@ const AddNewStudent = ({
         <select
           id="pronouns"
           className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-          value={addStudentState.pronoun}
-          onChange={(e) => updateAddStudentState(e.target.value, "pronoun")}
+          value={newStudent.pronoun}
+          onChange={(e) => updateNewStudent(e.target.value, "pronoun")}
         >
           <option value={""}>Select an option...</option>
           {pronounsState.map((p) => (
@@ -82,8 +78,8 @@ const AddNewStudent = ({
           type="date"
           id="className"
           className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-          value={addStudentState.dob}
-          onChange={(e) => updateAddStudentState(e.target.value.trim(), "dob")}
+          value={newStudent.dob}
+          onChange={(e) => updateNewStudent(e.target.value.trim(), "dob")}
           placeholder="e.g. Year 6"
         />
       </div>
@@ -94,10 +90,8 @@ const AddNewStudent = ({
         <select
           id="gradYear"
           className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
-          value={addStudentState.grad_year}
-          onChange={(e) =>
-            updateAddStudentState(e.target.value.trim(), "grad_year")
-          }
+          value={newStudent.grad_year}
+          onChange={(e) => updateNewStudent(e.target.value.trim(), "grad_year")}
         >
           <option value={""}>Select an option...</option>
           {generateYearsArray(6).map((year) => (
@@ -115,7 +109,7 @@ const AddNewStudent = ({
               ? "disabled:bg-slate-300"
               : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
           }`}
-          onClick={(e) => addInputToList(e)}
+          onClick={(e) => addNewStudentToList(e)}
           disabled={missingDetails}
         >
           Add Student

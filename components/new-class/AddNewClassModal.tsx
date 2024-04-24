@@ -14,8 +14,7 @@ import { Class, PreSaveStudent } from "@/types/types";
 import AddNewStudent from "./AddNewStudent";
 import AddPrevClassStudents from "./AddPrevClassStudents";
 
-const initialAddStudentState = {
-  display: false,
+const initialNewStudentState = {
   forename: "",
   surname: "",
   pronoun: "",
@@ -42,9 +41,11 @@ const AddNewClassModal = ({
     selectedClass: "",
   });
 
-  const [addStudent, setAddStudent] = useState<
-    PreSaveStudent & { display?: boolean }
-  >({ ...initialAddStudentState, organisation_id: organisationId });
+  const [displayNewStudent, setDisplayNewStudent] = useState(false);
+  const [newStudent, setNewStudent] = useState<PreSaveStudent>({
+    ...initialNewStudentState,
+    organisation_id: organisationId,
+  });
 
   const [studentList, setStudentList] = useState<Array<PreSaveStudent>>([]);
 
@@ -64,8 +65,8 @@ const AddNewClassModal = ({
   }
 
   // e: React.ChangeEvent<HTMLInputElement>,
-  function updateAddStudentState(value: string | boolean, field: string) {
-    setAddStudent((oldState) => ({
+  function updateNewStudent(value: string | boolean, field: string) {
+    setNewStudent((oldState) => ({
       ...oldState,
       [field]: value,
     }));
@@ -87,13 +88,13 @@ const AddNewClassModal = ({
     fetchClassStudents();
   };
 
-  const addInputToList = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const addNewStudentToList = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault;
     setStudentList(
       [
         ...studentList,
         {
-          ...addStudent,
+          ...newStudent,
         },
       ].sort((a, b) => {
         if (a.surname > b.surname) return 1;
@@ -103,10 +104,9 @@ const AddNewClassModal = ({
         return 0;
       })
     );
-    setAddStudent({
-      ...initialAddStudentState,
+    setNewStudent({
+      ...initialNewStudentState,
       organisation_id: organisationId,
-      display: true,
     });
   };
 
@@ -117,6 +117,7 @@ const AddNewClassModal = ({
   };
 
   const handleSaveNewClass = () => {
+    console.log({ studentList });
     // Save new class to Class table  - user entered fields(description/year_group), autopop other fields(academic_year_end/owner/org_id - calculating academic-year-end based on current month)
 
     // Save new students in StudentList to Students table - user entered fields(first_name, second_name, pronoun, dob, grad year)
@@ -190,21 +191,27 @@ const AddNewClassModal = ({
         )}
 
         <div className="flex flex-row w-full items-center mb-4">
-          <label htmlFor="addStudent">Add new individual student[s]</label>
+          <label htmlFor="newStudent">Add new individual student[s]</label>
           <input
             type="checkbox"
-            id="addStudent"
+            id="newStudent"
             className="accent-gray ml-4"
-            checked={addStudent.display}
-            onChange={(e) => updateAddStudentState(e.target.checked, "display")}
+            checked={displayNewStudent}
+            onChange={() => {
+              setDisplayNewStudent(!displayNewStudent);
+              setNewStudent({
+                ...initialNewStudentState,
+                organisation_id: organisationId,
+              });
+            }}
           />
         </div>
-        {addStudent.display && (
+        {displayNewStudent && (
           <AddNewStudent
-            addStudentState={addStudent}
-            updateAddStudentState={updateAddStudentState}
+            newStudent={newStudent}
+            updateNewStudent={updateNewStudent}
             pronounsState={pronouns}
-            addInputToList={addInputToList}
+            addNewStudentToList={addNewStudentToList}
           />
         )}
 
