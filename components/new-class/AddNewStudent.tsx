@@ -26,8 +26,8 @@ const AddNewStudent = ({
   return (
     <fieldset className="border border-black w-full p-2 mb-4">
       <legend>Add New Student</legend>
-      <div className="flex flex-col items-center sm:flex-row">
-        <label htmlFor="firstName" className="sm:w-1/4">
+      <div className="flex flex-col items-center md:flex-row">
+        <label htmlFor="firstName" className="md:w-1/4">
           First Name
         </label>
         <input
@@ -41,8 +41,8 @@ const AddNewStudent = ({
           placeholder="e.g. Jo"
         />
       </div>
-      <div className="flex flex-col items-center sm:flex-row">
-        <label htmlFor="secondName" className="sm:w-1/4">
+      <div className="flex flex-col items-center md:flex-row">
+        <label htmlFor="secondName" className="md:w-1/4">
           Second Name
         </label>
         <input
@@ -57,7 +57,7 @@ const AddNewStudent = ({
         />
       </div>
       <div className="flex flex-col md:flex-row items-center mb-4">
-        <label htmlFor="pronouns" className="sm:w-1/4">
+        <label htmlFor="pronouns" className="md:w-1/4">
           Pronouns
         </label>
         <select
@@ -75,7 +75,7 @@ const AddNewStudent = ({
         </select>
       </div>
       <div className="flex flex-col md:flex-row items-center mb-4">
-        <label htmlFor="className" className="sm:w-1/4">
+        <label htmlFor="className" className="md:w-1/4">
           Date of Birth
         </label>
         <input
@@ -88,7 +88,7 @@ const AddNewStudent = ({
         />
       </div>
       <div className="flex flex-col md:flex-row items-center mb-4">
-        <label htmlFor="gradYear" className="sm:w-1/4">
+        <label htmlFor="gradYear" className="md:w-1/4">
           Graduation Year
         </label>
         <select

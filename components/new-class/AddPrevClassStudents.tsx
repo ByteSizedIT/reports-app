@@ -20,7 +20,7 @@ const AddPrevClassStudents = ({
     <fieldset className="border border-black w-full p-2 mb-4">
       <legend>Add Previous Class</legend>
       <div className="flex flex-col md:flex-row items-center mb-4">
-        <label htmlFor="prevClassName" className="sm:w-1/4">
+        <label htmlFor="prevClassName" className="md:w-1/4">
           Previous Class
         </label>
         <select

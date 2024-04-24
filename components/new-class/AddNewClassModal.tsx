@@ -138,26 +138,26 @@ const AddNewClassModal = ({
         saveContent={handleSaveNewClass}
       >
         <div className="flex flex-col md:flex-row w-full items-center mb-4">
-          <label htmlFor="className" className="sm:w-1/4">
+          <label htmlFor="className" className="md:w-1/4">
             Class Name
           </label>
           <input
             type="text"
             id="className"
-            className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+            className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
             value={newClassName}
             onChange={(e) => setNewClassName(e.target.value)}
             placeholder="e.g. Mulberry"
           />
         </div>
         <div className="flex flex-col md:flex-row w-full items-center mb-4">
-          <label htmlFor="yearGroup" className="sm:w-1/4">
+          <label htmlFor="yearGroup" className="md:w-1/4">
             Year Group
           </label>
           <input
             type="text"
             id="yearGroup"
-            className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+            className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
             value={yearGroupInput}
             onChange={(e) => setYearGroupInput(e.target.value)}
             placeholder="e.g. Year 6"
