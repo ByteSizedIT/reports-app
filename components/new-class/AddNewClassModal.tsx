@@ -7,8 +7,8 @@ import { MdDeleteForever } from "react-icons/md";
 import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
 import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
 
-import ModalOuter from "./modal-parent-components/ModalOuter";
-import ModalInnerAdd from "./modal-parent-components/ModalInnerAdd";
+import ModalOuter from "../modal-parent-components/ModalOuter";
+import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 
 import { Class, PreSaveStudent } from "@/types/types";
 import AddNewStudent from "./AddNewStudent";
@@ -127,6 +127,7 @@ const AddNewClassModal = ({
         updateShowModal={updateShowNewClassModal}
         saveContent={handleSaveNewClass}
       >
+        {/* <form className="w-full flex-1 flex flex-col max-h-full sm:w-3/4 md:w-1/2 mt-4 md:mt-8"> */}
         <form className="w-full flex-1 flex flex-col max-h-full sm:w-3/4 md:w-1/2 mt-4 md:mt-8">
           <div className="flex flex-col md:flex-row items-center mb-4">
             <label htmlFor="className" className="sm:w-1/4">

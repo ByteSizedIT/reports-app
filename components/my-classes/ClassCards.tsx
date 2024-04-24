@@ -4,9 +4,9 @@ import { useState } from "react";
 
 import { FaPlus } from "react-icons/fa";
 
-import CardAsLink from "./CardAsLink";
-import CardAsButton from "./CardAsButton";
-import AddNewClassModal from "./AddNewClassModal";
+import CardAsLink from "../CardAsLink";
+import CardAsButton from "../CardAsButton";
+import AddNewClassModal from "../new-class/AddNewClassModal";
 
 import { Class } from "@/types/types";
 

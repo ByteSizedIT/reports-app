@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
-import ClassCards from "@/components/ClassCards";
+import ClassCards from "@/components/my-classes/ClassCards";
 
 const MyClasses = async () => {
   const supabase = createClient();
