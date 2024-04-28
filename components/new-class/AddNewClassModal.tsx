@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 
 import { MdDeleteForever } from "react-icons/md";
 
+import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
+
 import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
 import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
 
@@ -13,6 +15,9 @@ import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 import { Class, PreSaveStudent } from "@/types/types";
 import AddNewStudent from "./AddNewStudent";
 import AddPrevClassStudents from "./AddPrevClassStudents";
+
+const { currentMonth, currentYear } = calculateCurrentDate();
+const academicYearEnd = currentMonth < 8 ? currentYear : currentYear + 1;
 
 const initialNewStudentState = {
   forename: "",
@@ -35,7 +40,7 @@ const AddNewClassModal = ({
 }) => {
   const [pronouns, setPronouns] = useState([]);
   const [newClassName, setNewClassName] = useState<string>("");
-  const [yearGroupInput, setYearGroupInput] = useState("");
+  const [yearGroup, setYearGroup] = useState("");
   const [selectPreviousClass, setSelectPreviousClass] = useState({
     display: false,
     selectedClass: "",
@@ -46,8 +51,9 @@ const AddNewClassModal = ({
     ...initialNewStudentState,
     organisation_id: organisationId,
   });
-
-  const [studentList, setStudentList] = useState<Array<PreSaveStudent>>([]);
+  const [newClassRegister, setNewClassRegister] = useState<
+    Array<PreSaveStudent>
+  >([]);
 
   useEffect(() => {
     async function fetchPronouns() {
@@ -80,8 +86,8 @@ const AddNewClassModal = ({
       const selectedClassStudents = await getClassStudentDetails(
         Number(selectPreviousClass.selectedClass)
       );
-      setStudentList([
-        ...studentList,
+      setNewClassRegister([
+        ...newClassRegister,
         ...selectedClassStudents.map((s) => s.student),
       ]);
     }
@@ -90,9 +96,9 @@ const AddNewClassModal = ({
 
   const addNewStudentToList = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault;
-    setStudentList(
+    setNewClassRegister(
       [
-        ...studentList,
+        ...newClassRegister,
         {
           ...newStudent,
         },
@@ -111,13 +117,13 @@ const AddNewClassModal = ({
   };
 
   const handleDeleteStudentFromList = (index: number) => {
-    const newList = [...studentList];
+    const newList = [...newClassRegister];
     newList.splice(index, 1);
-    setStudentList(newList);
+    setNewClassRegister(newList);
   };
 
   const handleSaveNewClass = () => {
-    console.log({ studentList });
+    console.log({ newClassRegister });
     // Save new class to Class table  - user entered fields(description/year_group), autopop other fields(academic_year_end/owner/org_id - calculating academic-year-end based on current month)
 
     // Save new students in StudentList to Students table - user entered fields(first_name, second_name, pronoun, dob, grad year)
@@ -159,8 +165,8 @@ const AddNewClassModal = ({
             type="text"
             id="yearGroup"
             className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
-            value={yearGroupInput}
-            onChange={(e) => setYearGroupInput(e.target.value)}
+            value={yearGroup}
+            onChange={(e) => setYearGroup(e.target.value)}
             placeholder="e.g. Year 6"
           />
         </div>
@@ -222,7 +228,7 @@ const AddNewClassModal = ({
             className="px-4 py-2 bg-inherit border border-black w-full h-16 md:h-32 overflow-y-auto"
           >
             <ul>
-              {studentList.map((student, index) => (
+              {newClassRegister.map((student, index) => (
                 <div
                   key={index}
                   className="flex flex-row w-full items-center justify-between"
