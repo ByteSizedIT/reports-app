@@ -9,10 +9,13 @@ import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
 import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
 
+import { newClassAction } from "@/utils/form-actions/newClassAction";
+
 import ModalOuter from "../modal-parent-components/ModalOuter";
 import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 
-import { Class, PreSaveStudent } from "@/types/types";
+import { Class, UserInfo, PreSaveStudent } from "@/types/types";
+
 import AddNewStudent from "./AddNewStudent";
 import AddPrevClassStudents from "./AddPrevClassStudents";
 
@@ -29,14 +32,12 @@ const initialNewStudentState = {
 
 const AddNewClassModal = ({
   myClasses,
-  organisationId,
+  userInfo,
   updateShowNewClassModal,
-  saveNewClass,
 }: {
   myClasses: Array<Class> | null;
-  organisationId: number;
+  userInfo: UserInfo;
   updateShowNewClassModal: (bool: boolean) => void;
-  saveNewClass: () => void;
 }) => {
   const [pronouns, setPronouns] = useState([]);
   const [newClassName, setNewClassName] = useState<string>("");
@@ -49,7 +50,7 @@ const AddNewClassModal = ({
   const [displayNewStudent, setDisplayNewStudent] = useState(false);
   const [newStudent, setNewStudent] = useState<PreSaveStudent>({
     ...initialNewStudentState,
-    organisation_id: organisationId,
+    organisation_id: userInfo.organisation_id,
   });
   const [newClassRegister, setNewClassRegister] = useState<
     Array<PreSaveStudent>
@@ -112,7 +113,7 @@ const AddNewClassModal = ({
     );
     setNewStudent({
       ...initialNewStudentState,
-      organisation_id: organisationId,
+      organisation_id: userInfo.organisation_id,
     });
   };
 
@@ -122,13 +123,21 @@ const AddNewClassModal = ({
     setNewClassRegister(newList);
   };
 
-  const handleSaveNewClass = () => {
-    console.log({ newClassRegister });
-    // Save new class to Class table  - user entered fields(description/year_group), autopop other fields(academic_year_end/owner/org_id - calculating academic-year-end based on current month)
+  const handleSaveNewClass = async () => {
+    const response = await newClassAction(
+      newClassName,
+      yearGroup,
+      userInfo.organisation_id, // make hidden values in form data,
+      academicYearEnd,
+      userInfo.uuid, // make hidden values in form data
+      newClassRegister
+    );
 
-    // Save new students in StudentList to Students table - user entered fields(first_name, second_name, pronoun, dob, grad year)
-    // Convert the selected dob to ISO 8601 string
-    // const isoDateString = new Date(dobInput).toISOString();
+    if (response?.errorMessage)
+      console.log(
+        "Error returned from newClassAction to handleSaveNewClass in AddNewClassModal: ",
+        response.errorMessage
+      );
 
     updateShowNewClassModal(false);
   };
@@ -207,7 +216,7 @@ const AddNewClassModal = ({
               setDisplayNewStudent(!displayNewStudent);
               setNewStudent({
                 ...initialNewStudentState,
-                organisation_id: organisationId,
+                organisation_id: userInfo.organisation_id,
               });
             }}
           />

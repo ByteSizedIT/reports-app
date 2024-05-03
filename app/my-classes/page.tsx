@@ -31,10 +31,7 @@ const MyClasses = async () => {
   return (
     <div className="w-full flex flex-col mt-8">
       <h1 className="text-center text-3xl sm:text-4xl font-bold">My Classes</h1>
-      <ClassCards
-        myClasses={myClasses}
-        organisationId={userInfo.organisation_id}
-      />
+      <ClassCards myClasses={myClasses} userInfo={userInfo} />
     </div>
   );
 };

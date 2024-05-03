@@ -8,22 +8,20 @@ import CardAsLink from "../CardAsLink";
 import CardAsButton from "../CardAsButton";
 import AddNewClassModal from "../new-class/AddNewClassModal";
 
-import { Class } from "@/types/types";
+import { Class, UserInfo } from "@/types/types";
 
 const ClassCards = ({
   myClasses,
-  organisationId,
+  userInfo,
 }: {
   myClasses: Array<Class> | null;
-  organisationId: number;
+  userInfo: UserInfo;
 }) => {
   const [showNewClassModal, setShowNewClassModal] = useState(false);
 
   function updateShowNewClassModal(bool: boolean) {
     setShowNewClassModal(bool);
   }
-
-  function saveNewClass() {}
 
   return (
     <>
@@ -47,8 +45,7 @@ const ClassCards = ({
         <AddNewClassModal
           updateShowNewClassModal={updateShowNewClassModal}
           myClasses={myClasses}
-          organisationId={organisationId}
-          saveNewClass={saveNewClass}
+          userInfo={userInfo}
         />
       )}
     </>
