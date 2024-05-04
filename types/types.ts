@@ -93,4 +93,10 @@ export interface PreSaveStudent {
   grad_year: number;
   organisation_id: number;
 }
+
+export interface newClassRegister {
+  existingStudents: Array<Student | PreSaveStudent>;
+  newStudents: Array<PreSaveStudent>;
+}
+
 export type Student = PreSaveStudent & { id: number };

@@ -5,16 +5,22 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
-import { PreSaveClass, Student, PreSaveStudent } from "@/types/types";
+import {
+  PreSaveClass,
+  Student,
+  PreSaveStudent,
+  newClassRegister,
+} from "@/types/types";
+
+import { extractFormData } from "../functions/extractFormData";
 
 export const newClassAction = async (
-  newClassName: string,
-  yearGroup: string,
-  organisationId: number,
-  academicYearEnd: number,
-  userId: string,
-  newClassRegister: Array<Student | PreSaveStudent>
+  state: { errorMessage: string },
+  formData: FormData
 ) => {
+  const formDataObj = extractFormData(formData);
+  formDataObj.newClassRegister = JSON.parse(formDataObj.newClassRegister);
+
   const supabase = createClient();
 
   // Confirm user is authenticated
@@ -34,17 +40,20 @@ export const newClassAction = async (
   // Insert New Class
   // ...prep data: create new class object
   const newClass: PreSaveClass = {
-    description: newClassName,
-    year_group: yearGroup,
-    organisation_id: organisationId,
-    academic_year_end: academicYearEnd,
-    owner: userId,
+    description: formDataObj.className,
+    year_group: formDataObj.yearGroup,
+    organisation_id: formDataObj.organisationId,
+    academic_year_end: formDataObj.academicYearEnd,
+    owner: userData.user.id,
   };
+
+  console.log({ newClass });
 
   const { data: insertedClassData, error: insertClassError } = await supabase
     .from("class")
     .insert({
       ...newClass,
+      // ...formData,
     })
     .select();
 
@@ -61,11 +70,9 @@ export const newClassAction = async (
 
   // Insert New Students
   // ...prep data: group new class register in to list of new students and list of existing students
-  const { existingStudents, newStudents } = newClassRegister.reduce<{
-    existingStudents: Array<Student | PreSaveStudent>;
-    newStudents: Array<PreSaveStudent>;
-  }>(
-    (acc, obj) => {
+
+  const { existingStudents, newStudents } = formDataObj.newClassRegister.reduce(
+    (acc: newClassRegister, obj: PreSaveStudent | Student) => {
       if (obj.hasOwnProperty("id")) {
         acc.existingStudents.push(obj);
       } else {

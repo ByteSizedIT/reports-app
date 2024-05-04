@@ -12,10 +12,10 @@ import { Class, UserInfo } from "@/types/types";
 
 const ClassCards = ({
   myClasses,
-  userInfo,
+  organisationId,
 }: {
   myClasses: Array<Class> | null;
-  userInfo: UserInfo;
+  organisationId: number;
 }) => {
   const [showNewClassModal, setShowNewClassModal] = useState(false);
 
@@ -45,7 +45,7 @@ const ClassCards = ({
         <AddNewClassModal
           updateShowNewClassModal={updateShowNewClassModal}
           myClasses={myClasses}
-          userInfo={userInfo}
+          organisationId={organisationId}
         />
       )}
     </>

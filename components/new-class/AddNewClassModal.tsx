@@ -1,26 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useFormState } from "react-dom";
 
 import { MdDeleteForever } from "react-icons/md";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
-import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
-import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
+import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum"; // Issue as get request in a server function (supposed to be post requests)
+import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents"; // Issue as get request in a server function (supposed to be post requests)
 
 import { newClassAction } from "@/utils/form-actions/newClassAction";
 
 import ModalOuter from "../modal-parent-components/ModalOuter";
 import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
 
-import { Class, UserInfo, PreSaveStudent } from "@/types/types";
+import { Class, PreSaveStudent } from "@/types/types";
 
 import AddNewStudent from "./AddNewStudent";
 import AddPrevClassStudents from "./AddPrevClassStudents";
 
 const { currentMonth, currentYear } = calculateCurrentDate();
 const academicYearEnd = currentMonth < 8 ? currentYear : currentYear + 1;
+
+const initialFormActionState = { errorMessage: "" };
 
 const initialNewStudentState = {
   forename: "",
@@ -32,13 +35,18 @@ const initialNewStudentState = {
 
 const AddNewClassModal = ({
   myClasses,
-  userInfo,
+  organisationId,
   updateShowNewClassModal,
 }: {
   myClasses: Array<Class> | null;
-  userInfo: UserInfo;
+  organisationId: number;
   updateShowNewClassModal: (bool: boolean) => void;
 }) => {
+  const [state, formAction] = useFormState(
+    newClassAction,
+    initialFormActionState
+  );
+
   const [pronouns, setPronouns] = useState([]);
   const [newClassName, setNewClassName] = useState<string>("");
   const [yearGroup, setYearGroup] = useState("");
@@ -50,7 +58,7 @@ const AddNewClassModal = ({
   const [displayNewStudent, setDisplayNewStudent] = useState(false);
   const [newStudent, setNewStudent] = useState<PreSaveStudent>({
     ...initialNewStudentState,
-    organisation_id: userInfo.organisation_id,
+    organisation_id: organisationId,
   });
   const [newClassRegister, setNewClassRegister] = useState<
     Array<PreSaveStudent>
@@ -113,7 +121,7 @@ const AddNewClassModal = ({
     );
     setNewStudent({
       ...initialNewStudentState,
-      organisation_id: userInfo.organisation_id,
+      organisation_id: organisationId,
     });
   };
 
@@ -123,24 +131,24 @@ const AddNewClassModal = ({
     setNewClassRegister(newList);
   };
 
-  const handleSaveNewClass = async () => {
-    const response = await newClassAction(
-      newClassName,
-      yearGroup,
-      userInfo.organisation_id, // make hidden values in form data,
-      academicYearEnd,
-      userInfo.uuid, // make hidden values in form data
-      newClassRegister
-    );
+  // const handleSaveNewClass = async () => {
+  //   const response = await newClassAction(
+  //     newClassName,
+  //     yearGroup,
+  //     userInfo.organisation_id, // make hidden values in form data,
+  //     academicYearEnd,
+  //     userInfo.uuid, // make hidden values in form data
+  //     newClassRegister
+  //   );
 
-    if (response?.errorMessage)
-      console.log(
-        "Error returned from newClassAction to handleSaveNewClass in AddNewClassModal: ",
-        response.errorMessage
-      );
+  //   if (response?.errorMessage)
+  //     console.log(
+  //       "Error returned from newClassAction to handleSaveNewClass in AddNewClassModal: ",
+  //       response.errorMessage
+  //     );
 
-    updateShowNewClassModal(false);
-  };
+  //   updateShowNewClassModal(false);
+  // };
 
   return (
     <ModalOuter
@@ -151,7 +159,9 @@ const AddNewClassModal = ({
       <ModalInnerAdd
         title="Add New Class"
         updateShowModal={updateShowNewClassModal}
-        saveContent={handleSaveNewClass}
+        formAction={formAction}
+        formState={state}
+        // saveContent={handleSaveNewClass}
       >
         <div className="flex flex-col md:flex-row w-full items-center mb-4">
           <label htmlFor="className" className="md:w-1/4">
@@ -159,11 +169,12 @@ const AddNewClassModal = ({
           </label>
           <input
             type="text"
-            id="className"
+            name="className"
             className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
             value={newClassName}
             onChange={(e) => setNewClassName(e.target.value)}
             placeholder="e.g. Mulberry"
+            required
           />
         </div>
         <div className="flex flex-col md:flex-row w-full items-center mb-4">
@@ -172,11 +183,12 @@ const AddNewClassModal = ({
           </label>
           <input
             type="text"
-            id="yearGroup"
+            name="yearGroup"
             className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
             value={yearGroup}
             onChange={(e) => setYearGroup(e.target.value)}
             placeholder="e.g. Year 6"
+            required
           />
         </div>
         {myClasses?.length && (
@@ -216,7 +228,7 @@ const AddNewClassModal = ({
               setDisplayNewStudent(!displayNewStudent);
               setNewStudent({
                 ...initialNewStudentState,
-                organisation_id: userInfo.organisation_id,
+                organisation_id: organisationId,
               });
             }}
           />
@@ -253,8 +265,15 @@ const AddNewClassModal = ({
                 </div>
               ))}
             </ul>
+            <input
+              type="hidden"
+              name="newClassRegister"
+              value={JSON.stringify(newClassRegister)}
+            />
           </div>
         </div>
+        <input type="hidden" name="organisationId" value={organisationId} />
+        <input type="hidden" name="academicYearEnd" value={academicYearEnd} />
       </ModalInnerAdd>
     </ModalOuter>
   );
