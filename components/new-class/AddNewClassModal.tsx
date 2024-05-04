@@ -7,8 +7,9 @@ import { MdDeleteForever } from "react-icons/md";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
-import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum"; // Issue as get request in a server function (supposed to be post requests)
-import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents"; // Issue as get request in a server function (supposed to be post requests)
+// Issues as get request in a server function (supposed to be post requests)
+import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
+import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
 
 import { newClassAction } from "@/utils/form-actions/newClassAction";
 
@@ -131,25 +132,6 @@ const AddNewClassModal = ({
     setNewClassRegister(newList);
   };
 
-  // const handleSaveNewClass = async () => {
-  //   const response = await newClassAction(
-  //     newClassName,
-  //     yearGroup,
-  //     userInfo.organisation_id, // make hidden values in form data,
-  //     academicYearEnd,
-  //     userInfo.uuid, // make hidden values in form data
-  //     newClassRegister
-  //   );
-
-  //   if (response?.errorMessage)
-  //     console.log(
-  //       "Error returned from newClassAction to handleSaveNewClass in AddNewClassModal: ",
-  //       response.errorMessage
-  //     );
-
-  //   updateShowNewClassModal(false);
-  // };
-
   return (
     <ModalOuter
       updateShowModal={updateShowNewClassModal}
@@ -161,7 +143,6 @@ const AddNewClassModal = ({
         updateShowModal={updateShowNewClassModal}
         formAction={formAction}
         formState={state}
-        // saveContent={handleSaveNewClass}
       >
         <div className="flex flex-col md:flex-row w-full items-center mb-4">
           <label htmlFor="className" className="md:w-1/4">

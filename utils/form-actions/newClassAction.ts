@@ -21,6 +21,8 @@ export const newClassAction = async (
   const formDataObj = extractFormData(formData);
   formDataObj.newClassRegister = JSON.parse(formDataObj.newClassRegister);
 
+  console.log({ formDataObj });
+
   const supabase = createClient();
 
   // Confirm user is authenticated
@@ -47,13 +49,10 @@ export const newClassAction = async (
     owner: userData.user.id,
   };
 
-  console.log({ newClass });
-
   const { data: insertedClassData, error: insertClassError } = await supabase
     .from("class")
     .insert({
       ...newClass,
-      // ...formData,
     })
     .select();
 
