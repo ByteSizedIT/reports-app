@@ -12,7 +12,7 @@ import {
   newClassRegister,
 } from "@/types/types";
 
-import { extractFormData } from "../functions/extractFormData";
+import { extractFormData } from "../../functions/extractFormData";
 
 export const newClassAction = async (
   state: { errorMessage: string },

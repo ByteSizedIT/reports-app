@@ -1,12 +1,12 @@
-"use server";
-
-import { createClient } from "@/utils/supabase/clients/serverClient";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 import { Student } from "@/types/types";
 
-// Fetch Students for given class
-export const getClassStudentDetails = async (class_id: number) => {
-  const supabase = createClient();
+// Function to fetch Students for given class
+export const getClassStudentDetails = async (
+  supabase: SupabaseClient,
+  class_id: number
+) => {
   const { data: classStudentData, error } = await supabase
     .from("class_student")
     .select("student(*)")

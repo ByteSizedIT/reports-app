@@ -1,10 +1,7 @@
-"use server";
-
-import { createClient } from "@/utils/supabase/clients/serverClient";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 // Function to fetch enum values
-export const getPronounEnums = async () => {
-  const supabase = createClient();
+export const getPronounEnums = async (supabase: SupabaseClient) => {
   const { data: pronounEnums, error } = await supabase.rpc("get_pronoun_enums");
 
   if (!error) return pronounEnums;

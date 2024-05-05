@@ -9,13 +9,14 @@ import FormSubmitButton from "../../authentication/FormSubmitButton";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
-// Issues as get request in a server function (supposed to be post requests)
-import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
-import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
+import { createClient } from "@/utils/supabase/clients/browserClient";
 
-import { newClassAction } from "@/utils/form-actions/newClassAction";
+// import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
+// import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
 
-import { Class, PreSaveStudent } from "@/types/types";
+import { newClassAction } from "@/utils/supabase/form-actions/newClassAction";
+
+import { Class, PreSaveStudent, Student } from "@/types/types";
 
 import AddNewStudent from "./AddNewStudent";
 import AddPrevClassStudents from "./AddPrevClassStudents";
@@ -54,14 +55,36 @@ const AddNewClassForm = ({
     display: false,
     selectedClass: "",
   });
+  const [fetchError, setFetchError] = useState(false);
 
+  // const supabase = createClient();
+
+  // Fetching directly from the client side
+  // useEffect(() => {
+  //   async function fetchEnums() {
+  //     const pronounEnums = await getPronounEnums(supabase);
+  //     setPronouns(pronounEnums);
+  //   }
+  //   fetchEnums();
+  // }, []);
+
+  // Fetching on the server via route handler
   useEffect(() => {
-    async function fetchPronouns() {
-      const pronounEnums = await getPronounEnums();
-      setPronouns(pronounEnums);
-    }
-    fetchPronouns();
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/my-classes/api/pronouns");
+        const jsonData = await response.json();
+        console.log({ jsonData });
+        setPronouns(jsonData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setFetchError(true);
+      }
+    };
+    fetchData();
   }, []);
+
+  if (fetchError) throw new Error();
 
   const [displayNewStudent, setDisplayNewStudent] = useState(false);
   const [newStudent, setNewStudent] = useState<PreSaveStudent>({
@@ -91,13 +114,28 @@ const AddNewClassForm = ({
   ) => {
     e.preventDefault;
     async function fetchClassStudents() {
-      const selectedClassStudents = await getClassStudentDetails(
-        Number(selectPreviousClass.selectedClass)
-      );
-      setNewClassRegister([
-        ...newClassRegister,
-        ...selectedClassStudents.map((s) => s.student),
-      ]);
+      // Fetching directly from the client side
+      // const selectedClassStudents = await getClassStudentDetails(
+      //   supabase,
+      //   Number(selectPreviousClass.selectedClass)
+      // );
+
+      // Fetching from the server side via route handler
+      try {
+        const response = await fetch(
+          `/my-classes/api/students?class_id=${selectPreviousClass.selectedClass}`
+        );
+        const jsonData = await response.json();
+        console.log({ jsonData });
+        const selectedClassStudents = jsonData;
+        setNewClassRegister([
+          ...newClassRegister,
+          ...selectedClassStudents.map((s: { student: Student }) => s.student),
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setFetchError(true);
+      }
     }
     fetchClassStudents();
   };
