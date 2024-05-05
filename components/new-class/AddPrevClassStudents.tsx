@@ -5,7 +5,7 @@ import { Class } from "@/types/types";
 const AddPrevClassStudents = ({
   selectPreviousClass,
   updateSelectPreviousClass,
-  addPrevClassStudentsToList,
+  addPrevClassStudentsToRegister,
   myClasses,
 }: {
   selectPreviousClass: {
@@ -13,7 +13,9 @@ const AddPrevClassStudents = ({
     selectedClass: string;
   };
   updateSelectPreviousClass: (selectedClass: string) => void;
-  addPrevClassStudentsToList: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  addPrevClassStudentsToRegister: (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => void;
   myClasses: Array<Class> | null;
 }) => {
   return (
@@ -45,7 +47,7 @@ const AddPrevClassStudents = ({
               ? "disabled:bg-slate-300"
               : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
           }`}
-          onClick={(e) => addPrevClassStudentsToList(e)}
+          onClick={(e) => addPrevClassStudentsToRegister(e)}
           disabled={selectPreviousClass.selectedClass.length === 0}
         >
           Add Class&apos; Students

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 
-import { FaPlus } from "react-icons/fa";
+import Link from "next/link";
 
-import CardAsLink from "../CardAsLink";
-import CardAsButton from "../CardAsButton";
+import ExistingClassCard from "./ExistingClassCard";
+import NewClassCard from "./NewClassCard";
 import AddNewClassModal from "../new-class/AddNewClassModal";
 
-import { Class, UserInfo } from "@/types/types";
+import { Class } from "@/types/types";
 
 const ClassCards = ({
   myClasses,
@@ -26,18 +26,25 @@ const ClassCards = ({
   return (
     <>
       <div className="flex flex-wrap my-8 justify-around gap-8">
-        <CardAsButton title="Add Class" onCardClick={updateShowNewClassModal}>
-          <FaPlus className="text-green-700 text-2xl sm:text-3xl " />
-        </CardAsButton>
+        <button
+          onClick={() => updateShowNewClassModal(true)}
+          className="p-6 border w-5/12 md:w-1/4 rounded-lg hover:bg-gray-100 hover:text-black transition"
+        >
+          <NewClassCard />
+        </button>
 
         {myClasses?.map(
           (c: { id: number; description: string; year_group: string }) => (
-            <CardAsLink
+            <Link
               key={c.id}
               href={`/my-classes/${c.id}`}
-              title={c.description}
-              subtitle={c.year_group}
-            />
+              className="p-6 border w-5/12 md:w-1/4 rounded-lg hover:bg-gray-100 hover:text-black transition"
+            >
+              <ExistingClassCard
+                title={c.description}
+                subtitle={c.year_group}
+              />
+            </Link>
           )
         )}
       </div>

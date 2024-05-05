@@ -8,12 +8,12 @@ const AddNewStudent = ({
   newStudent,
   updateNewStudent,
   pronounsState,
-  addNewStudentToList,
+  addNewStudentToRegister,
 }: {
   newStudent: PreSaveStudent & { display?: boolean };
   pronounsState: Array<string>;
   updateNewStudent: (value: string, field: string) => void;
-  addNewStudentToList: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  addNewStudentToRegister: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) => {
   const { forename, surname, pronoun, dob, grad_year } = newStudent;
   const missingDetails = [forename, surname, pronoun, dob, grad_year].some(
@@ -109,7 +109,7 @@ const AddNewStudent = ({
               ? "disabled:bg-slate-300"
               : "hover:border-transparent hover:bg-green-700 focus:bg-green-700 hover:text-white focus:text-white"
           }`}
-          onClick={(e) => addNewStudentToList(e)}
+          onClick={(e) => addNewStudentToRegister(e)}
           disabled={missingDetails}
         >
           Add Student
