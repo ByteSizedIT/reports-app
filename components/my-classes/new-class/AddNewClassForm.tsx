@@ -5,7 +5,7 @@ import { useFormState } from "react-dom";
 
 import { MdDeleteForever } from "react-icons/md";
 
-import FormSubmitButton from "../authentication/FormSubmitButton";
+import FormSubmitButton from "../../authentication/FormSubmitButton";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 

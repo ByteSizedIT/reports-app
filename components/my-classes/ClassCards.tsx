@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import ExistingClassCard from "./ExistingClassCard";
 import NewClassCard from "./NewClassCard";
-import AddNewClassModal from "../new-class/AddNewClassModal";
+import AddNewClassModal from "./new-class/AddNewClassModal";
 
 import { Class } from "@/types/types";
 
