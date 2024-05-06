@@ -3,14 +3,11 @@
 import { useState, useEffect } from "react";
 import { useFormState } from "react-dom";
 
-import { MdDeleteForever } from "react-icons/md";
-
 import FormSubmitButton from "../../authentication/FormSubmitButton";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
-import { createClient } from "@/utils/supabase/clients/browserClient";
-
+// import { createClient } from "@/utils/supabase/clients/browserClient";
 // import { getYearGroupEnums } from "@/utils/supabase/db-server-queries/getYearGroupEnum";
 // import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
 // import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
@@ -21,6 +18,7 @@ import { Class, PreSaveStudent, Student } from "@/types/types";
 
 import AddNewStudent from "./AddNewStudent";
 import AddPrevClassStudents from "./AddPrevClassStudents";
+import ClassRegister from "./ClassRegister";
 
 const { currentMonth, currentYear } = calculateCurrentDate();
 const academicYearEnd = currentMonth < 8 ? currentYear : currentYear + 1;
@@ -54,13 +52,19 @@ const AddNewClassForm = ({
 
   const [newClassName, setNewClassName] = useState<string>("");
   const [yearGroup, setYearGroup] = useState<string>("");
-  const [selectPreviousClass, setSelectPreviousClass] = useState({
-    display: false,
-    selectedClass: "",
+
+  const [displayNewStudent, setDisplayNewStudent] = useState(false);
+  const [newStudent, setNewStudent] = useState<PreSaveStudent>({
+    ...initialNewStudentState,
+    organisation_id: organisationId,
   });
+  const [newClassRegister, setNewClassRegister] = useState<
+    Array<PreSaveStudent>
+  >([]);
+
   const [fetchError, setFetchError] = useState(false);
 
-  const supabase = createClient();
+  // const supabase = createClient();
 
   // Fetch pronoun enums directly from the client side
   // useEffect(() => {
@@ -124,22 +128,6 @@ const AddNewClassForm = ({
 
   if (fetchError) throw new Error();
 
-  const [displayNewStudent, setDisplayNewStudent] = useState(false);
-  const [newStudent, setNewStudent] = useState<PreSaveStudent>({
-    ...initialNewStudentState,
-    organisation_id: organisationId,
-  });
-  const [newClassRegister, setNewClassRegister] = useState<
-    Array<PreSaveStudent>
-  >([]);
-
-  function updateSelectPreviousClass(selectedClass: string) {
-    setSelectPreviousClass((oldState) => ({
-      ...oldState,
-      selectedClass,
-    }));
-  }
-
   function updateNewStudent(value: string | boolean, field: string) {
     setNewStudent((oldState) => ({
       ...oldState,
@@ -147,38 +135,17 @@ const AddNewClassForm = ({
     }));
   }
 
-  const addPrevClassStudentsToRegister = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault;
-    async function fetchClassStudents() {
-      try {
-        // Fetching directly from the client side
-        // const selectedClassStudents = await getClassStudentDetails(
-        //   supabase,
-        //   Number(selectPreviousClass.selectedClass)
-        // );
+  function addExistStudentsToRegister(selectedClassStudents: Array<Student>) {
+    console.log("updateNewClassRegister being run");
+    setNewClassRegister((prevState) => [
+      ...prevState,
+      ...selectedClassStudents,
+    ]);
+  }
 
-        // Fetching previous class' students from the server side via route handler
-        const response = await fetch(
-          `/my-classes/api/students?class_id=${selectPreviousClass.selectedClass}`
-        );
-        const jsonData = await response.json();
-        if (jsonData.error) throw new Error(jsonData.error);
-        const selectedClassStudents = jsonData;
-
-        // Either fetch method, set state
-        setNewClassRegister([
-          ...newClassRegister,
-          ...selectedClassStudents.map((s: { student: Student }) => s.student),
-        ]);
-      } catch (error) {
-        console.error(`${error}`);
-        setFetchError(true);
-      }
-    }
-    fetchClassStudents();
-  };
+  function updateFetchError(bool: boolean) {
+    setFetchError(bool);
+  }
 
   const addNewStudentToRegister = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault;
@@ -260,31 +227,12 @@ const AddNewClassForm = ({
             ))}
           </select>
         </div>
-        {myClasses?.length && (
-          <div className="flex flex-row items-center w-full mb-4">
-            <label htmlFor="prevClass">Add previous class&apos; students</label>
-            <input
-              type="checkbox"
-              id="prevClass"
-              className="accent-gray ml-4"
-              checked={selectPreviousClass.display}
-              onChange={() =>
-                setSelectPreviousClass({
-                  selectedClass: "",
-                  display: !selectPreviousClass.display,
-                })
-              }
-            />
-          </div>
-        )}
-        {selectPreviousClass.display && (
-          <AddPrevClassStudents
-            selectPreviousClass={selectPreviousClass}
-            updateSelectPreviousClass={updateSelectPreviousClass}
-            addPrevClassStudentsToRegister={addPrevClassStudentsToRegister}
-            myClasses={myClasses}
-          />
-        )}
+
+        <AddPrevClassStudents
+          myClasses={myClasses}
+          addExistStudentsToRegister={addExistStudentsToRegister}
+          updateFetchError={updateFetchError}
+        />
 
         <div className="flex flex-row w-full items-center mb-4">
           <label htmlFor="newStudent">Add new individual student[s]</label>
@@ -310,39 +258,17 @@ const AddNewClassForm = ({
             addNewStudentToRegister={addNewStudentToRegister}
           />
         )}
-
-        <div className="flex flex-col w-full items-center mb-4">
-          <label htmlFor="studentList">New Class Students</label>
-          <div
-            id="studentList"
-            className="px-4 py-2 bg-inherit border border-black w-full h-16 md:h-32 overflow-y-auto"
-          >
-            <ul>
-              {newClassRegister.map((student, index) => (
-                <div
-                  key={index}
-                  className="flex flex-row w-full items-center justify-between"
-                >
-                  <li>{`${student.surname}, ${student.forename}`}</li>
-
-                  <MdDeleteForever
-                    className="text-xl sm:text-2xl"
-                    onClick={() => {
-                      handleDeleteStudentFromRegister(index);
-                    }}
-                  />
-                </div>
-              ))}
-            </ul>
-            <input
-              type="hidden"
-              name="newClassRegister"
-              value={JSON.stringify(newClassRegister)}
-            />
-          </div>
-        </div>
+        <ClassRegister
+          newClassRegister={newClassRegister}
+          handleDeleteStudentFromRegister={handleDeleteStudentFromRegister}
+        />
         <input type="hidden" name="organisationId" value={organisationId} />
         <input type="hidden" name="academicYearEnd" value={academicYearEnd} />
+        <input
+          type="hidden"
+          name="newClassRegister"
+          value={JSON.stringify(newClassRegister)}
+        />
       </div>
       <div className="flex justify-center">
         <FormSubmitButton buttonLabel="Save" />
