@@ -132,10 +132,15 @@ const AddNewClassForm = ({
   if (fetchError) throw new Error();
 
   function addExistStudentsToRegister(selectedClassStudents: Array<Student>) {
-    setNewClassRegister((prevState) => [
-      ...prevState,
-      ...selectedClassStudents,
-    ]);
+    setNewClassRegister((prevState) => {
+      const prevStateExistingStudents = prevState.filter(
+        (s) => "id" in s
+      ) as Array<Student>;
+      const checked = selectedClassStudents.filter(
+        (s) => !prevStateExistingStudents.some((obj) => obj.id === s.id)
+      );
+      return [...prevState, ...checked];
+    });
   }
 
   function updateNewStudent(value: string | boolean, field: string) {
@@ -154,20 +159,12 @@ const AddNewClassForm = ({
 
   function addNewStudentToRegister(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault;
-    setNewClassRegister(
-      [
-        ...newClassRegister,
-        {
-          ...newStudent,
-        },
-      ].sort((a, b) => {
-        if (a.surname > b.surname) return 1;
-        if (a.surname < b.surname) return -1;
-        if (a.forename > b.forename) return 1;
-        if (a.forename < b.forename) return -1;
-        return 0;
-      })
-    );
+    setNewClassRegister([
+      ...newClassRegister,
+      {
+        ...newStudent,
+      },
+    ]);
     setNewStudent({
       ...initialNewStudentState,
       organisation_id: organisationId,
