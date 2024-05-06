@@ -18,6 +18,6 @@ export const getClassStudentDetails = async (
     >();
 
   if (!error) return classStudentData;
-  console.log(`Error fetching class details: `, error);
+  console.log(`Error fetching previous class's students details: `, error);
   throw new Error(error.message);
 };

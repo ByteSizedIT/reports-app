@@ -16,13 +16,10 @@ export async function GET(req: Request) {
 
   if (error) {
     console.log(`Error fetching pronoun enums: `, error);
-    return new Response(
-      JSON.stringify({ "Error fetching pronoun enums": error }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: JSON.stringify(error) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   return new Response(JSON.stringify(data), {

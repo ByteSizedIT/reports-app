@@ -7,13 +7,10 @@ export async function GET() {
 
   if (error) {
     console.log(`Error fetching pronoun enums: `, error);
-    return new Response(
-      JSON.stringify({ error: "Error fetching pronoun enums" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: JSON.stringify(error) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   return new Response(JSON.stringify(data), {

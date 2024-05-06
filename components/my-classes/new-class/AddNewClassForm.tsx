@@ -11,6 +11,7 @@ import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
 
+// import { getYearGroupEnums } from "@/utils/supabase/db-server-queries/getYearGroupEnum";
 // import { getPronounEnums } from "@/utils/supabase/db-server-queries/getPronounEnum";
 // import { getClassStudentDetails } from "@/utils/supabase/db-server-queries/getClassStudents";
 
@@ -48,36 +49,73 @@ const AddNewClassForm = ({
     initialFormActionState
   );
 
-  const [pronouns, setPronouns] = useState([]);
+  const [pronounEnums, setPronounEnums] = useState([]);
+  const [yearGroupEnums, setYearGroupEnums] = useState([]);
+
   const [newClassName, setNewClassName] = useState<string>("");
-  const [yearGroup, setYearGroup] = useState("");
+  const [yearGroup, setYearGroup] = useState<string>("");
   const [selectPreviousClass, setSelectPreviousClass] = useState({
     display: false,
     selectedClass: "",
   });
   const [fetchError, setFetchError] = useState(false);
 
-  // const supabase = createClient();
+  const supabase = createClient();
 
-  // Fetching directly from the client side
+  // Fetch pronoun enums directly from the client side
   // useEffect(() => {
   //   async function fetchEnums() {
-  //     const pronounEnums = await getPronounEnums(supabase);
-  //     setPronouns(pronounEnums);
+  //     try {
+  //       const pronounEnums = await getPronounEnums(supabase);
+  //       setPronounEnums(pronounEnums);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setFetchError(true);
+  //     }
   //   }
   //   fetchEnums();
   // }, []);
 
-  // Fetching on the server via route handler
+  // Fetch pronoun enums on the server via route handler
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch("/my-classes/api/pronouns");
         const jsonData = await response.json();
-        console.log({ jsonData });
-        setPronouns(jsonData);
+        if (jsonData.error) throw new Error(jsonData.error);
+        setPronounEnums(jsonData);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(`${error}`);
+        setFetchError(true);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Fetch year_group enums directly from the client side
+  // useEffect(() => {
+  //   async function fetchEnums() {
+  //     try {
+  //       const yearGroupEnums = await getYearGroupEnums(supabase);
+  //       setYearGroupEnums(yearGroupEnums);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       setFetchError(true);
+  //     }
+  //   }
+  //   fetchEnums();
+  // }, []);
+
+  // Fetch yearGroup enums on the server via route handler
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/my-classes/api/year-group");
+        const jsonData = await response.json();
+        if (jsonData.error) throw new Error(jsonData.error);
+        setYearGroupEnums(jsonData);
+      } catch (error) {
+        console.error(`${error}`);
         setFetchError(true);
       }
     };
@@ -114,26 +152,28 @@ const AddNewClassForm = ({
   ) => {
     e.preventDefault;
     async function fetchClassStudents() {
-      // Fetching directly from the client side
-      // const selectedClassStudents = await getClassStudentDetails(
-      //   supabase,
-      //   Number(selectPreviousClass.selectedClass)
-      // );
-
-      // Fetching from the server side via route handler
       try {
+        // Fetching directly from the client side
+        // const selectedClassStudents = await getClassStudentDetails(
+        //   supabase,
+        //   Number(selectPreviousClass.selectedClass)
+        // );
+
+        // Fetching previous class' students from the server side via route handler
         const response = await fetch(
           `/my-classes/api/students?class_id=${selectPreviousClass.selectedClass}`
         );
         const jsonData = await response.json();
-        console.log({ jsonData });
+        if (jsonData.error) throw new Error(jsonData.error);
         const selectedClassStudents = jsonData;
+
+        // Either fetch method, set state
         setNewClassRegister([
           ...newClassRegister,
           ...selectedClassStudents.map((s: { student: Student }) => s.student),
         ]);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(`${error}`);
         setFetchError(true);
       }
     }
@@ -188,7 +228,7 @@ const AddNewClassForm = ({
             required
           />
         </div>
-        <div className="flex flex-col md:flex-row w-full items-center mb-4">
+        {/* <div className="flex flex-col md:flex-row w-full items-center mb-4">
           <label htmlFor="yearGroup" className="md:w-1/4">
             Year Group
           </label>
@@ -201,6 +241,24 @@ const AddNewClassForm = ({
             placeholder="e.g. Year 6"
             required
           />
+        </div> */}
+        <div className="flex flex-col md:flex-row items-center mb-4">
+          <label htmlFor="yearGroup" className="md:w-1/4">
+            Year Group
+          </label>
+          <select
+            name="yearGroup"
+            className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+            value={yearGroup}
+            onChange={(e) => setYearGroup(e.target.value)}
+          >
+            <option value={""}>Select an option...</option>
+            {yearGroupEnums.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
         </div>
         {myClasses?.length && (
           <div className="flex flex-row items-center w-full mb-4">
@@ -248,7 +306,7 @@ const AddNewClassForm = ({
           <AddNewStudent
             newStudent={newStudent}
             updateNewStudent={updateNewStudent}
-            pronounsState={pronouns}
+            pronounsState={pronounEnums}
             addNewStudentToRegister={addNewStudentToRegister}
           />
         )}
