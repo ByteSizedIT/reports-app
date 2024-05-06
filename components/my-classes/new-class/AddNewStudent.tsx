@@ -106,6 +106,8 @@ const AddNewStudent = ({
               value={newStudent.dob}
               onChange={(e) => updateNewStudent(e.target.value.trim(), "dob")}
               placeholder="e.g. Year 6"
+              min="2007-01-01"
+              max={new Date().toISOString().split("T")[0]}
             />
           </div>
           <div className="flex flex-col md:flex-row items-center mb-4">
