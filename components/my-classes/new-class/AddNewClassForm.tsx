@@ -53,7 +53,6 @@ const AddNewClassForm = ({
   const [newClassName, setNewClassName] = useState<string>("");
   const [yearGroup, setYearGroup] = useState<string>("");
 
-  const [displayNewStudent, setDisplayNewStudent] = useState(false);
   const [newStudent, setNewStudent] = useState<PreSaveStudent>({
     ...initialNewStudentState,
     organisation_id: organisationId,
@@ -126,7 +125,18 @@ const AddNewClassForm = ({
     fetchData();
   }, []);
 
+  function updateFetchError(bool: boolean) {
+    setFetchError(bool);
+  }
+
   if (fetchError) throw new Error();
+
+  function addExistStudentsToRegister(selectedClassStudents: Array<Student>) {
+    setNewClassRegister((prevState) => [
+      ...prevState,
+      ...selectedClassStudents,
+    ]);
+  }
 
   function updateNewStudent(value: string | boolean, field: string) {
     setNewStudent((oldState) => ({
@@ -135,19 +145,14 @@ const AddNewClassForm = ({
     }));
   }
 
-  function addExistStudentsToRegister(selectedClassStudents: Array<Student>) {
-    console.log("updateNewClassRegister being run");
-    setNewClassRegister((prevState) => [
-      ...prevState,
-      ...selectedClassStudents,
-    ]);
+  function resetNewStudent() {
+    setNewStudent({
+      ...initialNewStudentState,
+      organisation_id: organisationId,
+    });
   }
 
-  function updateFetchError(bool: boolean) {
-    setFetchError(bool);
-  }
-
-  const addNewStudentToRegister = (e: React.MouseEvent<HTMLButtonElement>) => {
+  function addNewStudentToRegister(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault;
     setNewClassRegister(
       [
@@ -167,7 +172,7 @@ const AddNewClassForm = ({
       ...initialNewStudentState,
       organisation_id: organisationId,
     });
-  };
+  }
 
   const handleDeleteStudentFromRegister = (index: number) => {
     const newList = [...newClassRegister];
@@ -195,20 +200,6 @@ const AddNewClassForm = ({
             required
           />
         </div>
-        {/* <div className="flex flex-col md:flex-row w-full items-center mb-4">
-          <label htmlFor="yearGroup" className="md:w-1/4">
-            Year Group
-          </label>
-          <input
-            type="text"
-            name="yearGroup"
-            className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
-            value={yearGroup}
-            onChange={(e) => setYearGroup(e.target.value)}
-            placeholder="e.g. Year 6"
-            required
-          />
-        </div> */}
         <div className="flex flex-col md:flex-row items-center mb-4">
           <label htmlFor="yearGroup" className="md:w-1/4">
             Year Group
@@ -234,34 +225,19 @@ const AddNewClassForm = ({
           updateFetchError={updateFetchError}
         />
 
-        <div className="flex flex-row w-full items-center mb-4">
-          <label htmlFor="newStudent">Add new individual student[s]</label>
-          <input
-            type="checkbox"
-            id="newStudent"
-            className="accent-gray ml-4"
-            checked={displayNewStudent}
-            onChange={() => {
-              setDisplayNewStudent(!displayNewStudent);
-              setNewStudent({
-                ...initialNewStudentState,
-                organisation_id: organisationId,
-              });
-            }}
-          />
-        </div>
-        {displayNewStudent && (
-          <AddNewStudent
-            newStudent={newStudent}
-            updateNewStudent={updateNewStudent}
-            pronounsState={pronounEnums}
-            addNewStudentToRegister={addNewStudentToRegister}
-          />
-        )}
+        <AddNewStudent
+          pronounsState={pronounEnums}
+          newStudent={newStudent}
+          updateNewStudent={updateNewStudent}
+          resetNewStudent={resetNewStudent}
+          addNewStudentToRegister={addNewStudentToRegister}
+        />
+
         <ClassRegister
           newClassRegister={newClassRegister}
           handleDeleteStudentFromRegister={handleDeleteStudentFromRegister}
         />
+
         <input type="hidden" name="organisationId" value={organisationId} />
         <input type="hidden" name="academicYearEnd" value={academicYearEnd} />
         <input
