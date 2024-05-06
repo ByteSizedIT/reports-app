@@ -290,19 +290,17 @@ const AddSubjectModal = ({
         updateShowModal={updateShowSubjectModal}
         saveContent={handleSaveSubject}
       >
-        <div className="flex-1 flex flex-col justify-center items-center">
-          <label htmlFor="subjectName">Subject Name: </label>
-          <CreatableSelect
-            id="subjectName"
-            isClearable
-            isDisabled={isLoading}
-            isLoading={isLoading}
-            onChange={(newValue) => setSubject(newValue)}
-            onCreateOption={handleCreate}
-            options={options}
-            value={subject}
-          />
-        </div>
+        <label htmlFor="subjectName">Subject Name: </label>
+        <CreatableSelect
+          id="subjectName"
+          isClearable
+          isDisabled={isLoading}
+          isLoading={isLoading}
+          onChange={(newValue) => setSubject(newValue)}
+          onCreateOption={handleCreate}
+          options={options}
+          value={subject}
+        />
       </ModalInnerAdd>
     </ModalOuter>
   );

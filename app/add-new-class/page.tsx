@@ -7,4 +7,5 @@ const AddNewClass = () => {
     </div>
   );
 };
+
 export default AddNewClass;

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
-import ClassCards from "@/components/ClassCards";
+import ClassCards from "@/components/my-classes/ClassCards";
 
 const MyClasses = async () => {
   const supabase = createClient();
@@ -31,7 +31,10 @@ const MyClasses = async () => {
   return (
     <div className="w-full flex flex-col mt-8">
       <h1 className="text-center text-3xl sm:text-4xl font-bold">My Classes</h1>
-      <ClassCards myClasses={myClasses} />
+      <ClassCards
+        myClasses={myClasses}
+        organisationId={userInfo.organisation_id}
+      />
     </div>
   );
 };

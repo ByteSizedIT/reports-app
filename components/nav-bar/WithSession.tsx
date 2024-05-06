@@ -19,4 +19,5 @@ const WithSession = ({ session }: { session: Session }) => {
     </div>
   );
 };
+
 export default WithSession;
