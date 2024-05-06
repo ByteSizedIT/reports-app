@@ -14,6 +14,8 @@ import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
 import { newClassAction } from "@/utils/supabase/form-actions/newClassAction";
 
+import { sortByName } from "@/utils/functions/sortByName";
+
 import { Class, PreSaveStudent, Student } from "@/types/types";
 
 import AddNewStudent from "./AddNewStudent";
@@ -139,7 +141,7 @@ const AddNewClassForm = ({
       const checked = selectedClassStudents.filter(
         (s) => !prevStateExistingStudents.some((obj) => obj.id === s.id)
       );
-      return [...prevState, ...checked];
+      return sortByName([...prevState, ...checked]);
     });
   }
 
@@ -159,12 +161,14 @@ const AddNewClassForm = ({
 
   function addNewStudentToRegister(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault;
-    setNewClassRegister([
-      ...newClassRegister,
-      {
-        ...newStudent,
-      },
-    ]);
+    setNewClassRegister(
+      sortByName([
+        ...newClassRegister,
+        {
+          ...newStudent,
+        },
+      ])
+    );
     setNewStudent({
       ...initialNewStudentState,
       organisation_id: organisationId,
