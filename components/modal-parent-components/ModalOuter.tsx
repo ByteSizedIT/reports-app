@@ -22,7 +22,15 @@ const ModalOuter = ({
         >
           &times;
         </button>
-        {children}
+        <div
+          className={`flex flex-col w-full h-full p-4 items-center text-black text-xs ${
+            width === "w-3/4" || "w-3/4 md:w-1/3"
+              ? "sm:text-base"
+              : "md:text-base"
+          }`}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
