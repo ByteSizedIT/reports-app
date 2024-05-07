@@ -2,7 +2,7 @@
 
 // useFormStatus to show pending state while signUp and logIn forms are being submitted - returns the status for a specific <form>, so it must be defined as a child of each <form> element.
 import { useFormStatus } from "react-dom";
-import Spinner from "../Spinner";
+import Spinner from "./Spinner";
 
 const FormSubmitButton = ({
   label,
@@ -15,7 +15,7 @@ const FormSubmitButton = ({
   return (
     <>
       <button
-        className="bg-branding-background rounded-md px-4 py-2 text-branding-foreground foreground mb-2 disabled:opacity-50"
+        className="bg-branding-background rounded-md px-4 py-2 text-branding-foreground foreground mb-2 hover:bg-branding-background-hover disabled:opacity-50"
         disabled={pending}
         aria-live="off"
         aria-atomic="true"

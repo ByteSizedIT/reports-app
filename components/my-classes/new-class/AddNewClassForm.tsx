@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useFormState } from "react-dom";
 
-import FormSubmitButton from "../../authentication/FormSubmitButton";
+import FormSubmitButton from "../../FormSubmitButton";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 

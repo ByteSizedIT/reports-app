@@ -1,6 +1,6 @@
 "use client";
 
-import FormSubmitButton from "../authentication/FormSubmitButton";
+import FormSubmitButton from "../FormSubmitButton";
 
 const ModalInnerAdd = ({
   title,

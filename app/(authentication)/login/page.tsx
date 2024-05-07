@@ -2,7 +2,7 @@
 
 import { useFormState } from "react-dom";
 
-import FormSubmitButton from "@/components/authentication/FormSubmitButton";
+import FormSubmitButton from "@/components/FormSubmitButton";
 import { logIn } from "../actions";
 import Link from "next/link";
 
