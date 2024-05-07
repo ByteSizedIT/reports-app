@@ -28,7 +28,7 @@ const ModalInnerAdd = ({
         <div className="flex flex-1 flex-col items-center">{children}</div>
         <div className="flex justify-center">
           {formAction ? (
-            <FormSubmitButton buttonLabel="Save" />
+            <FormSubmitButton label="Save" pendingLabel="Saving" />
           ) : (
             <button
               type="button"

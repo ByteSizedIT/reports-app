@@ -248,7 +248,7 @@ const AddNewClassForm = ({
         />
       </div>
       <div className="flex justify-center">
-        <FormSubmitButton buttonLabel="Save" />
+        <FormSubmitButton label="Save" pendingLabel="Saving" />
         <button
           type="button"
           className="ml-2 mb-2 py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-green-700 focus:bg-green-700 text-white"
