@@ -187,27 +187,27 @@ const AddNewClassForm = ({
       className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
     >
       <div className="flex flex-1 flex-col">
-        <div className="flex flex-col md:flex-row w-full items-center mb-4">
+        <div className="flex flex-col md:flex-row w-full items-center mb-4 ">
           <label htmlFor="className" className="md:w-1/4">
             Class Name
           </label>
           <input
             type="text"
             name="className"
-            className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
+            className="w-full md:w-3/4 rounded-md p-1 sm:py-2 bg-inherit border border-black"
             value={newClassName}
             onChange={(e) => setNewClassName(e.target.value)}
             placeholder="e.g. Mulberry"
             required
           />
         </div>
-        <div className="flex flex-col md:flex-row items-center mb-4">
+        <div className="flex flex-col md:flex-row w-full items-center mb-4">
           <label htmlFor="yearGroup" className="md:w-1/4">
             Year Group
           </label>
           <select
             name="yearGroup"
-            className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+            className="w-full rounded-md p-1 sm:py-2 bg-inherit border border-black"
             value={yearGroup}
             onChange={(e) => setYearGroup(e.target.value)}
           >

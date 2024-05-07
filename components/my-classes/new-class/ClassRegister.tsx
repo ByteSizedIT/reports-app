@@ -16,7 +16,7 @@ const ClassRegister = ({
       <label htmlFor="studentList">New Class Students</label>
       <div
         id="classRegister"
-        className="px-4 py-2 bg-inherit border border-black w-full h-16 md:h-32 overflow-y-auto"
+        className="px-4 py-2 bg-inherit border border-black rounded-md w-full h-16 md:h-32 overflow-y-auto"
       >
         <ul>
           {newClassRegister.map((student, index) => (
