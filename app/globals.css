@@ -14,7 +14,10 @@
     /* (e.g layout body) */
     --btn-background: 200 10% 91%;
     --btn-background-hover: 200 10% 89%;
-    /* (e.g back buttons on login and sign out, navbar buttons, subject buttons (with border), modal-inner secondary buttons) */
+    /* (e.g secondary buttons, back buttons on login and sign out, navbar buttons, subject buttons (with border),  */
+    --modal-btn-background: 200 10% 91%;
+    --modal-btn-background-hover: 200 10% 89%;
+    /* (e.g secondary buttons in a modal - always oon a white background) */
   }
 
   @media (prefers-color-scheme: dark) {
@@ -24,6 +27,10 @@
       /* (e.g layout body) */
       --btn-background: 200 10% 9%;
       --btn-background-hover: 200 10% 12%;
+      /* (e.g secondary buttons, back buttons on login and sign out, navbar buttons, subject buttons (with border),  */
+      /* --btn-modal-background: 200 10% 91%;
+      --btn-modal-background-hover: 200 10% 89%;
+      (e.g secondary buttons in a modal - always oon a white background) */
     }
   }
 
@@ -61,11 +68,14 @@
 }
 
 @layer components {
-  .modal-primary-button {
+  .primary-button {
     @apply bg-branding-background text-branding-foreground hover:bg-branding-background-hover;
   }
-  .modal-secondary-button {
+  .secondary-button {
     @apply bg-btn-background hover:bg-btn-background-hover;
+  }
+  .modal-secondary-button {
+    @apply bg-btn-modal-background hover:bg-btn-modal-background-hover;
   }
 }
 

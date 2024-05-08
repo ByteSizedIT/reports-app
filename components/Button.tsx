@@ -6,19 +6,24 @@ type Props = {
   label?: string;
   pendingLabel?: string;
   color?: string;
-  trailingButton?: boolean;
+  leftMargin?: boolean;
+  bottomMargin?: boolean;
+  activeBorder?: boolean;
+  selectedBorder?: string;
   pending?: boolean;
   small?: boolean;
   disabled?: boolean;
   onClick?: () => void;
-  children?: any;
+  children?: React.ReactNode;
 };
 
 const Button = ({
   label,
   pendingLabel,
   color,
-  trailingButton,
+  leftMargin,
+  bottomMargin,
+  activeBorder,
   pending,
   small,
   disabled,
@@ -27,11 +32,16 @@ const Button = ({
 }: Props) => {
   return (
     <button
-      className={`rounded-md no-underline px-4 py-2 mb-2 ${
-        trailingButton ? "ml-2" : ""
-      } disabled:opacity-50 ${color}`}
+      className={`rounded-md no-underline 
+      ${color}
+      ${leftMargin && "ml-2"} 
+      ${bottomMargin && "mb-2"} 
+      ${activeBorder ? "border-2 border-green-700" : "border border-slate-500"}
+      ${small ? "px-2 py-1" : "px-4 py-2"}
+      disabled:opacity-50 
+    `}
       disabled={pending || disabled}
-      onClick={() => (onClick ? onClick() : null)}
+      onClick={onClick}
     >
       {pending ? (
         <div className="flex justify-center items-center gap-2">
@@ -39,7 +49,10 @@ const Button = ({
           <Spinner />
         </div>
       ) : (
-        label
+        <div className="flex justify-center items-center gap-2">
+          {label}
+          {children}
+        </div>
       )}
     </button>
   );

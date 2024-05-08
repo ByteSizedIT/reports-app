@@ -1,5 +1,7 @@
 "use client";
 
+// TODO: Convert to using Server actions calling Supabase RPC
+
 import { useState } from "react";
 
 // import { useFormState } from "react-dom";
@@ -324,14 +326,14 @@ const AddSubjectModal = ({
         <Button
           label="Save"
           pendingLabel="Saving"
-          color="modal-primary-button"
+          color="primary-button"
           pending={isPending}
           onClick={handleSaveSubject}
         />
         <Button
           label="Cancel"
           color="modal-secondary-button"
-          trailingButton
+          leftMargin
           onClick={() => updateShowSubjectModal(false)}
         />
       </div>

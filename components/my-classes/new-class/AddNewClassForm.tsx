@@ -185,7 +185,7 @@ const AddNewClassForm = ({
   return (
     <form
       action={formAction}
-      className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
+      className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-6"
     >
       <div className="flex flex-1 flex-col">
         <div className="flex flex-col md:flex-row w-full items-center mb-4 ">
@@ -249,11 +249,12 @@ const AddNewClassForm = ({
         />
       </div>
       <div className="flex justify-center">
-        <FormSubmitButton label="Save" pendingLabel="Saving" />
+        <FormSubmitButton label="Save" pendingLabel="Saving" bottomMargin />
         <Button
           label="Cancel"
           color="modal-secondary-button"
-          trailingButton
+          leftMargin
+          bottomMargin
           onClick={() => updateShowNewClassModal(false)}
         />
       </div>

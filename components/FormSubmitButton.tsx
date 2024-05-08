@@ -7,15 +7,19 @@ import Spinner from "./Spinner";
 const FormSubmitButton = ({
   label,
   pendingLabel,
+  bottomMargin,
 }: {
   label: string;
   pendingLabel: string;
+  bottomMargin?: boolean;
 }) => {
   const { pending } = useFormStatus();
   return (
     <>
       <button
-        className="bg-branding-background rounded-md px-4 py-2 text-branding-foreground foreground mb-2 hover:bg-branding-background-hover disabled:opacity-50"
+        className={`bg-branding-background rounded-md px-4 py-2 text-branding-foreground foreground hover:bg-branding-background-hover disabled:opacity-50 ${
+          bottomMargin && "mb-2"
+        }`}
         disabled={pending}
         aria-live="off"
         aria-atomic="true"

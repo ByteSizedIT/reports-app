@@ -3,7 +3,10 @@
 import { useState } from "react";
 
 import { ClassDetails, ReportGroup, SubjectDetails } from "@/types/types";
+
 import AddSubjectModal from "./AddSubjectModal";
+import Button from "../Button";
+import { FaPlus } from "react-icons/fa";
 
 const Subjects = ({
   organisationSubjectDataState,
@@ -35,29 +38,27 @@ const Subjects = ({
         {classDataState[0].class_subject.length > 0 &&
           classDataState[0].class_subject?.map(
             (c: { id: number; subject: any }, index: number) => (
-              <button
-                key={c.id}
-                className={`py-1 px-2
-               ${
-                 displayedSubjectId === c.id
-                   ? "border-2 border-green-700"
-                   : "border border-slate-500"
-               }  rounded-md no-underline bg-btn-background hover:bg-btn-background-hover`}
-                onClick={() => updateDisplayedSubjectId(c.id)}
-              >
-                {c.subject.description}
-              </button>
+              <>
+                <Button
+                  key={c.id}
+                  label={c.subject.description}
+                  color="secondary-button"
+                  activeBorder={displayedSubjectId === c.id}
+                  small
+                  onClick={() => updateDisplayedSubjectId(c.id)}
+                />
+              </>
             )
           )}
-        <button
-          className="px-2 rounded-md no-underline bg-green-700 hover:bg-green-800"
+        <Button
+          color="primary-button"
+          small
           onClick={() => {
-            console.log("Add subject Clicked: functionality to be added");
             updateShowSubjectModal(true);
           }}
         >
-          {"+"}
-        </button>
+          <FaPlus />
+        </Button>
       </div>
       {showSubjectModal && (
         <AddSubjectModal
