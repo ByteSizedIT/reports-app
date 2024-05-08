@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useFormState } from "react-dom";
 
 import FormSubmitButton from "../../FormSubmitButton";
+import Button from "@/components/Button";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
@@ -249,13 +250,12 @@ const AddNewClassForm = ({
       </div>
       <div className="flex justify-center">
         <FormSubmitButton label="Save" pendingLabel="Saving" />
-        <button
-          type="button"
-          className="ml-2 mb-2 py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-green-700 focus:bg-green-700 text-white"
+        <Button
+          label="Cancel"
+          color="modal-secondary-button"
+          trailingButton
           onClick={() => updateShowNewClassModal(false)}
-        >
-          Cancel
-        </button>
+        />
       </div>
       {state?.errorMessage && (
         <p
