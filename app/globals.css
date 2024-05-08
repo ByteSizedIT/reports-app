@@ -59,6 +59,16 @@
     }
   }
 }
+
+@layer components {
+  .modal-primary-button {
+    @apply bg-branding-background text-branding-foreground hover:bg-branding-background-hover;
+  }
+  .modal-secondary-button {
+    @apply bg-btn-background hover:bg-btn-background-hover;
+  }
+}
+
 .animate-in {
   animation: animateIn 0.3s ease 0.15s both;
 }
