@@ -20,7 +20,7 @@ const ModalInnerAdd = ({
   return (
     <>
       {/* <div className="flex flex-col h-full items-center text-black text-xs sm:text-base"> */}
-      <h4>{title}</h4>
+      <h2>{title}</h2>
       <form
         className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
         action={formAction}
