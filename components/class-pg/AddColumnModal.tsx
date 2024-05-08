@@ -1,5 +1,7 @@
 "use client";
 
+// TODO: Convert to using Server actions calling Supabase RPC
+
 import { useState } from "react";
 
 import CreatableSelect from "react-select/creatable";
@@ -52,10 +54,13 @@ const AddColumnModal = ({
           },
         };
       })
-      .filter(
-        (obj, index, self) =>
-          index === self.findIndex((o) => o.label === obj.label)
-      )
+      .filter((obj, index, self) => {
+        console.log("here: ", obj.value.description);
+        return (
+          index === self.findIndex((o) => o.label === obj.label) &&
+          obj.label !== "Class Register"
+        );
+      })
   );
 
   const supabase = createClient();
@@ -131,24 +136,26 @@ const AddColumnModal = ({
   }
 
   const handleCreate = (inputValue: string) => {
-    setIsLoading(true);
-    const newGroup: {
-      label: string;
-      value: ReportGroup;
-    } = {
-      label: inputValue,
-      value: {
-        id: 0, // temp value
-        organisation_id:
-          classDataState[0].class_subject[displayedSubjectIndex]
-            .class_subject_group[0]?.report_group?.organisation_id,
-        description: inputValue,
-      },
-    };
-    setOptions((prev) => [...prev, { ...newGroup }]);
-    setColumn(newGroup);
-    setNewReportGroup(true);
-    setIsLoading(false);
+    if (inputValue.toLowerCase() !== "class register") {
+      setIsLoading(true);
+      const newGroup: {
+        label: string;
+        value: ReportGroup;
+      } = {
+        label: inputValue,
+        value: {
+          id: 0, // temp value
+          organisation_id:
+            classDataState[0].class_subject[displayedSubjectIndex]
+              .class_subject_group[0]?.report_group?.organisation_id,
+          description: inputValue,
+        },
+      };
+      setOptions((prev) => [...prev, { ...newGroup }]);
+      setColumn(newGroup);
+      setNewReportGroup(true);
+      setIsLoading(false);
+    }
   };
 
   return (
