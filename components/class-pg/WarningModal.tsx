@@ -1,6 +1,6 @@
 "use client";
 
-import ModalInnerMessageOnly from "../modal-parent-components/ModalInnerMessageOnly";
+import Button from "../Button";
 import ModalOuter from "../modal-parent-components/ModalOuter";
 
 const WarningModal = ({
@@ -12,10 +12,14 @@ const WarningModal = ({
 }) => {
   return (
     <ModalOuter updateShowModal={updateShowModal} height="h-1/3" width="w-1/3">
-      <ModalInnerMessageOnly
-        message={message}
-        updateShowModal={updateShowModal}
-      ></ModalInnerMessageOnly>
+      <p className="pt-2 md:w-1/2 md:pb-4">{message}</p>
+      <div>
+        <Button
+          label="OK"
+          color="modal-secondary-button"
+          onClick={() => updateShowModal(false)}
+        />
+      </div>
     </ModalOuter>
   );
 };
