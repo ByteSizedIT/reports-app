@@ -304,7 +304,7 @@ const AddSubjectModal = ({
       height="h-1/2 md:h-1/3"
       width="w-3/4 md:w-1/3"
     >
-      <h2>{`Add a New Subject for ${classDataState[0].description}`}</h2>
+      <h2>{`Add a new Subject for ${classDataState[0].description}`}</h2>
       <form
         // action={formAction}
         className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
