@@ -11,7 +11,7 @@ import CreatableSelect from "react-select/creatable";
 // import FormSubmitButton from "../FormSubmitButton";
 import Button from "../Button";
 
-import ModalOuter from "../modal-parent-components/ModalOuter";
+import ModalOuter from "../ModalOuter";
 
 import {
   SubjectDetails,

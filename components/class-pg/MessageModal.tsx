@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "../Button";
-import ModalOuter from "../modal-parent-components/ModalOuter";
+import ModalOuter from "../ModalOuter";
 
 const MessageModal = ({
   message,

@@ -1,6 +1,6 @@
 "use client";
 
-import ModalOuter from "../modal-parent-components/ModalOuter";
+import ModalOuter from "../ModalOuter";
 import { ClassSubjectGroupStudent } from "@/types/types";
 import Button from "../Button";
 

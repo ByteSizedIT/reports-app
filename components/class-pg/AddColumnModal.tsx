@@ -8,7 +8,7 @@ import CreatableSelect from "react-select/creatable";
 
 import Button from "../Button";
 
-import ModalOuter from "../modal-parent-components/ModalOuter";
+import ModalOuter from "../ModalOuter";
 
 import {
   ClassDetails,
