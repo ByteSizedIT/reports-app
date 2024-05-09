@@ -7,11 +7,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        "branding-background": "hsl(var(--branding-background))",
+        "branding-background-hover": "hsl(var(--branding-background-hover))",
+        "branding-foreground": "hsl(var(--branding-foreground))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         btn: {
           background: "hsl(var(--btn-background))",
           "background-hover": "hsl(var(--btn-background-hover))",
+          "modal-background": "hsl(var(--modal-btn-background))",
+          "modal-background-hover": "hsl(var(--modal-btn-background-hover))",
         },
       },
     },

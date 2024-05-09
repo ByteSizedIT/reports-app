@@ -1,11 +1,17 @@
 "use client";
 
+// TODO: Convert to using Server actions calling Supabase RPC
+
 import { useState } from "react";
+
+// import { useFormState } from "react-dom";
 
 import CreatableSelect from "react-select/creatable";
 
-import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
-import ModalOuter from "../modal-parent-components/ModalOuter";
+// import FormSubmitButton from "../FormSubmitButton";
+import Button from "../Button";
+
+import ModalOuter from "../ModalOuter";
 
 import {
   SubjectDetails,
@@ -20,6 +26,8 @@ import {
 import { createClient } from "../../utils/supabase/clients/browserClient";
 import { capitaliseEachWord } from "@/utils/functions/capitaliseWords";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
+
+// const initialFormActionState = { errorMessage: "" };
 
 const AddSubjectModal = ({
   organisationSubjectDataState,
@@ -38,12 +46,18 @@ const AddSubjectModal = ({
   updateClassDataState: (newData: ClassDetails) => void;
   updateDisplayedSubjectId: (id: number) => void;
 }) => {
+  // const [state, formAction] = useFormState(
+  //   handleSaveSubject,
+  //   initialFormActionState
+  // );
+
   const [newSubject, setNewSubject] = useState<boolean>(false);
   const [subject, setSubject] = useState<{
     label: string;
     value: Subject;
   } | null>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [options, setOptions] = useState<
     Array<{ label: string; value: Subject }>
   >(
@@ -70,6 +84,7 @@ const AddSubjectModal = ({
   const supabase = createClient();
 
   async function handleSaveSubject() {
+    setIsPending(true);
     if (newSubject && subject) {
       await checkSubjectInSupabase();
     } else if (!newSubject && subject) {
@@ -79,6 +94,10 @@ const AddSubjectModal = ({
       });
     }
     updateShowSubjectModal(false);
+    setIsPending(false);
+    // return {
+    //   errorMessage: `⚠️ Could not insert new class: }`,
+    // };
   }
 
   function addToOrganisationSubjectDataState(insertedSubjectData: Subject) {
@@ -285,13 +304,14 @@ const AddSubjectModal = ({
       height="h-1/2 md:h-1/3"
       width="w-3/4 md:w-1/3"
     >
-      <ModalInnerAdd
-        title={`Add a New Subject for ${classDataState[0].description}`}
-        updateShowModal={updateShowSubjectModal}
-        saveContent={handleSaveSubject}
+      <h2>{`Add a new Subject for ${classDataState[0].description}`}</h2>
+      <form
+        // action={formAction}
+        className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
       >
         <label htmlFor="subjectName">Subject Name: </label>
         <CreatableSelect
+          className="mb-4"
           id="subjectName"
           isClearable
           isDisabled={isLoading}
@@ -301,7 +321,30 @@ const AddSubjectModal = ({
           options={options}
           value={subject}
         />
-      </ModalInnerAdd>
+      </form>
+      <div className="flex justify-center">
+        <Button
+          label="Save"
+          pendingLabel="Saving"
+          color="primary-button"
+          pending={isPending}
+          onClick={handleSaveSubject}
+        />
+        <Button
+          label="Cancel"
+          color="modal-secondary-button"
+          leftMargin
+          onClick={() => updateShowSubjectModal(false)}
+        />
+      </div>
+      {/* {state?.errorMessage && (
+        <p
+          className="p-2 bg-foreground/10 text-foreground text-center text-sm text-red-500"
+          aria-live="assertive"
+        >
+          {state.errorMessage}
+        </p>
+      )} */}
     </ModalOuter>
   );
 };

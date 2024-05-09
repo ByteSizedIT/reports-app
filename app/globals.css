@@ -4,55 +4,78 @@
 
 @layer base {
   :root {
+    /* custom CSS global color variables (ref tailwind.config.ts) */
+    --branding-background: 156, 60%, 30%;
+    --branding-background-hover: 156, 60%, 25%;
+    --branding-foreground: 200 20% 96%;
+    /* (e.g for branding) */
     --background: 200 20% 98%;
+    --foreground: 200 50% 3%;
+    /* (e.g layout body) */
     --btn-background: 200 10% 91%;
     --btn-background-hover: 200 10% 89%;
-    --foreground: 200 50% 3%;
+    /* (e.g secondary buttons, back buttons on login and sign out, navbar buttons, subject buttons (with border),  */
+    --modal-btn-background: 200 10% 91%;
+    --modal-btn-background-hover: 200 10% 89%;
+    /* (e.g secondary buttons in a modal - always oon a white background) */
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
       --background: 200 50% 3%;
+      --foreground: 200 20% 96%;
+      /* (e.g layout body) */
       --btn-background: 200 10% 9%;
       --btn-background-hover: 200 10% 12%;
-      --foreground: 200 20% 96%;
+      /* (e.g secondary buttons, back buttons on login and sign out, navbar buttons, subject buttons (with border),  */
+      /* --btn-modal-background: 200 10% 91%;
+      --btn-modal-background-hover: 200 10% 89%;
+      (e.g secondary buttons in a modal - always oon a white background) */
+    }
+  }
+
+  * {
+    @apply border-foreground/20 box-border;
+  }
+
+  h1 {
+    @apply text-2xl font-bold text-center;
+  }
+  h2 {
+    @apply text-xl font-semibold text-center;
+  }
+  h3 {
+    @apply text-lg text-center;
+  }
+  h4 {
+    @apply text-base text-center;
+  }
+
+  @screen md {
+    h1 {
+      @apply text-4xl font-bold text-center;
+    }
+    h2 {
+      @apply text-2xl font-bold text-center;
+    }
+    h3 {
+      @apply text-xl text-center;
+    }
+    h4 {
+      @apply text-lg text-center;
     }
   }
 }
 
-@layer base {
-  * {
-    @apply border-foreground/20;
-    box-sizing: border-box;
+@layer components {
+  .primary-button {
+    @apply bg-branding-background text-branding-foreground hover:bg-branding-background-hover;
   }
-
-  h1 {
-    @apply text-2xl font-bold text-center; /* Adjust text size and font weight as needed */
+  .secondary-button {
+    @apply bg-btn-background hover:bg-btn-background-hover;
   }
-  h2 {
-    @apply text-xl font-semibold text-center; /* Adjust text size and font weight as needed */
-  }
-  h3 {
-    @apply text-lg text-center; /* Adjust text size and font weight as needed */
-  }
-  h4 {
-    @apply text-base text-center; /* Adjust text size and font weight as needed */
-  }
-
-  /* Responsive variations */
-  @screen md {
-    h1 {
-      @apply text-4xl font-bold text-center; /* Apply larger text size on small screens and up */
-    }
-    h2 {
-      @apply text-3xl font-bold text-center; /* Adjust text size and font weight as needed */
-    }
-    h3 {
-      @apply text-2xl text-center; /* Adjust text size and font weight as needed */
-    }
-    h4 {
-      @apply text-xl text-center; /* Adjust text size and font weight as needed */
-    }
+  .modal-secondary-button {
+    @apply bg-btn-modal-background hover:bg-btn-modal-background-hover;
   }
 }
 

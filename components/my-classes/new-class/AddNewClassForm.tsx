@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useFormState } from "react-dom";
 
-import FormSubmitButton from "../../authentication/FormSubmitButton";
+import FormSubmitButton from "../../FormSubmitButton";
+import Button from "@/components/Button";
 
 import { calculateCurrentDate } from "@/utils/functions/calculateCurrentDate";
 
@@ -184,30 +185,30 @@ const AddNewClassForm = ({
   return (
     <form
       action={formAction}
-      className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
+      className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-6"
     >
       <div className="flex flex-1 flex-col">
-        <div className="flex flex-col md:flex-row w-full items-center mb-4">
+        <div className="flex flex-col md:flex-row w-full items-center mb-4 ">
           <label htmlFor="className" className="md:w-1/4">
             Class Name
           </label>
           <input
             type="text"
             name="className"
-            className="w-full md:w-3/4 rounded-md px-4 md:py-2 bg-inherit border border-black"
+            className="w-full md:w-3/4 rounded-md p-1 sm:py-2 bg-inherit border border-black"
             value={newClassName}
             onChange={(e) => setNewClassName(e.target.value)}
             placeholder="e.g. Mulberry"
             required
           />
         </div>
-        <div className="flex flex-col md:flex-row items-center mb-4">
+        <div className="flex flex-col md:flex-row w-full items-center mb-4">
           <label htmlFor="yearGroup" className="md:w-1/4">
             Year Group
           </label>
           <select
             name="yearGroup"
-            className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+            className="w-full rounded-md p-1 sm:py-2 bg-inherit border border-black"
             value={yearGroup}
             onChange={(e) => setYearGroup(e.target.value)}
           >
@@ -248,14 +249,14 @@ const AddNewClassForm = ({
         />
       </div>
       <div className="flex justify-center">
-        <FormSubmitButton buttonLabel="Save" />
-        <button
-          type="button"
-          className="ml-2 mb-2 py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-green-700 focus:bg-green-700 text-white"
+        <FormSubmitButton label="Save" pendingLabel="Saving" bottomMargin />
+        <Button
+          label="Cancel"
+          color="modal-secondary-button"
+          leftMargin
+          bottomMargin
           onClick={() => updateShowNewClassModal(false)}
-        >
-          Cancel
-        </button>
+        />
       </div>
       {state?.errorMessage && (
         <p

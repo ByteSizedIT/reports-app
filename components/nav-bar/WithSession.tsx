@@ -7,7 +7,7 @@ import MyClassesBtn from "./MyClassesBtn";
 const WithSession = ({ session }: { session: Session }) => {
   return (
     <div className="w-full flex items-center justify-between">
-      <p className="pl-8">Hey, {session.user.email}!</p>
+      <p className="pl-8">Logged in: {session.user.email}</p>
       <div className="flex items-center gap-4">
         <MyClassesBtn />
         <form action={signOut}>

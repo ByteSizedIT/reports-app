@@ -76,7 +76,7 @@ const AddPrevClassStudents = ({
             </label>
             <select
               id="prevClassName"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 border border-black bg-inherit"
+              className="w-full sm:w-3/4 rounded-md px-4 p-1 sm:py-2 bg-inherit border border-black"
               value={selectPreviousClass.selectedClass}
               onChange={(e) =>
                 setSelectPreviousClass((prevState) => ({

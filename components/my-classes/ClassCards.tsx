@@ -33,20 +33,19 @@ const ClassCards = ({
           <NewClassCard />
         </button>
 
-        {myClasses?.map(
-          (c: { id: number; description: string; year_group: string }) => (
-            <Link
-              key={c.id}
-              href={`/my-classes/${c.id}`}
-              className="p-6 border w-5/12 md:w-1/4 rounded-lg hover:bg-gray-100 hover:text-black transition"
-            >
-              <ExistingClassCard
-                title={c.description}
-                subtitle={c.year_group}
-              />
-            </Link>
-          )
-        )}
+        {myClasses?.map((c: Class) => (
+          <Link
+            key={c.id}
+            href={`/my-classes/${c.id}`}
+            className="p-6 border w-5/12 md:w-1/4 rounded-lg hover:bg-gray-100 hover:text-black transition"
+          >
+            <ExistingClassCard
+              title={c.description}
+              subtitle={c.year_group}
+              text={c.academic_year_end}
+            />
+          </Link>
+        ))}
       </div>
       {showNewClassModal && (
         <AddNewClassModal

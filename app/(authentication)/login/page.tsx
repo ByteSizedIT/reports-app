@@ -2,7 +2,7 @@
 
 import { useFormState } from "react-dom";
 
-import FormSubmitButton from "@/components/authentication/FormSubmitButton";
+import FormSubmitButton from "@/components/FormSubmitButton";
 import { logIn } from "../actions";
 import Link from "next/link";
 
@@ -60,7 +60,7 @@ export default function Login() {
             placeholder="••••••••"
             required
           />
-          <FormSubmitButton buttonLabel="Log In" />
+          <FormSubmitButton label="Log In" pendingLabel="Logging In" />
           {state.errorMessage && (
             <p
               className="p-2 bg-foreground/10 text-foreground text-center text-sm text-red-500"
@@ -71,7 +71,7 @@ export default function Login() {
           )}
           <p className="text-center text-sm text-foreground/50">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-white">
+            <Link href="/signup" className="text-foreground">
               Sign Up Now
             </Link>
           </p>

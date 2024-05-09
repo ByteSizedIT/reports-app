@@ -1,11 +1,14 @@
 "use client";
 
+// TODO: Convert to using Server actions calling Supabase RPC
+
 import { useState } from "react";
 
 import CreatableSelect from "react-select/creatable";
 
-import ModalInnerAdd from "../modal-parent-components/ModalInnerAdd";
-import ModalOuter from "../modal-parent-components/ModalOuter";
+import Button from "../Button";
+
+import ModalOuter from "../ModalOuter";
 
 import {
   ClassDetails,
@@ -34,6 +37,7 @@ const AddColumnModal = ({
     value: ReportGroup;
   } | null>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [options, setOptions] = useState<
     Array<{
       label: string;
@@ -52,20 +56,25 @@ const AddColumnModal = ({
           },
         };
       })
-      .filter(
-        (obj, index, self) =>
-          index === self.findIndex((o) => o.label === obj.label)
-      )
+      .filter((obj, index, self) => {
+        console.log("here: ", obj.value.description);
+        return (
+          index === self.findIndex((o) => o.label === obj.label) &&
+          obj.label !== "Class Register"
+        );
+      })
   );
 
   const supabase = createClient();
 
-  function handleSaveNewColumn() {
+  async function handleSaveNewColumn() {
+    setIsPending(true);
     if (newReportGroup && column) {
-      addReportGroupToSupabase();
+      await addReportGroupToSupabase();
     } else if (!newReportGroup && column) {
-      addClassSubjectGroupToSupabase({ ...column.value });
+      await addClassSubjectGroupToSupabase({ ...column.value });
     }
+    setIsPending(false);
   }
 
   function addClassSubjectGroupToClassDataState(
@@ -131,24 +140,26 @@ const AddColumnModal = ({
   }
 
   const handleCreate = (inputValue: string) => {
-    setIsLoading(true);
-    const newGroup: {
-      label: string;
-      value: ReportGroup;
-    } = {
-      label: inputValue,
-      value: {
-        id: 0, // temp value
-        organisation_id:
-          classDataState[0].class_subject[displayedSubjectIndex]
-            .class_subject_group[0]?.report_group?.organisation_id,
-        description: inputValue,
-      },
-    };
-    setOptions((prev) => [...prev, { ...newGroup }]);
-    setColumn(newGroup);
-    setNewReportGroup(true);
-    setIsLoading(false);
+    if (inputValue.toLowerCase() !== "class register") {
+      setIsLoading(true);
+      const newGroup: {
+        label: string;
+        value: ReportGroup;
+      } = {
+        label: inputValue,
+        value: {
+          id: 0, // temp value
+          organisation_id:
+            classDataState[0].class_subject[displayedSubjectIndex]
+              .class_subject_group[0]?.report_group?.organisation_id,
+          description: inputValue,
+        },
+      };
+      setOptions((prev) => [...prev, { ...newGroup }]);
+      setColumn(newGroup);
+      setNewReportGroup(true);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -157,13 +168,14 @@ const AddColumnModal = ({
       height="h-1/2 md:h-1/3"
       width="w-3/4 md:w-1/3"
     >
-      <ModalInnerAdd
-        title={`Add a New Report Group for ${classDataState[0].class_subject[displayedSubjectIndex].subject.description}`}
-        updateShowModal={updateShowAddModal}
-        saveContent={handleSaveNewColumn}
+      <h2>{`Add a new Subject for ${classDataState[0].description}`}</h2>
+      <form
+        // action={formAction}
+        className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
       >
         <label htmlFor="columnName">Group Name: </label>
         <CreatableSelect
+          className="mb-4"
           id="columnName"
           isClearable
           isDisabled={isLoading}
@@ -173,7 +185,30 @@ const AddColumnModal = ({
           options={options}
           value={column}
         />
-      </ModalInnerAdd>
+      </form>
+      <div className="flex justify-center">
+        <Button
+          label="Save"
+          pendingLabel="Saving"
+          color="primary-button"
+          pending={isPending}
+          onClick={handleSaveNewColumn}
+        />
+        <Button
+          label="Cancel"
+          color="modal-secondary-button"
+          leftMargin
+          onClick={() => updateShowAddModal(false)}
+        />
+      </div>
+      {/* {state?.errorMessage && (
+        <p
+          className="p-2 bg-foreground/10 text-foreground text-center text-sm text-red-500"
+          aria-live="assertive"
+        >
+          {state.errorMessage}
+        </p>
+      )} */}
     </ModalOuter>
   );
 };

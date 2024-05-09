@@ -54,7 +54,7 @@ const AddNewStudent = ({
             <input
               type="text"
               id="firstName"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
+              className="w-full sm:w-3/4 rounded-md p-1 sm:py-2 bg-inherit border border-black mb-4"
               value={newStudent.forename}
               onChange={(e) =>
                 updateNewStudent(e.target.value.trim(), "forename")
@@ -62,14 +62,14 @@ const AddNewStudent = ({
               placeholder="e.g. Jo"
             />
           </div>
-          <div className="flex flex-col items-center md:flex-row">
+          <div className="flex flex-col items-center md:flex-row mb-4">
             <label htmlFor="secondName" className="md:w-1/4">
               Second Name
             </label>
             <input
               type="text"
               id="secondName"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black mb-4"
+              className="w-full sm:w-3/4 rounded-md p-1 sm:py-2 bg-inherit border border-black"
               value={newStudent.surname}
               onChange={(e) =>
                 updateNewStudent(e.target.value.trim(), "surname")
@@ -83,7 +83,7 @@ const AddNewStudent = ({
             </label>
             <select
               id="pronouns"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+              className="w-full sm:w-3/4 rounded-md p-1 sm:py-2 bg-inherit border border-black"
               value={newStudent.pronoun}
               onChange={(e) => updateNewStudent(e.target.value, "pronoun")}
             >
@@ -102,7 +102,7 @@ const AddNewStudent = ({
             <input
               type="date"
               id="className"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+              className="w-full sm:w-3/4 rounded-md p-1 sm:py-2 bg-inherit border border-black"
               value={newStudent.dob}
               onChange={(e) => updateNewStudent(e.target.value.trim(), "dob")}
               placeholder="e.g. Year 6"
@@ -116,7 +116,7 @@ const AddNewStudent = ({
             </label>
             <select
               id="gradYear"
-              className="w-full sm:w-3/4 rounded-md px-4 sm:py-2 bg-inherit border border-black"
+              className="w-full sm:w-3/4 rounded-md p-1 sm:py-2 bg-inherit border border-black"
               value={newStudent.grad_year}
               onChange={(e) =>
                 updateNewStudent(e.target.value.trim(), "grad_year")
