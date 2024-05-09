@@ -9,7 +9,7 @@ import { ClassDetails } from "@/types/types";
 
 import Column from "./Column";
 import NewColumn from "./NewColumn";
-import WarningModal from "./WarningModal";
+import MessageModal from "./MessageModal";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
 import Link from "next/link";
@@ -250,7 +250,7 @@ const SubjectReportGroups = ({
         </>
       )}
       {showWarningModal && (
-        <WarningModal
+        <MessageModal
           message={warningMessage}
           updateShowModal={updateShowWarningModal}
         />

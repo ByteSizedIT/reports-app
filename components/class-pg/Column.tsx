@@ -11,12 +11,12 @@ import { ClassDetails, ClassSubjectGroupStudent } from "@/types/types";
 
 import StudentEntry from "./Student";
 
-import DeleteColumnModal from "./DeleteColumnModal";
+import DeleteModal from "./DeleteModal";
 import WriteReportModal from "./WriteReportModal";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
 import deepClone from "@/utils/functions/deepClone";
-import WarningModal from "./WarningModal";
+import MessageModal from "./MessageModal";
 
 interface ColumnProps {
   group: ClassSubjectGroupStudent;
@@ -134,14 +134,15 @@ const Column = ({
   return (
     <>
       {showDeleteModal && (
-        <DeleteColumnModal
+        <DeleteModal
           group={group}
           updateShowDeleteModal={updateShowDeleteModal}
-          deleteColumn={deleteColumn}
+          message={`Are you sure you want to delete the '${group.report_group.description}' column?`}
+          handleDelete={deleteColumn}
         />
       )}
       {showWarningModal && (
-        <WarningModal
+        <MessageModal
           message={warningMessage}
           updateShowModal={updateShowWarningModal}
         />
