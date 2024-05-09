@@ -7,6 +7,7 @@ type Props = {
   pendingLabel?: string;
   color?: string;
   leftMargin?: boolean;
+  topMargin?: boolean;
   bottomMargin?: boolean;
   activeBorder?: boolean;
   selectedBorder?: string;
@@ -22,6 +23,7 @@ const Button = ({
   pendingLabel,
   color,
   leftMargin,
+  topMargin,
   bottomMargin,
   activeBorder,
   pending,
@@ -35,6 +37,7 @@ const Button = ({
       className={`rounded-md no-underline 
       ${color}
       ${leftMargin && "ml-2"} 
+      ${topMargin && "mt-2"} 
       ${bottomMargin && "mb-2"} 
       ${activeBorder ? "border-2 border-green-700" : "border border-slate-500"}
       ${small ? "px-2 py-1" : "px-4 py-2"}
