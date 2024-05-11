@@ -11,6 +11,7 @@ import Button from "../Button";
 import ModalOuter from "../ModalOuter";
 
 import { ClassSubjectGroupStudent } from "@/types/types";
+import Editor from "../Editor";
 
 const WriteReportModal = ({
   group,
@@ -43,10 +44,13 @@ const WriteReportModal = ({
       <h2>
         {`${thisClassDataState.subject.description} ${group.report_group.description} Group Report`}
       </h2>
-      <form
+      {/* <form
         // action={formAction}
         className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
-      ></form>
+      ></form> */}
+      <div className="relative h-full w-full md:w-3/4 mx-auto my-4 p-2">
+        <Editor />
+      </div>
       <div className="flex justify-center">
         <Button
           label="Save"

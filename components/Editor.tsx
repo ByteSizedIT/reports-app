@@ -8,6 +8,8 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 
+interface Props {}
+
 const theme = {
   // Theme styling goes here
 };
@@ -15,7 +17,7 @@ const theme = {
 // Catch any errors that occur during Lexical updates and log them
 // or throw them as needed. If you don't throw them, Lexical will
 // try to recover gracefully without losing user data.
-function onError(error: Error) {
+function onError(error: Error): void {
   console.error(error);
 }
 
@@ -29,8 +31,12 @@ const Editor = () => {
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <RichTextPlugin
-        contentEditable={<ContentEditable />}
-        placeholder={<div>Enter some text...</div>}
+        contentEditable={
+          <ContentEditable className="w-full h-full border border-black rounded-md text-left p-2 " />
+        }
+        placeholder={
+          <div className="absolute top-4 left-4 ">Enter your text here...</div>
+        }
         ErrorBoundary={LexicalErrorBoundary}
       />
       <HistoryPlugin />
@@ -38,3 +44,5 @@ const Editor = () => {
     </LexicalComposer>
   );
 };
+
+export default Editor;
