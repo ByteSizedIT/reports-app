@@ -1,17 +1,17 @@
 "use client";
 
-// TODO: Add functionality to write/save reports
+import { useState, useEffect } from "react";
 
-import { useState } from "react";
-// import { useFormState } from "react-dom";
+import { createClient } from "@/utils/supabase/clients/browserClient";
 
-// import FormSubmitButton from "../FormSubmitButton";
 import Button from "../Button";
 
 import ModalOuter from "../ModalOuter";
 
 import { ClassSubjectGroupStudent } from "@/types/types";
+
 import Editor from "../Editor";
+import { $getRoot, $getSelection, EditorState } from "lexical";
 
 const WriteReportModal = ({
   group,
@@ -34,6 +34,50 @@ const WriteReportModal = ({
   };
 }) => {
   const [isPending, setIsPending] = useState(false);
+  const [editorState, setEditorState] = useState<EditorState | undefined>(
+    undefined
+  );
+  const [counts, setCounts] = useState({ chars: 0, words: 0 });
+
+  const supabase = createClient();
+
+  function updateEditorState(update: EditorState) {
+    setEditorState(update);
+  }
+
+  // Update character & word counts
+  useEffect(() => {
+    const editorStateTextString = editorState?.read(() =>
+      $getRoot().getTextContent()
+    );
+    const charCount = editorStateTextString?.length;
+    const wordCount = editorStateTextString
+      ?.trim()
+      .split(" ")
+      .filter((word) => word !== "").length;
+
+    setCounts({ chars: charCount || 0, words: wordCount || 0 });
+  }, [editorState]);
+
+  // Insert data into Supabase
+  const insertData = async (editorState: {}) => {
+    try {
+      setIsPending(true);
+      const { data, error } = await supabase
+        .from("class_subject_group")
+        .update([{ group_comment: JSON.stringify(editorState) }])
+        .eq("id", 290);
+      if (error) {
+        console.error("Error inserting data:", error.message);
+      } else {
+        console.log("Data inserted successfully:", data);
+      }
+    } catch (error) {
+      console.error("Error inserting data:");
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <ModalOuter
@@ -44,19 +88,20 @@ const WriteReportModal = ({
       <h2>
         {`${thisClassDataState.subject.description} ${group.report_group.description} Group Report`}
       </h2>
-      {/* <form
-        // action={formAction}
-        className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"
-      ></form> */}
-      <div className="relative h-full w-full md:w-3/4 mx-auto my-4 p-2">
-        <Editor />
+      <div className="relative h-full w-full md:w-3/4 mx-auto mt-4 p-2">
+        <Editor updateEditorState={updateEditorState} />
       </div>
+      <p className="mb-4">{`chars: ${counts.chars} | words: ${counts.words}`}</p>
       <div className="flex justify-center">
         <Button
           label="Save"
           pendingLabel="Saving"
           color="primary-button"
           pending={isPending}
+          onClick={async () => {
+            await insertData(editorState || {});
+            updateShowReportModal(false);
+          }}
         />
         <Button
           label="Cancel"
