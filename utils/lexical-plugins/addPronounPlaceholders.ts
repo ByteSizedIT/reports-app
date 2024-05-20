@@ -1,8 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { TextNode } from "lexical";
 
 export function PronounsPlugin() {
+  const regexPattern = useMemo(
+    () => /\b(he|she|they|him|her|them|himself|herself|themself)([\s,.!?*-])/gi,
+    []
+  );
+
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -15,17 +20,21 @@ export function PronounsPlugin() {
         const textContent = node.getTextContent();
 
         if (
-          /\b(him|her|them|himself|herself|themself)([\s,.!?*-])/g.test(
-            textContent
-          )
+          // /\b(he|she|they|him|her|them|himself|herself|themself)([\s,.!?*-])/gi.test(
+          regexPattern.test(textContent)
         ) {
           node.setTextContent(
             textContent.replace(
-              /\b(him|her|them|himself|herself|themself)([\s,.!?*-])/g,
+              // /\b(he|she|they|him|her|them|himself|herself|themself)([\s,.!?*-])/gi,
+              regexPattern,
               function (match, p1, p2) {
-                return p1 === "him" || p1 === "her" || p1 === "them"
-                  ? "{them}" + p2
-                  : "{themself}" + p2;
+                if (p1 === "he" || p1 === "she" || p1 === "they")
+                  return "{they}" + p2;
+                if (p1 === "He" || p1 === "She" || p1 === "They")
+                  return "{They}" + p2;
+                if (p1 === "him" || p1 === "her" || p1 === "them")
+                  return "{them}" + p2;
+                else return "{themself}" + p2;
               }
             )
           );
@@ -35,7 +44,7 @@ export function PronounsPlugin() {
       }
     );
     return () => removeNodeListener();
-  }, [editor]);
+  }, [editor, regexPattern]);
 
   return null;
 }
