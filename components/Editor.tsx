@@ -19,6 +19,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 
 import { PronounsPlugin } from "@/utils/lexical-plugins/addPronounPlaceholders";
 import { MyOnChangePlugin } from "@/utils/lexical-plugins/onChange";
+import { CompromisePlugin } from "@/utils/lexical-plugins/CompromisePlugin";
 
 interface Props {}
 
@@ -57,7 +58,8 @@ const Editor = ({
       />
       <HistoryPlugin />
       <AutoFocusPlugin />
-      <PronounsPlugin />
+      {/* <PronounsPlugin /> */}
+      <CompromisePlugin />
       <MyOnChangePlugin
         onChange={(editorState) => {
           updateEditorState(editorState);
