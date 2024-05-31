@@ -57,20 +57,59 @@ export function CompromisePlugin() {
           words.pop();
         }
 
-        // Find wordIndex that has been edited
+        // Find word that has been edited
+        let editedSentenceIndex = null;
         let editedWordIndex = null;
         let charCount = 0;
-        console.log({ words, startingCursorOffset });
-        for (let i = 0; i < words.length; i++) {
-          charCount += words[i].length + 1; // Add length of word to total char count, +1 for adding in the space at the end
-          if (startingCursorOffset && startingCursorOffset <= charCount) {
-            editedWordIndex = i;
-            break;
+
+        // let isCapitalised = false;
+
+        outerLoop: for (
+          let i = 0;
+          i <= compromiseDoc.document.length - 1;
+          i++
+        ) {
+          //   console.log("outerLoop");
+          innerLoop: for (
+            let j = 0;
+            j <= compromiseDoc.document[i].length - 1;
+            j++
+          ) {
+            // console.log("innerLoop");
+            charCount +=
+              compromiseDoc.document[i][j]["text"].length +
+              compromiseDoc.document[i][j]["pre"].length +
+              compromiseDoc.document[i][j]["post"].length;
+
+            if (startingCursorOffset && startingCursorOffset <= charCount) {
+              console.log(
+                "editedWord DOES NOT end with punctuation mark or space",
+                !/[.,!?;:\s]+$/.test(compromiseDoc.document[i][j]["post"]) // true or false
+              );
+
+              if (!/[.,!?;:\s]+$/.test(compromiseDoc.document[i][j]["post"])) {
+                console.log("breaking from inside inner loop");
+                break outerLoop;
+              }
+
+              editedSentenceIndex = i;
+              editedWordIndex = j;
+              break outerLoop;
+            }
           }
         }
 
-        if (startingCursorOffset !== null && editedWordIndex !== null) {
-          const editedWord = words[editedWordIndex];
+        if (
+          startingCursorOffset !== null &&
+          editedSentenceIndex !== null &&
+          editedWordIndex !== null
+        ) {
+          // For full words that have been edited
+          const editedWord =
+            compromiseDoc.document[editedSentenceIndex][editedWordIndex][
+              "text"
+            ];
+
           let transformedWord = null;
           let updatedCompromiseText = null;
 
