@@ -103,32 +103,47 @@ export function CompromisePlugin() {
           let updatedCompromiseText = null;
 
           // Identify whether the word needs to be transformed, and make the transformation
-          transformedWord = "test"; // TODO: use compromise library 'tags' to help identify any required changes to the edited word; All edited words just reassigned to test for now...
+          const tags =
+            compromiseDoc.document[editedSentenceIndex][editedWordIndex][
+              "tags"
+            ];
 
-          /// Update the word in the Compromise document
-          compromiseDoc.document[editedSentenceIndex][editedWordIndex]["text"] =
-            transformedWord;
+          // Pronouns
+          if (tags?.has("Pronoun") && !tags?.has("Possessive")) {
+            console.log("Pronoun Type A");
+            let regex = /^(he|she|they)$/;
+            if (regex.test(editedWord)) transformedWord = "they";
+            regex = /^(him|her)$/;
+            if (regex.test(editedWord)) transformedWord = "them";
+          }
 
-          // Get the updated textContent from the Compromise document
-          updatedCompromiseText = compromiseDoc.text();
+          if (transformedWord !== null) {
+            /// Update the word in the Compromise document
+            compromiseDoc.document[editedSentenceIndex][editedWordIndex][
+              "text"
+            ] = transformedWord;
 
-          // Update the cursor position
-          editor.update(() => {
-            const newSelection = $createRangeSelection();
-            const newOffset: number =
-              startingCursorOffset +
-              (transformedWord.length - editedWord.length);
-            newSelection.anchor.set(node.getKey(), newOffset, "text");
-            newSelection.focus.set(node.getKey(), newOffset, "text");
-            $setSelection(newSelection);
-          });
-
-          // Update the text content of the Lexical node
-          if (updatedCompromiseText) {
-            node.setTextContent(updatedCompromiseText);
+            // Get the updated textContent from the Compromise document
+            updatedCompromiseText = compromiseDoc.text();
 
             // Update the cursor position
-            node.selectEnd();
+            editor.update(() => {
+              const newSelection = $createRangeSelection();
+              const newOffset: number =
+                startingCursorOffset +
+                (transformedWord.length - editedWord.length);
+              newSelection.anchor.set(node.getKey(), newOffset, "text");
+              newSelection.focus.set(node.getKey(), newOffset, "text");
+              $setSelection(newSelection);
+            });
+
+            // Update the text content of the Lexical node
+            if (updatedCompromiseText) {
+              node.setTextContent(updatedCompromiseText);
+
+              // Update the cursor position
+              node.selectEnd();
+            }
           }
         } else {
           console.log("No index for a complete edited word found");
