@@ -9,6 +9,16 @@ import {
   $setSelection,
 } from "lexical";
 
+import nlp from "compromise";
+
+// Process text using the Compromise library
+function processText(text: string) {
+  const compromiseDoc = nlp(text);
+  //   const compromiseTags = compromiseDoc.out("tags")[0];
+  const compromiseText = compromiseDoc.text();
+  return { compromiseDoc, compromiseText };
+}
+
 export function CompromisePlugin() {
   const [editor] = useLexicalComposerContext();
 
@@ -23,6 +33,11 @@ export function CompromisePlugin() {
 
         // Get the text content of the node from the Lexical Editor
         const textContent = node.getTextContent();
+
+        // Process the text using the Compromise library
+        const { compromiseDoc, compromiseText: startingCompromiseText } =
+          processText(textContent);
+        console.log({ compromiseDoc, startingCompromiseText });
 
         // Find the current selection and the current offset of the cursor from Lexical
         const selection = $getSelection();
