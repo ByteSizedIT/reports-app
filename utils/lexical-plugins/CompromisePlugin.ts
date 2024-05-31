@@ -49,14 +49,6 @@ export function CompromisePlugin() {
           startingCursorOffset = selection.anchor.offset;
         }
 
-        // Create an array of words to search, from the starting Compromise text
-        const words = textContent.split(" ");
-
-        // If it doesn't end with a punctuation mark remove last word - as it is either unfinished, or empty space at the end of the text)
-        if (!/[.,!?;:]+$/.test(words[words.length - 1])) {
-          words.pop();
-        }
-
         // Find word that has been edited
         let editedSentenceIndex = null;
         let editedWordIndex = null;
@@ -82,13 +74,10 @@ export function CompromisePlugin() {
               compromiseDoc.document[i][j]["post"].length;
 
             if (startingCursorOffset && startingCursorOffset <= charCount) {
-              console.log(
-                "editedWord DOES NOT end with punctuation mark or space",
-                !/[.,!?;:\s]+$/.test(compromiseDoc.document[i][j]["post"]) // true or false
-              );
-
               if (!/[.,!?;:\s]+$/.test(compromiseDoc.document[i][j]["post"])) {
-                console.log("breaking from inside inner loop");
+                console.log(
+                  "editedWord DOES NOT end with punctuation mark or space: breaking from inside inner loop"
+                );
                 break outerLoop;
               }
 
@@ -116,21 +105,12 @@ export function CompromisePlugin() {
           // Identify whether the word needs to be transformed, and make the transformation
           transformedWord = "test"; // TODO: use compromise library 'tags' to help identify any required changes to the edited word; All edited words just reassigned to test for now...
 
-          // Update the edited word in the array of words
-          words[editedWordIndex] = transformedWord;
+          /// Update the word in the Compromise document
+          compromiseDoc.document[editedSentenceIndex][editedWordIndex]["text"] =
+            transformedWord;
 
-          // Create the updated text content
-          updatedCompromiseText = words.join(" ") + " "; // Add space at the end of the text
-
-          console.log({ startingCursorOffset });
-
-          console.log({ transformedWord, editedWord });
-
-          console.log(transformedWord.length - editedWord.length);
-
-          console.log(
-            startingCursorOffset + (transformedWord.length - editedWord.length)
-          );
+          // Get the updated textContent from the Compromise document
+          updatedCompromiseText = compromiseDoc.text();
 
           // Update the cursor position
           editor.update(() => {
