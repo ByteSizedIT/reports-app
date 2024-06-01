@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { TextNode } from "lexical";
@@ -39,6 +39,8 @@ function addBracesToWord(documentWord: {
 export function CompromisePlugin() {
   const [editor] = useLexicalComposerContext();
 
+  const textContentRef = useRef("");
+
   useEffect(() => {
     if (!editor) return;
 
@@ -50,6 +52,17 @@ export function CompromisePlugin() {
 
         // Get the text content of the node from the Lexical Editor
         const textContent = node.getTextContent();
+
+        // Prevent re-running the plugin for the text updated by the plugin on the previous run
+        if (textContentRef.current === textContent) {
+          console.log("we've done this already!");
+          return;
+        }
+
+        if (textContentRef.current === textContent) {
+          console.log("we've done this already!");
+          return;
+        }
 
         // Process the text using the Compromise library
         const { compromiseDoc, compromiseText: startingCompromiseText } =
@@ -153,6 +166,9 @@ export function CompromisePlugin() {
 
             // Get the updated textContent from the Compromise document
             updatedCompromiseText = compromiseDoc.text();
+
+            // Update persisted reference to text content length to prevent re-running the plugin
+            textContentRef.current = updatedCompromiseText;
 
             // Update the cursor position
             editor.update(() => {
