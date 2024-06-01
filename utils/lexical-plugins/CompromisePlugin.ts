@@ -19,6 +19,23 @@ function processText(text: string) {
   return { compromiseDoc, compromiseText };
 }
 
+// Add braces to the word in the Compromise document
+function addBracesToWord(documentWord: {
+  pre: string;
+  text: string;
+  post: string;
+}) {
+  const originalPrefixes = documentWord["pre"];
+  const originalPostfixes = documentWord["post"];
+  if (
+    originalPrefixes[originalPrefixes.length - 1] !== "{" &&
+    originalPostfixes[0] !== "}"
+  ) {
+    documentWord["pre"] = originalPrefixes + `{`;
+    documentWord["post"] = `}` + originalPostfixes;
+  }
+}
+
 export function CompromisePlugin() {
   const [editor] = useLexicalComposerContext();
 
@@ -108,7 +125,7 @@ export function CompromisePlugin() {
               "tags"
             ];
 
-          // Pronouns
+          // Transform Pronouns
           if (tags?.has("Pronoun") && !tags?.has("Possessive")) {
             console.log("Pronoun Type A");
             let regex = /^(he|she|they)$/;
@@ -118,6 +135,11 @@ export function CompromisePlugin() {
           }
 
           if (transformedWord !== null) {
+            // Add braces to the word in the Compromise document
+            addBracesToWord(
+              compromiseDoc.document[editedSentenceIndex][editedWordIndex]
+            );
+
             /// Update the word in the Compromise document
             compromiseDoc.document[editedSentenceIndex][editedWordIndex][
               "text"
