@@ -19,6 +19,19 @@ function processText(text: string) {
   return { compromiseDoc, compromiseText };
 }
 
+// Calculate the total length of a word in the Compromise document
+function calculateCompromiseWordLength(documentWord: {
+  pre: string;
+  text: string;
+  post: string;
+}) {
+  return (
+    documentWord["text"].length +
+    documentWord["pre"].length +
+    documentWord["post"].length
+  );
+}
+
 // Add braces to the word in the Compromise document
 function addBracesToWord(documentWord: {
   pre: string;
@@ -54,11 +67,6 @@ export function CompromisePlugin() {
         const textContent = node.getTextContent();
 
         // Prevent re-running the plugin for the text updated by the plugin on the previous run
-        if (textContentRef.current === textContent) {
-          console.log("we've done this already!");
-          return;
-        }
-
         if (textContentRef.current === textContent) {
           console.log("we've done this already!");
           return;
@@ -128,6 +136,7 @@ export function CompromisePlugin() {
             compromiseDoc.document[editedSentenceIndex][editedWordIndex][
               "text"
             ];
+
           const isCapitalised = /^[A-Z]/.test(editedWord);
 
           let transformedWord = null;
@@ -149,6 +158,11 @@ export function CompromisePlugin() {
           }
 
           if (transformedWord !== null) {
+            // Calculate the total length of initial edited word (incl prefixes and postfixes)
+            const editedWordTotalLength = calculateCompromiseWordLength(
+              compromiseDoc.document[editedSentenceIndex][editedWordIndex]
+            );
+
             // Identify whether edited word is capitalised
             if (isCapitalised)
               transformedWord =
@@ -170,12 +184,19 @@ export function CompromisePlugin() {
             // Update persisted reference to text content length to prevent re-running the plugin
             textContentRef.current = updatedCompromiseText;
 
+            // Calculate the total length of initial edited word (incl prefixes and postfixes)
+            const transformedWordTotalLength = calculateCompromiseWordLength(
+              compromiseDoc.document[editedSentenceIndex][editedWordIndex]
+            );
+
+            console.log({ editedWordTotalLength, transformedWordTotalLength });
+
             // Update the cursor position
             editor.update(() => {
               const newSelection = $createRangeSelection();
               const newOffset: number =
                 startingCursorOffset +
-                (transformedWord.length - editedWord.length);
+                (transformedWordTotalLength - editedWordTotalLength);
               newSelection.anchor.set(node.getKey(), newOffset, "text");
               newSelection.focus.set(node.getKey(), newOffset, "text");
               $setSelection(newSelection);
@@ -184,9 +205,6 @@ export function CompromisePlugin() {
             // Update the text content of the Lexical node
             if (updatedCompromiseText) {
               node.setTextContent(updatedCompromiseText);
-
-              // Update the cursor position
-              node.selectEnd();
             }
           }
         } else {
