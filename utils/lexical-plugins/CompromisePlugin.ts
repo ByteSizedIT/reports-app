@@ -115,6 +115,7 @@ export function CompromisePlugin() {
             compromiseDoc.document[editedSentenceIndex][editedWordIndex][
               "text"
             ];
+          const isCapitalised = /^[A-Z]/.test(editedWord);
 
           let transformedWord = null;
           let updatedCompromiseText = null;
@@ -128,13 +129,18 @@ export function CompromisePlugin() {
           // Transform Pronouns
           if (tags?.has("Pronoun") && !tags?.has("Possessive")) {
             console.log("Pronoun Type A");
-            let regex = /^(he|she|they)$/;
+            let regex = /^(he|she|they)$/i;
             if (regex.test(editedWord)) transformedWord = "they";
             regex = /^(him|her)$/;
             if (regex.test(editedWord)) transformedWord = "them";
           }
 
           if (transformedWord !== null) {
+            // Identify whether edited word is capitalised
+            if (isCapitalised)
+              transformedWord =
+                transformedWord[0].toUpperCase() + transformedWord.slice(1);
+
             // Add braces to the word in the Compromise document
             addBracesToWord(
               compromiseDoc.document[editedSentenceIndex][editedWordIndex]
