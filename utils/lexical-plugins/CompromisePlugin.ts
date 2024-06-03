@@ -68,9 +68,10 @@ function transformCompromiseWord(compromiseWord: any) {
 
   if (transformedWord) {
     // Capitalise transformedWord if original word was
-    /^[A-Z]/.test(compromiseWord["text"]);
-    transformedWord =
-      transformedWord[0].toUpperCase() + transformedWord.slice(1);
+    console.log("!!!!!!!!!!!!!!!!!!!!!!", compromiseWord["text"]);
+    if (/^[A-Z]/.test(compromiseWord["text"]))
+      transformedWord =
+        transformedWord[0].toUpperCase() + transformedWord.slice(1);
 
     // Update text of transformedWord in compromiseDoc
     compromiseWord["text"] = transformedWord;
