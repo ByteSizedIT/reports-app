@@ -160,9 +160,9 @@ export function CompromisePlugin() {
           startingCursorOffset = selection.anchor.offset;
         }
 
-        // Find word that's been edited
-        let editedSentenceIndex: number = 0;
-        let editedWordIndex: number | null = null;
+        // Find 'focused' word that the cursor is in
+        let focusedSentenceIndex: number = 0;
+        let focusedWordIndex: number | null = null;
         let charCount = 0;
 
         outerLoop: for (
@@ -185,13 +185,13 @@ export function CompromisePlugin() {
             if (startingCursorOffset && startingCursorOffset <= charCount) {
               if (!/[.,!?;:\s]+$/.test(compromiseDoc.document[i][j]["post"])) {
                 console.log(
-                  "editedWord DOES NOT end with punctuation mark or space: breaking from inside inner loop"
+                  "focusedWord DOES NOT end with punctuation mark or space: breaking from inside inner loop"
                 );
                 break outerLoop;
               }
 
-              editedSentenceIndex = i;
-              editedWordIndex = j;
+              focusedSentenceIndex = i;
+              focusedWordIndex = j;
               break outerLoop;
             }
           }
@@ -199,18 +199,18 @@ export function CompromisePlugin() {
 
         if (
           startingCursorOffset !== null &&
-          editedSentenceIndex !== null &&
-          editedWordIndex !== null
+          focusedSentenceIndex !== null &&
+          focusedWordIndex !== null
         ) {
           const {
             preTransformedWordTotalLength,
-            transformedWord: editedWordTransformed,
+            transformedWord: focusedWordTransformed,
             postTransformedWordTotalLength,
           } = transformCompromiseWord(
-            compromiseDoc.document[editedSentenceIndex][editedWordIndex]
+            compromiseDoc.document[focusedSentenceIndex][focusedWordIndex]
           );
 
-          if (editedWordTransformed && postTransformedWordTotalLength) {
+          if (focusedWordTransformed && postTransformedWordTotalLength) {
             updateLexicalNodeTextContent(
               editor,
               node,
@@ -222,16 +222,16 @@ export function CompromisePlugin() {
             );
           } else {
             if (
-              editedSentenceIndex === compromiseDoc.document.length - 1 &&
-              editedWordIndex ===
-                compromiseDoc.document[editedSentenceIndex].length - 1
+              focusedSentenceIndex === compromiseDoc.document.length - 1 &&
+              focusedWordIndex ===
+                compromiseDoc.document[focusedSentenceIndex].length - 1
             ) {
               console.log(
-                "Edited word not transformed. Last word in the document, nothing to be transformed"
+                "Focused word not transformed. Last word in the document, nothing to be transformed"
               );
             } else {
               console.log(
-                "Edited word not transformed, but not the last word in the document, check next word"
+                "Focused word not transformed, but not the last word in the document, check next word"
               );
 
               const {
@@ -239,7 +239,9 @@ export function CompromisePlugin() {
                 transformedWord,
                 postTransformedWordTotalLength,
               } = transformCompromiseWord(
-                compromiseDoc.document[editedSentenceIndex][editedWordIndex + 1]
+                compromiseDoc.document[focusedSentenceIndex][
+                  focusedWordIndex + 1
+                ]
               );
 
               if (transformedWord && postTransformedWordTotalLength) {
@@ -259,7 +261,9 @@ export function CompromisePlugin() {
             }
           }
         } else {
-          console.log("No index for a complete edited word found");
+          console.log(
+            "Focused word not complete (no trailing space or punctuation)"
+          );
         }
       }
     );
