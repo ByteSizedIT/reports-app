@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, MutableRefObject } from "react";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { TextNode } from "lexical";
@@ -14,12 +14,11 @@ import nlp from "compromise";
 // Process text using Compromise library
 function processText(text: string) {
   const compromiseDoc = nlp(text);
-  //   const compromiseTags = compromiseDoc.out("tags")[0];
   const compromiseText = compromiseDoc.text();
   return { compromiseDoc, compromiseText };
 }
 
-// Calculate total length editedWord from Compromise document
+// Calculate total length of word from Compromise document
 function calculateCompromiseWordLength(documentWord: {
   pre: string;
   text: string;
@@ -32,39 +31,94 @@ function calculateCompromiseWordLength(documentWord: {
   );
 }
 
-// Add braces to tranformedWord
-function addBracesToWord(documentWord: {
+// Add braces to word in Compromise document
+function addBracesToWord(compromiseWord: {
   pre: string;
   text: string;
   post: string;
 }) {
-  const originalPrefixes = documentWord["pre"];
-  const originalPostfixes = documentWord["post"];
+  const originalPrefixes = compromiseWord["pre"];
+  const originalPostfixes = compromiseWord["post"];
   if (
     originalPrefixes[originalPrefixes.length - 1] !== "{" &&
     originalPostfixes[0] !== "}"
   ) {
-    documentWord["pre"] = originalPrefixes + `{`;
-    documentWord["post"] = `}` + originalPostfixes;
+    compromiseWord["pre"] = originalPrefixes + `{`;
+    compromiseWord["post"] = `}` + originalPostfixes;
   }
 }
 
-function updateCompromiseWithTransformedWord(
-  compromiseDoc: any,
-  sentenceIndex: number,
-  wordIndex: number,
-  transformedWord: string
-) {
-  // Capitalise transformedWord if original word was
-  if (/^[A-Z]/.test(compromiseDoc.document[sentenceIndex][wordIndex]["text"]))
+// Transform Compromise word
+function transformCompromiseWord(compromiseWord: any) {
+  const wordText = compromiseWord["text"];
+  const wordTags = compromiseWord["tags"];
+  const preTransformedWordTotalLength =
+    calculateCompromiseWordLength(compromiseWord);
+  let transformedWord: string | null = null;
+  let postTransformedWordTotalLength: number | null = null;
+
+  // Transform Pronouns
+  if (wordTags?.has("Pronoun") && !wordTags?.has("Possessive")) {
+    console.log("Pronoun Type A");
+    let regex = /^(he|she|they)$/i;
+    if (regex.test(wordText)) transformedWord = "they";
+    regex = /^(him|her)$/;
+    if (regex.test(wordText)) transformedWord = "them";
+  }
+
+  if (transformedWord) {
+    // Capitalise transformedWord if original word was
+    /^[A-Z]/.test(compromiseWord["text"]);
     transformedWord =
       transformedWord[0].toUpperCase() + transformedWord.slice(1);
 
-  // Add braces to tranformedWord
-  addBracesToWord(compromiseDoc.document[sentenceIndex][wordIndex]);
+    // Update text of transformedWord in compromiseDoc
+    compromiseWord["text"] = transformedWord;
 
-  /// Update editedWord with transformedWord in Compromise document
-  compromiseDoc.document[sentenceIndex][wordIndex]["text"] = transformedWord;
+    // Add braces to pre and post of transformedWord in compromiseDoc
+    addBracesToWord(compromiseWord);
+
+    postTransformedWordTotalLength =
+      calculateCompromiseWordLength(compromiseWord);
+  }
+  return {
+    preTransformedWordTotalLength,
+    transformedWord,
+    postTransformedWordTotalLength,
+  };
+}
+
+// Update Lexical Editor with transformed text
+function updateLexicalNodeTextContent(
+  editor: any,
+  node: TextNode,
+  compromiseDoc: any,
+  textContentRef: MutableRefObject<string>,
+  startingCursorOffset: number,
+  transformedWordInitialLength: number,
+  transformedWordFinalLength: number,
+  nextWord: boolean = false
+) {
+  if (!nextWord) {
+    // Update the cursor position in Lexical Editor
+    editor.update(() => {
+      const newSelection = $createRangeSelection();
+      const newOffset: number = nextWord
+        ? startingCursorOffset + transformedWordFinalLength
+        : startingCursorOffset +
+          (transformedWordFinalLength - transformedWordInitialLength);
+      newSelection.anchor.set(node.getKey(), newOffset, "text");
+      newSelection.focus.set(node.getKey(), newOffset, "text");
+      $setSelection(newSelection);
+    });
+  }
+
+  // Update the text content of the node in Lexical Editor
+  const transformedTextContent = compromiseDoc.text();
+  node.setTextContent(transformedTextContent);
+
+  // Update textContentRef to prevent re-running plugin for this updated text
+  textContentRef.current = transformedTextContent;
 }
 
 export function CompromisePlugin() {
@@ -81,21 +135,22 @@ export function CompromisePlugin() {
       (node) => {
         if (!node) return;
 
-        // Get ext content of node from Lexical Editor
+        // console.log("*************NEW NODE*************");
+
+        // Get textContent of node from Lexical Editor
         const textContent = node.getTextContent();
 
         // Prevent re-running plugin for text updated by plugin on the previous run
         if (textContentRef.current === textContent) {
-          console.log("we've done this already!");
+          console.log("we've transformed this already!");
           return;
         }
 
         // Process text using the Compromise library
         const { compromiseDoc, compromiseText: startingCompromiseText } =
           processText(textContent);
-        console.log({ compromiseDoc, startingCompromiseText });
 
-        // Find current selection and current offset of cursor from Lexical
+        // Find current selection and current offset of cursor from Lexical Editor
         const selection = $getSelection();
         let startingCursorOffset: number | null = null;
         if (
@@ -109,8 +164,6 @@ export function CompromisePlugin() {
         let editedSentenceIndex: number = 0;
         let editedWordIndex: number | null = null;
         let charCount = 0;
-
-        // let isCapitalised = false;
 
         outerLoop: for (
           let i = 0;
@@ -149,55 +202,25 @@ export function CompromisePlugin() {
           editedSentenceIndex !== null &&
           editedWordIndex !== null
         ) {
-          // For full words that have been edited
-          const editedWord =
-            compromiseDoc.document[editedSentenceIndex][editedWordIndex][
-              "text"
-            ];
+          const {
+            preTransformedWordTotalLength,
+            transformedWord: editedWordTransformed,
+            postTransformedWordTotalLength,
+          } = transformCompromiseWord(
+            compromiseDoc.document[editedSentenceIndex][editedWordIndex]
+          );
 
-          let editedWordTransformed = null;
-          let nextWordTransformed = null;
-
-          let preTransformedWordTotalLength: number;
-          let transformedWordTotalLength: number;
-
-          let updatedCompromiseText = null;
-
-          // Use tags to identify whether editedWord needs to be transformed, & make transformation
-          const tags =
-            compromiseDoc.document[editedSentenceIndex][editedWordIndex][
-              "tags"
-            ];
-
-          // Transform Pronouns
-          if (tags?.has("Pronoun") && !tags?.has("Possessive")) {
-            console.log("Pronoun Type A");
-            let regex = /^(he|she|they)$/i;
-            if (regex.test(editedWord)) editedWordTransformed = "they";
-            regex = /^(him|her)$/;
-            if (regex.test(editedWord)) editedWordTransformed = "them";
-          }
-
-          // update the Compromise document/text and the Lexical Editor
-          if (editedWordTransformed !== null) {
-            // Calculate the total length of initial editedWord (incl prefixes and postfixes)
-            preTransformedWordTotalLength = calculateCompromiseWordLength(
-              compromiseDoc.document[editedSentenceIndex][editedWordIndex]
-            );
-            updateCompromiseWithTransformedWord(
+          if (editedWordTransformed && postTransformedWordTotalLength) {
+            updateLexicalNodeTextContent(
+              editor,
+              node,
               compromiseDoc,
-              editedSentenceIndex,
-              editedWordIndex,
-              editedWordTransformed
+              textContentRef,
+              startingCursorOffset,
+              preTransformedWordTotalLength,
+              postTransformedWordTotalLength
             );
-            // Calculate the total length of transformed word (incl prefixes and postfixes)
-            transformedWordTotalLength = calculateCompromiseWordLength(
-              compromiseDoc.document[editedSentenceIndex][editedWordIndex]
-            );
-          }
-
-          // If editedWord has not been transformed, check if the next word needs to be transformed - i.e editedWord assumes that cursor is always at the end of a new word. This catches when a space has been added to create a new word after the last ('edited') one
-          if (editedWordTransformed === null) {
+          } else {
             if (
               editedSentenceIndex === compromiseDoc.document.length - 1 &&
               editedWordIndex ===
@@ -208,75 +231,31 @@ export function CompromisePlugin() {
               );
             } else {
               console.log(
-                "Edited word not transformed, but ot the last word in the document, check next word"
+                "Edited word not transformed, but not the last word in the document, check next word"
               );
 
-              const nextWord =
-                compromiseDoc.document[editedSentenceIndex][
-                  editedWordIndex + 1
-                ]["text"];
+              const {
+                preTransformedWordTotalLength,
+                transformedWord,
+                postTransformedWordTotalLength,
+              } = transformCompromiseWord(
+                compromiseDoc.document[editedSentenceIndex][editedWordIndex + 1]
+              );
 
-              const nextWordTags =
-                compromiseDoc.document[editedSentenceIndex][
-                  editedWordIndex + 1
-                ]["tags"];
-
-              // Transform Pronouns
-              if (
-                nextWordTags?.has("Pronoun") &&
-                !nextWordTags?.has("Possessive")
-              ) {
-                console.log("Pronoun Type A: Next Word ");
-                let regex = /^(he|she|they)$/i;
-                if (regex.test(nextWord)) nextWordTransformed = "they";
-                regex = /^(him|her)$/;
-                if (regex.test(nextWord)) nextWordTransformed = "them";
-              }
-
-              if (nextWordTransformed !== null) {
-                // Calculate the total length of initial nextWord (incl prefixes and postfixes)
-                preTransformedWordTotalLength = calculateCompromiseWordLength(
-                  compromiseDoc.document[editedSentenceIndex][
-                    editedWordIndex + 1
-                  ]
-                );
-                updateCompromiseWithTransformedWord(
+              if (transformedWord && postTransformedWordTotalLength) {
+                updateLexicalNodeTextContent(
+                  editor,
+                  node,
                   compromiseDoc,
-                  editedSentenceIndex,
-                  editedWordIndex + 1,
-                  nextWordTransformed
+                  textContentRef,
+                  startingCursorOffset,
+                  preTransformedWordTotalLength,
+                  postTransformedWordTotalLength,
+                  true // flag to indicate that the next word is being transformed to inform the cursor position
                 );
-                // Calculate the total length of transformed word (incl prefixes and postfixes)
-                transformedWordTotalLength = calculateCompromiseWordLength(
-                  compromiseDoc.document[editedSentenceIndex][
-                    editedWordIndex + 1
-                  ]
-                );
+              } else {
+                console.log("No text transformed");
               }
-            }
-          }
-
-          if (editedWordTransformed !== null || nextWordTransformed !== null) {
-            // Get the updated textContent from the Compromise document
-            updatedCompromiseText = compromiseDoc.text();
-
-            // Update persisted reference to text content length to prevent re-running the plugin
-            textContentRef.current = updatedCompromiseText;
-
-            // Update the text content of the Lexical node
-            if (updatedCompromiseText) {
-              // Update the cursor position
-              editor.update(() => {
-                const newSelection = $createRangeSelection();
-                const newOffset: number =
-                  startingCursorOffset +
-                  (transformedWordTotalLength - preTransformedWordTotalLength);
-                newSelection.anchor.set(node.getKey(), newOffset, "text");
-                newSelection.focus.set(node.getKey(), newOffset, "text");
-                $setSelection(newSelection);
-              });
-
-              node.setTextContent(updatedCompromiseText);
             }
           }
         } else {
