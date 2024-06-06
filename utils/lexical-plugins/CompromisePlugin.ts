@@ -64,11 +64,18 @@ function transformCompromiseWord(
   let transformedWord: string | null = null;
   let postTransformedWordTotalLength: number | null = null;
 
-  // Transform Personal Pronouns
+  // Transform Pronouns
   if (wordTags?.has("Pronoun")) {
+    // Transform Personal Pronouns
     let regex = /^(he|she|they)$/i;
     if (regex.test(wordText)) {
       transformedWord = "they";
+    }
+
+    // Transform Reflexive/Intensive Pronouns
+    regex = /^(himself|herself|themself)$/i;
+    if (regex.test(wordText)) {
+      transformedWord = "themself";
     }
 
     // Transform Object Pronouns
@@ -90,7 +97,7 @@ function transformCompromiseWord(
   }
 
   // Handle that Compromise always tags 'his' as possessive pronoun(equiv to their) and not as possessive adjective (equiv to theirs). Identify and Transform Possessive Adjectives by checking if word is a noun preceded by a possessive pronoun (compromise marks possessive adjectives as possessive pronouns) or an adjective that is itself preceded by a possessive pronoun
-  if (
+  else if (
     wordIndex !== 0 &&
     ((wordTags?.has("Noun") && !wordTags?.has("Possessive")) ||
       wordTags?.has("Adjective"))
