@@ -10,6 +10,7 @@ import {
 } from "lexical";
 
 import nlp from "compromise";
+import { off } from "process";
 
 // Process text using Compromise library
 function processText(text: string) {
@@ -49,47 +50,76 @@ function addBracesToWord(compromiseWord: {
 }
 
 // Transform Compromise word
-function transformCompromiseWord(compromiseWord: any) {
-  const wordText = compromiseWord["text"];
-  const wordTags = compromiseWord["tags"];
-  const preTransformedWordTotalLength =
-    calculateCompromiseWordLength(compromiseWord);
+function transformCompromiseWord(
+  compromiseDoc: any,
+  sentanceIndex: number,
+  wordIndex: number
+) {
+  let targetedWord = compromiseDoc.document[sentanceIndex][wordIndex]; // initiate to focusedWord
+
+  let wordText = targetedWord["text"]; // initiate to focusedWord
+  let wordTags = targetedWord["tags"]; // initiate to focusedWord
+  let preTransformedWordTotalLength =
+    calculateCompromiseWordLength(targetedWord);
   let transformedWord: string | null = null;
   let postTransformedWordTotalLength: number | null = null;
 
-  // Transform Pronouns
-  if (wordTags?.has("Pronoun") && !wordTags?.has("Possessive")) {
+  // Transform Personal Pronouns
+  if (wordTags?.has("Pronoun")) {
     let regex = /^(he|she|they)$/i;
-    if (regex.test(wordText)) transformedWord = "they";
-    regex = /^(him|her)$/;
-    if (regex.test(wordText)) transformedWord = "them";
+    if (regex.test(wordText)) {
+      transformedWord = "they";
+    }
+
+    // Transform Object Pronouns
+    // Handle that Compromise always tags 'her' as a possessive pronoun (equiv to their) and not an object pronoun(equiv to them)
+    regex = /^(him|her)$/i;
+    if (regex.test(wordText)) {
+      transformedWord = "them";
+    }
+
+    // Transfer Possessive pronouns
+    // handle that Compromise incorrrectly marks it's contraction as a possessive pronoun...
+    if (wordText === "it's") transformedWord = "it's";
+    // leave 'its' as is
+    if (wordText === "its") transformedWord = null;
+    regex = /^(his|hers|theirs)$/i;
+    if (regex.test(wordText)) {
+      transformedWord = "theirs";
+    }
   }
 
-  // Possessive pronouns
-  else if (wordTags?.has("Noun") && wordTags?.has("Possessive")) {
-    console.log("Possessive pronoun");
-    // handle that Compromise incorrrectly marks this contraction as a possessive pronoun...
-    if (wordText === "it's") transformedWord = "it's";
-    // leave its as is
-    else if (wordText === "its") transformedWord = null;
-    // TODO: handle that Compromise always marks 'her' as a possessive pronoun
-    else transformedWord = "their"; // covers his/hers/their
+  // Handle that Compromise always tags 'his' as possessive pronoun(equiv to their) and not as possessive adjective (equiv to theirs). Identify and Transform Possessive Adjectives by checking if word is a noun preceded by a possessive pronoun (compromise marks possessive adjectives as possessive pronouns) or an adjective that is itself preceded by a possessive pronoun
+  if (
+    wordIndex !== 0 &&
+    ((wordTags?.has("Noun") && !wordTags?.has("Possessive")) ||
+      wordTags?.has("Adjective"))
+  ) {
+    targetedWord = compromiseDoc.document[sentanceIndex][wordIndex - 1]; // re-attribute to previousWord (word before focusedWord)
+    wordText = targetedWord["text"]; // re-attribute to previousWord (word before focusedWord)
+    wordTags = targetedWord["tags"]; // re-attribute to previousWord (word before focusedWord)
+    let regex = /^(theirs|them)$/i;
+    if (targetedWord["tags"].has("Pronoun") && regex.test(wordText)) {
+      transformedWord = "their";
+      preTransformedWordTotalLength =
+        calculateCompromiseWordLength(targetedWord);
+    }
   }
 
   if (transformedWord) {
     // Capitalise transformedWord if original word was
-    if (/^[A-Z]/.test(compromiseWord["text"]))
+    if (/^[A-Z]/.test(targetedWord["text"]))
       transformedWord =
         transformedWord[0].toUpperCase() + transformedWord.slice(1);
 
     // Update text of transformedWord in compromiseDoc
-    compromiseWord["text"] = transformedWord;
+    targetedWord["text"] = transformedWord;
 
     // Add braces to pre and post of transformedWord in compromiseDoc
-    addBracesToWord(compromiseWord);
+    addBracesToWord(targetedWord);
 
     postTransformedWordTotalLength =
-      calculateCompromiseWordLength(compromiseWord);
+      calculateCompromiseWordLength(targetedWord);
   }
   return {
     preTransformedWordTotalLength,
@@ -160,6 +190,8 @@ export function CompromisePlugin() {
         const { compromiseDoc, compromiseText: startingCompromiseText } =
           processText(textContent);
 
+        console.log({ compromiseDoc });
+
         // Find current selection and current offset of cursor from Lexical Editor
         const selection = $getSelection();
         let startingCursorOffset: number | null = null;
@@ -217,7 +249,9 @@ export function CompromisePlugin() {
             transformedWord: focusedWordTransformed,
             postTransformedWordTotalLength,
           } = transformCompromiseWord(
-            compromiseDoc.document[focusedSentenceIndex][focusedWordIndex]
+            compromiseDoc,
+            focusedSentenceIndex,
+            focusedWordIndex
           );
 
           if (focusedWordTransformed && postTransformedWordTotalLength) {
@@ -249,9 +283,9 @@ export function CompromisePlugin() {
                 transformedWord,
                 postTransformedWordTotalLength,
               } = transformCompromiseWord(
-                compromiseDoc.document[focusedSentenceIndex][
-                  focusedWordIndex + 1
-                ]
+                compromiseDoc,
+                focusedSentenceIndex,
+                focusedWordIndex + 1
               );
 
               if (transformedWord && postTransformedWordTotalLength) {
