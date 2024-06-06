@@ -59,16 +59,25 @@ function transformCompromiseWord(compromiseWord: any) {
 
   // Transform Pronouns
   if (wordTags?.has("Pronoun") && !wordTags?.has("Possessive")) {
-    console.log("Pronoun Type A");
     let regex = /^(he|she|they)$/i;
     if (regex.test(wordText)) transformedWord = "they";
     regex = /^(him|her)$/;
     if (regex.test(wordText)) transformedWord = "them";
   }
 
+  // Possessive pronouns
+  else if (wordTags?.has("Noun") && wordTags?.has("Possessive")) {
+    console.log("Possessive pronoun");
+    // handle that Compromise incorrrectly marks this contraction as a possessive pronoun...
+    if (wordText === "it's") transformedWord = "it's";
+    // leave its as is
+    else if (wordText === "its") transformedWord = null;
+    // TODO: handle that Compromise always marks 'her' as a possessive pronoun
+    else transformedWord = "their"; // covers his/hers/their
+  }
+
   if (transformedWord) {
     // Capitalise transformedWord if original word was
-    console.log("!!!!!!!!!!!!!!!!!!!!!!", compromiseWord["text"]);
     if (/^[A-Z]/.test(compromiseWord["text"]))
       transformedWord =
         transformedWord[0].toUpperCase() + transformedWord.slice(1);
