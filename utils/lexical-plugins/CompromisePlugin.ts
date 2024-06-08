@@ -12,6 +12,7 @@ import {
 import nlp from "compromise";
 
 import transformPronouns from "./transform-functions/pronouns";
+import transformAdjectives from "./transform-functions/possessiveAdjectives";
 
 // Process text using Compromise library
 function processText(text: string) {
@@ -21,7 +22,7 @@ function processText(text: string) {
 }
 
 // Calculate total length of word from Compromise document
-function calculateCompromiseWordLength(documentWord: {
+export function calculateCompromiseWordLength(documentWord: {
   pre: string;
   text: string;
   post: string;
@@ -70,20 +71,29 @@ function transformCompromiseWord(
     transformedWord = transformPronouns(wordText, transformedWord);
   }
 
-  // Handle that Compromise always tags 'his' as possessive pronoun(equiv to theirs) and not as possessive adjective (equiv to their). Identify and Transform Possessive Adjectives by checking if word is a noun preceded by a possessive pronoun (compromise marks possessive adjectives as possessive pronouns) or an adjective that is itself preceded by a possessive pronoun
+  // Handle that Compromise always tags 'his' as possessive pronoun(equiv to theirs) and not as possessive adjective (equiv to their).
   else if (
     wordIndex !== 0 &&
     ((wordTags?.has("Noun") && !wordTags?.has("Possessive")) ||
       wordTags?.has("Adjective"))
   ) {
-    targetedWord = compromiseDoc.document[sentanceIndex][wordIndex - 1]; // re-attribute to previousWord (word before focusedWord)
-    wordText = targetedWord["text"]; // re-attribute to previousWord (word before focusedWord)
-    wordTags = targetedWord["tags"]; // re-attribute to previousWord (word before focusedWord)
-    let regex = /^(his|her|their|theirs)$/i;
-    if (targetedWord["tags"].has("Pronoun") && regex.test(wordText)) {
-      transformedWord = "their";
-      preTransformedWordTotalLength =
-        calculateCompromiseWordLength(targetedWord);
+    // NOTE: destructuring only affects the inner scope. The outer variables transformedWord and preTransformedWordTotalLength remain unchanged; We therefore update the outer scope variables explicitly by relabelling the inner scope variables and then updating the outer scope variables in the subsequent if block
+    const {
+      transformedWord: transformedAdjective,
+      preTransformedWordTotalLength: preTransformedAdjectiveTotalLength,
+    } = transformAdjectives(
+      targetedWord,
+      compromiseDoc,
+      sentanceIndex,
+      wordIndex,
+      wordText,
+      wordTags,
+      transformedWord,
+      preTransformedWordTotalLength
+    );
+    if (transformedAdjective) {
+      transformedWord = transformedAdjective;
+      preTransformedWordTotalLength = preTransformedAdjectiveTotalLength;
     }
   }
 
