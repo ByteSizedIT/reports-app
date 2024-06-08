@@ -10,7 +10,8 @@ import {
 } from "lexical";
 
 import nlp from "compromise";
-import { off } from "process";
+
+import transformPronouns from "./transform-functions/pronouns";
 
 // Process text using Compromise library
 function processText(text: string) {
@@ -66,37 +67,10 @@ function transformCompromiseWord(
 
   // Transform Pronouns
   if (wordTags?.has("Pronoun")) {
-    // Transform Personal Pronouns
-    let regex = /^(he|she|they)$/i;
-    if (regex.test(wordText)) {
-      transformedWord = "they";
-    }
-
-    // Transform Reflexive/Intensive Pronouns
-    regex = /^(himself|herself|themself)$/i;
-    if (regex.test(wordText)) {
-      transformedWord = "themself";
-    }
-
-    // Transform Object Pronouns
-    // Handle that Compromise always tags 'her' as a possessive pronoun (equiv to their) and not an object pronoun(equiv to them)
-    regex = /^(him|her)$/i;
-    if (regex.test(wordText)) {
-      transformedWord = "them";
-    }
-
-    // Transfer Possessive pronouns
-    // handle that Compromise incorrrectly marks it's contraction as a possessive pronoun...
-    if (wordText === "it's") transformedWord = "it's";
-    // leave 'its' as is
-    if (wordText === "its") transformedWord = null;
-    regex = /^(his|hers|theirs)$/i;
-    if (regex.test(wordText)) {
-      transformedWord = "theirs";
-    }
+    transformedWord = transformPronouns(wordText, transformedWord);
   }
 
-  // Handle that Compromise always tags 'his' as possessive pronoun(equiv to their) and not as possessive adjective (equiv to theirs). Identify and Transform Possessive Adjectives by checking if word is a noun preceded by a possessive pronoun (compromise marks possessive adjectives as possessive pronouns) or an adjective that is itself preceded by a possessive pronoun
+  // Handle that Compromise always tags 'his' as possessive pronoun(equiv to theirs) and not as possessive adjective (equiv to their). Identify and Transform Possessive Adjectives by checking if word is a noun preceded by a possessive pronoun (compromise marks possessive adjectives as possessive pronouns) or an adjective that is itself preceded by a possessive pronoun
   else if (
     wordIndex !== 0 &&
     ((wordTags?.has("Noun") && !wordTags?.has("Possessive")) ||
@@ -105,7 +79,7 @@ function transformCompromiseWord(
     targetedWord = compromiseDoc.document[sentanceIndex][wordIndex - 1]; // re-attribute to previousWord (word before focusedWord)
     wordText = targetedWord["text"]; // re-attribute to previousWord (word before focusedWord)
     wordTags = targetedWord["tags"]; // re-attribute to previousWord (word before focusedWord)
-    let regex = /^(theirs|them)$/i;
+    let regex = /^(his|her|their|theirs)$/i;
     if (targetedWord["tags"].has("Pronoun") && regex.test(wordText)) {
       transformedWord = "their";
       preTransformedWordTotalLength =
