@@ -14,6 +14,8 @@ import nlp from "compromise";
 import transformPronouns from "./transform-functions/pronouns";
 import transformAdjectives from "./transform-functions/possessiveAdjectives";
 
+import { irregularVerbsPresent } from "../dictionaries/irregularVerbs";
+
 // Process text using Compromise library
 function processText(text: string) {
   const compromiseDoc = nlp(text);
@@ -111,7 +113,6 @@ function transformCompromiseWord(
     previousWordTags?.has("Modal") || // e.g. can play, should eat
     (previousWordTags?.has("Verb") && previousWordTags?.has("Infinitive")) // e.g. to play, to eat
   ) {
-    console.log("A");
     subjectVerbAgreement = "infinitive";
   } else if (
     previousWord === "{name}" ||
@@ -120,13 +121,36 @@ function transformCompromiseWord(
       .map((name: string) => name.toLowerCase())
       .includes(previousWord)
   ) {
-    console.log("B");
     subjectVerbAgreement = "singular";
   } else if (previousWord?.toLowerCase() === "they") {
-    console.log("C");
     subjectVerbAgreement = "plural";
   }
-  console.log({ previousWord, previousWordTags, subjectVerbAgreement });
+
+  // Transform present tense verbs to infinitive
+  if (
+    subjectVerbAgreement === "plural" &&
+    wordTags?.has("Verb") &&
+    wordTags?.has("PresentTense") &&
+    !wordTags?.has("Gerund")
+    // below commented out as still need to still need to capture and add braces to existin plural infinitive verbs - e.g. {they} play -> {they} {play} - so that the verb can be identified and transformed from generic report to masc/fem form for individual student reports
+    // &&
+    // !tags?.includes("Infinitive")
+  ) {
+    // Present tense irregular verbs to infinitive
+    if (wordText in irregularVerbsPresent) {
+      transformedWord = `${irregularVerbsPresent[wordText]}`;
+    }
+    // Present tense regular verbs to infinitive
+    else {
+      // Transform present tense verbs to infinitive by passing the word to the compromise library and calling the toInfinitive method on the verbs (i.e. the single word) and then getting the text of the word
+      transformedWord = nlp(
+        compromiseDoc.document[sentanceIndex][wordIndex]["text"]
+      )
+        .verbs()
+        .toInfinitive()
+        .text();
+    }
+  }
 
   if (transformedWord) {
     // Capitalise transformedWord if original word was
@@ -280,6 +304,13 @@ export function CompromisePlugin({
             focusedWordIndex,
             studentNames
           );
+
+          console.log("!!!!!!!!!!!!!!!!", {
+            compromiseDoc,
+            preTransformedWordTotalLength,
+            focusedWordTransformed,
+            postTransformedWordTotalLength,
+          });
 
           if (focusedWordTransformed && postTransformedWordTotalLength) {
             updateLexicalNodeTextContent(
