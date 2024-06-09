@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
 
@@ -44,6 +44,14 @@ const WriteReportModal = ({
   function updateEditorState(update: EditorState) {
     setEditorState(update);
   }
+
+  const studentNames = useMemo(
+    () =>
+      group.class_subject_group_student.map(
+        (student) => student.student.forename
+      ),
+    [group.class_subject_group_student]
+  );
 
   // Update character & word counts
   useEffect(() => {
@@ -89,7 +97,10 @@ const WriteReportModal = ({
         {`${thisClassDataState.subject.description} ${group.report_group.description} Group Report`}
       </h2>
       <div className="relative h-full w-full md:w-3/4 mx-auto mt-4 p-2">
-        <Editor updateEditorState={updateEditorState} />
+        <Editor
+          updateEditorState={updateEditorState}
+          studentNames={studentNames}
+        />
       </div>
       <p className="mb-4">{`chars: ${counts.chars} | words: ${counts.words}`}</p>
       <div className="flex justify-center">

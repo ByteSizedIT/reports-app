@@ -36,8 +36,10 @@ function onError(error: Error): void {
 
 const Editor = ({
   updateEditorState,
+  studentNames,
 }: {
   updateEditorState: (update: EditorState) => void;
+  studentNames: Array<string>;
 }) => {
   const initialConfig = {
     namespace: "MyEditor",
@@ -59,7 +61,7 @@ const Editor = ({
       <HistoryPlugin />
       <AutoFocusPlugin />
       {/* <PronounsPlugin /> */}
-      <CompromisePlugin />
+      <CompromisePlugin studentNames={studentNames} />
       <MyOnChangePlugin
         onChange={(editorState) => {
           updateEditorState(editorState);

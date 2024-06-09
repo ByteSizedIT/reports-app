@@ -55,7 +55,8 @@ function addBracesToWord(compromiseWord: {
 function transformCompromiseWord(
   compromiseDoc: any,
   sentanceIndex: number,
-  wordIndex: number
+  wordIndex: number,
+  studentNames: Array<string>
 ) {
   let targetedWord = compromiseDoc.document[sentanceIndex][wordIndex]; // initiate to focusedWord
 
@@ -96,6 +97,36 @@ function transformCompromiseWord(
       preTransformedWordTotalLength = preTransformedAdjectiveTotalLength;
     }
   }
+
+  // Transform Verbs
+
+  // Idenfify subjectVerbAgreement
+  const previousWord =
+    compromiseDoc.document[sentanceIndex][wordIndex - 1]?.["text"] ?? null;
+  const previousWordTags =
+    compromiseDoc.document[sentanceIndex][wordIndex - 1]?.["tags"] ?? null;
+  let subjectVerbAgreement = null;
+  if (
+    previousWord?.toLowerCase() === "to" || // e.g. to play, to eat
+    previousWordTags?.has("Modal") || // e.g. can play, should eat
+    (previousWordTags?.has("Verb") && previousWordTags?.has("Infinitive")) // e.g. to play, to eat
+  ) {
+    console.log("A");
+    subjectVerbAgreement = "infinitive";
+  } else if (
+    previousWord === "{name}" ||
+    previousWord === "it" ||
+    studentNames
+      .map((name: string) => name.toLowerCase())
+      .includes(previousWord)
+  ) {
+    console.log("B");
+    subjectVerbAgreement = "singular";
+  } else if (previousWord?.toLowerCase() === "they") {
+    console.log("C");
+    subjectVerbAgreement = "plural";
+  }
+  console.log({ previousWord, previousWordTags, subjectVerbAgreement });
 
   if (transformedWord) {
     // Capitalise transformedWord if original word was
@@ -152,7 +183,11 @@ function updateLexicalNodeTextContent(
   textContentRef.current = transformedTextContent;
 }
 
-export function CompromisePlugin() {
+export function CompromisePlugin({
+  studentNames,
+}: {
+  studentNames: Array<string>;
+}) {
   const [editor] = useLexicalComposerContext();
 
   const textContentRef = useRef("");
@@ -242,7 +277,8 @@ export function CompromisePlugin() {
           } = transformCompromiseWord(
             compromiseDoc,
             focusedSentenceIndex,
-            focusedWordIndex
+            focusedWordIndex,
+            studentNames
           );
 
           if (focusedWordTransformed && postTransformedWordTotalLength) {
@@ -276,7 +312,8 @@ export function CompromisePlugin() {
               } = transformCompromiseWord(
                 compromiseDoc,
                 focusedSentenceIndex,
-                focusedWordIndex + 1
+                focusedWordIndex + 1,
+                studentNames
               );
 
               if (transformedWord && postTransformedWordTotalLength) {
@@ -303,7 +340,7 @@ export function CompromisePlugin() {
       }
     );
     return () => removeNodeListener();
-  }, [editor]);
+  }, [editor, studentNames]);
 
   return null;
 }
