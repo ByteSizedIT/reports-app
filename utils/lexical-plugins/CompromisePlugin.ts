@@ -14,7 +14,10 @@ import nlp from "compromise";
 import transformPronouns from "./transform-functions/pronouns";
 import transformAdjectives from "./transform-functions/possessiveAdjectives";
 
-import { irregularVerbsPresent } from "../dictionaries/irregularVerbs";
+import {
+  irregularVerbsPresent,
+  irregularVerbsPast,
+} from "../dictionaries/irregularVerbs";
 
 // Process text using Compromise library
 function processText(text: string) {
@@ -150,6 +153,19 @@ function transformCompromiseWord(
         .toInfinitive()
         .text();
     }
+  }
+
+  // Past tense verbs
+  else if (
+    subjectVerbAgreement === "plural" &&
+    wordTags?.has("Verb") &&
+    wordTags?.has("PastTense")
+  ) {
+    // Past tense irregular verbs (only 'to be' has different singular/plural forms in the past tense?)
+    if (wordText in irregularVerbsPast) {
+      transformedWord = `${irregularVerbsPast[wordText]}`;
+    }
+    // Past tense regular verbs - remain the same in singular/plural form
   }
 
   if (transformedWord) {
