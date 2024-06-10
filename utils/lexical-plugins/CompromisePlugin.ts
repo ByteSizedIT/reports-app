@@ -68,12 +68,18 @@ function transformCompromiseWord(
   let transformedWord: string | null = null;
   let postTransformedWordTotalLength: number | null = null;
 
+  // Transform Student Names to generic 'name'
+  const regexPattern = new RegExp(`\\b(${studentNames.join("|")})\\b`, "gi");
+  if (regexPattern.test(wordText)) {
+    transformedWord = "name";
+  }
+
   // Transform Pronouns
   if (wordTags?.has("Pronoun")) {
     transformedWord = transformPronouns(wordText, transformedWord);
   }
 
-  // Handle that Compromise always tags 'his' as possessive pronoun(equiv to theirs) and not as possessive adjective (equiv to their).
+  // Transform Possessive Adjectives: Handle that Compromise always tags 'his' as possessive pronoun(equiv to theirs) and not as possessive adjective (equiv to their).
   else if (
     wordIndex !== 0 &&
     ((wordTags?.has("Noun") && !wordTags?.has("Possessive")) ||
