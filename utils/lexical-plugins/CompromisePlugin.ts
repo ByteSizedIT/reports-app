@@ -13,11 +13,7 @@ import nlp from "compromise";
 
 import transformPronouns from "./transform-functions/pronouns";
 import transformAdjectives from "./transform-functions/possessiveAdjectives";
-
-import {
-  irregularVerbsPresent,
-  irregularVerbsPast,
-} from "../dictionaries/irregularVerbs";
+import transformVerbs from "./transform-functions/verbs";
 
 // Process text using Compromise library
 function processText(text: string) {
@@ -104,68 +100,16 @@ function transformCompromiseWord(
   }
 
   // Transform Verbs
-
-  // Idenfify subjectVerbAgreement
-  const previousWord =
-    compromiseDoc.document[sentanceIndex][wordIndex - 1]?.["text"] ?? null;
-  const previousWordTags =
-    compromiseDoc.document[sentanceIndex][wordIndex - 1]?.["tags"] ?? null;
-  let subjectVerbAgreement = null;
-  if (
-    previousWord?.toLowerCase() === "to" || // e.g. to play, to eat
-    previousWordTags?.has("Modal") || // e.g. can play, should eat
-    (previousWordTags?.has("Verb") && previousWordTags?.has("Infinitive")) // e.g. to play, to eat
-  ) {
-    subjectVerbAgreement = "infinitive";
-  } else if (
-    previousWord === "{name}" ||
-    previousWord === "it" ||
-    studentNames
-      .map((name: string) => name.toLowerCase())
-      .includes(previousWord)
-  ) {
-    subjectVerbAgreement = "singular";
-  } else if (previousWord?.toLowerCase() === "they") {
-    subjectVerbAgreement = "plural";
-  }
-
-  // Transform present tense verbs to infinitive
-  if (
-    subjectVerbAgreement === "plural" &&
-    wordTags?.has("Verb") &&
-    wordTags?.has("PresentTense") &&
-    !wordTags?.has("Gerund")
-    // below commented out as still need to still need to capture and add braces to existin plural infinitive verbs - e.g. {they} play -> {they} {play} - so that the verb can be identified and transformed from generic report to masc/fem form for individual student reports
-    // &&
-    // !tags?.includes("Infinitive")
-  ) {
-    // Present tense irregular verbs to infinitive
-    if (wordText in irregularVerbsPresent) {
-      transformedWord = `${irregularVerbsPresent[wordText]}`;
-    }
-    // Present tense regular verbs to infinitive
-    else {
-      // Transform present tense verbs to infinitive by passing the word to the compromise library and calling the toInfinitive method on the verbs (i.e. the single word) and then getting the text of the word
-      transformedWord = nlp(
-        compromiseDoc.document[sentanceIndex][wordIndex]["text"]
-      )
-        .verbs()
-        .toInfinitive()
-        .text();
-    }
-  }
-
-  // Past tense verbs
-  else if (
-    subjectVerbAgreement === "plural" &&
-    wordTags?.has("Verb") &&
-    wordTags?.has("PastTense")
-  ) {
-    // Past tense irregular verbs (only 'to be' has different singular/plural forms in the past tense?)
-    if (wordText in irregularVerbsPast) {
-      transformedWord = `${irregularVerbsPast[wordText]}`;
-    }
-    // Past tense regular verbs - remain the same in singular/plural form
+  if (wordTags?.has("Verb")) {
+    transformedWord = transformVerbs(
+      compromiseDoc,
+      sentanceIndex,
+      wordIndex,
+      wordText,
+      wordTags,
+      studentNames,
+      transformedWord
+    );
   }
 
   if (transformedWord) {
