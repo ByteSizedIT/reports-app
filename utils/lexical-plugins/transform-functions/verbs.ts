@@ -10,7 +10,6 @@ import {
 export default function verbs(
   compromiseDoc: any,
   sentanceIndex: number,
-  wordIndex: number,
   wordText: string,
   wordTags: any,
   studentNames: Array<string>,
@@ -19,7 +18,6 @@ export default function verbs(
   const subjectVerbAgreement = calculateSubjectVerbAgreement(
     compromiseDoc,
     sentanceIndex,
-    wordIndex,
     studentNames
   );
 
@@ -29,7 +27,7 @@ export default function verbs(
     wordTags?.has("Verb") &&
     wordTags?.has("PresentTense") &&
     !wordTags?.has("Gerund")
-    // below commented out as still need to still need to capture and add braces to existin plural infinitive verbs - e.g. {they} play -> {they} {play} - so that the verb can be identified and transformed from generic report to masc/fem form for individual student reports
+    // below commented out as still need to still need to capture and add braces to existing plural infinitive verbs - e.g. {they} play -> {they} {play} - so that the verb can be identified and transformed from generic report to masc/fem form for individual student reports
     // &&
     // !tags?.includes("Infinitive")
   ) {
