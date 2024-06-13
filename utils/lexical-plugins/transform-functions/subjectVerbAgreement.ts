@@ -1,23 +1,44 @@
+import nlp from "compromise";
+
 export default function calculateSubjectVerbAgreement(
   compromiseDoc: any,
   sentanceIndex: number,
+  wordIndex: number,
   studentNames: Array<string>
 ) {
-  const precedingText = compromiseDoc.document[sentanceIndex].slice(0, -1);
+  const currentWord =
+    compromiseDoc.document[sentanceIndex][wordIndex]?.["text"] ?? null;
+  const currentWordTags =
+    compromiseDoc.document[sentanceIndex][wordIndex]?.["tags"] ?? null;
 
-  // loop through previous words to also find subjectVerb agreement for 'listed' verbs = e.g. He reads and WRITES
+  let subjectVerbAgreement = null;
+
+  if (
+    currentWordTags?.has("Verb") &&
+    (nlp(currentWord).verbs().isSingular() ||
+      nlp(currentWord).verbs().isPlural())
+  ) {
+    subjectVerbAgreement = "plural";
+  }
+
+  const precedingText = compromiseDoc.document[sentanceIndex].slice(0, -1);
   for (let i = precedingText.length - 1; i >= 0; i--) {
+    // Idenfify subjectVerbAgreement
     const previousWord =
       compromiseDoc.document[sentanceIndex][i]?.["text"] ?? null;
     const previousWordTags =
       compromiseDoc.document[sentanceIndex][i]?.["tags"] ?? null;
 
     if (
-      previousWord?.toLowerCase() === "to" || // e.g. to play, to eat
-      previousWordTags?.has("Modal") || // e.g. can play, should eat
-      (previousWordTags?.has("Verb") && previousWordTags?.has("Infinitive")) // e.g. to play, to eat
+      (currentWordTags.has("Infinitive") &&
+        previousWord?.toLowerCase() === "to") || // e.g. to play, to eat
+      previousWordTags?.has("Modal")
+      // e.g. can play, should eat
+      //  || (previousWordTags?.has("Verb") && previousWordTags?.has("Infinitive")) // plurals also marked as infinitive in compromise so can't use this
     ) {
-      return "infinitive";
+      // e.g. to play, to eat
+      subjectVerbAgreement = "infinitive";
+      break;
     } else if (
       previousWord === "name" ||
       previousWord === "it" ||
@@ -25,9 +46,12 @@ export default function calculateSubjectVerbAgreement(
         .map((name: string) => name.toLowerCase())
         .includes(previousWord)
     ) {
-      return "singular";
+      subjectVerbAgreement = "singular";
+      break;
     } else if (previousWord?.toLowerCase() === "they") {
-      return "plural";
+      subjectVerbAgreement = "plural";
+      break;
     }
   }
+  return subjectVerbAgreement;
 }

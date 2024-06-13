@@ -110,6 +110,7 @@ function transformCompromiseWord(
     transformedWord = transformVerbs(
       compromiseDoc,
       sentanceIndex,
+      wordIndex,
       wordText,
       wordTags,
       studentNames,

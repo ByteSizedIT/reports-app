@@ -10,6 +10,7 @@ import {
 export default function verbs(
   compromiseDoc: any,
   sentanceIndex: number,
+  wordIndex: number,
   wordText: string,
   wordTags: any,
   studentNames: Array<string>,
@@ -18,6 +19,7 @@ export default function verbs(
   const subjectVerbAgreement = calculateSubjectVerbAgreement(
     compromiseDoc,
     sentanceIndex,
+    wordIndex,
     studentNames
   );
 
