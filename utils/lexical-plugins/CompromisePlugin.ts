@@ -90,9 +90,7 @@ function transformCompromiseWord(
       transformedWord: transformedAdjective,
       preTransformedWordTotalLength: preTransformedAdjectiveTotalLength,
     } = transformAdjectives(
-      targetedWord,
-      compromiseDoc,
-      sentanceIndex,
+      compromiseDoc.document[sentanceIndex],
       wordIndex,
       wordText,
       wordTags,
