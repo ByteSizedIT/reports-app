@@ -8,7 +8,7 @@ import Button from "../Button";
 
 import ModalOuter from "../ModalOuter";
 
-import { ClassSubjectGroupStudent } from "@/types/types";
+import { Student, ClassSubjectGroupStudent } from "@/types/types";
 
 import Editor from "../Editor";
 import { $getRoot, $getSelection, EditorState } from "lexical";
@@ -28,7 +28,7 @@ const WriteReportModal = ({
     class_subject_group: {
       report_group: { id: number; description: string };
       class_subject_group_student: {
-        student: { id: number };
+        student: Student;
       }[];
     }[];
   };
