@@ -12,6 +12,7 @@ export type ClassDetails = Array<{
   year_group: any;
   organisation_id: any;
   class_student: Array<{
+    student: Student;
     class_id: number;
     student_id: number;
   }>;

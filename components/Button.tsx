@@ -16,6 +16,7 @@ type Props = {
   disabled?: boolean;
   onClick?: () => void;
   children?: React.ReactNode;
+  width?: string;
 };
 
 const Button = ({
@@ -31,6 +32,7 @@ const Button = ({
   disabled,
   onClick,
   children,
+  width,
 }: Props) => {
   return (
     <button
@@ -42,6 +44,7 @@ const Button = ({
       ${activeBorder ? "border-2 border-green-700" : "border border-slate-500"}
       ${small ? "px-2 py-1" : "px-4 py-2"}
       disabled:opacity-50 
+      ${width}
     `}
       disabled={pending || disabled}
       onClick={onClick}

@@ -35,6 +35,7 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
         {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
       </h1>
       <h3>Select pupil on left to edit their own reports</h3>
+      <PupilReportComponent classStudents={classData[0].class_student} />
     </div>
   );
 };
