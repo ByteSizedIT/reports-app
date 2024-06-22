@@ -98,6 +98,7 @@ const WriteReportModal = ({
       </h2>
       <div className="relative h-full w-full md:w-3/4 mx-auto mt-4 p-2">
         <Editor
+          editorState={editorState}
           updateEditorState={updateEditorState}
           studentNames={studentNames}
         />

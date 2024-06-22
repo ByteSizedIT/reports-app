@@ -7,6 +7,7 @@ import {
   EditorState,
   TextNode,
 } from "lexical";
+
 import { useEffect } from "react";
 
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
@@ -35,16 +36,20 @@ function onError(error: Error): void {
 }
 
 const Editor = ({
+  editorState,
   updateEditorState,
   studentNames,
 }: {
+  editorState: EditorState | undefined;
   updateEditorState: (update: EditorState) => void;
   studentNames: Array<string>;
 }) => {
   const initialConfig = {
     namespace: "MyEditor",
+    editorState: editorState,
     theme,
     onError,
+    // onError: (error, editor) => {},
   };
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 import { Student, Subject, ClassSubjectGroupStudent } from "@/types/types";
 
@@ -22,6 +22,11 @@ const PupilReportComponent = ({
     class_subject_group: Array<ClassSubjectGroupStudent>;
   }>;
 }) => {
+  const studentNames = useMemo(
+    () => classStudents.map((student) => student.student.forename),
+    [classStudents]
+  );
+
   // Get reports for given/selected studentId
   const getStudentReports = useCallback(
     (studentId: number) => {
@@ -77,7 +82,7 @@ const PupilReportComponent = ({
                     key={item.id}
                     item={item}
                     index={index}
-                    selectedPupil={selectedStudent}
+                    studentNames={studentNames}
                     studentComment={studentComment}
                   />
                 ))}
