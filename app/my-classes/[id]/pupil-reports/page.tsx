@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/clients/serverClient";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
+import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
 import { notFound, redirect } from "next/navigation";
 
@@ -27,7 +28,7 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
     notFound();
   }
 
-  console.log("CLASS DATA", JSON.stringify(classData, null, 2));
+  const studentComments = await getStudentComments(id);
 
   return (
     <div className="w-full m-8">
@@ -38,6 +39,7 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
       <PupilReportComponent
         classStudents={classData[0].class_student}
         classSubjects={classData[0].class_subject}
+        studentComments={studentComments}
       />
     </div>
   );

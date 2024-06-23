@@ -2,7 +2,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-import { Student, Subject, ClassSubjectGroupStudent } from "@/types/types";
+import {
+  Student,
+  Subject,
+  ClassSubjectGroupStudent,
+  StudentComment,
+} from "@/types/types";
 
 import Button from "../Button";
 import { PupilSubjectReport } from "./PupilSubjectReport";
@@ -10,6 +15,7 @@ import { PupilSubjectReport } from "./PupilSubjectReport";
 const PupilReportComponent = ({
   classStudents,
   classSubjects,
+  studentComments,
 }: {
   classStudents: Array<{
     student: Student;
@@ -21,6 +27,7 @@ const PupilReportComponent = ({
     subject: Subject;
     class_subject_group: Array<ClassSubjectGroupStudent>;
   }>;
+  studentComments: Array<StudentComment>;
 }) => {
   const studentNames = useMemo(
     () => classStudents.map((student) => student.student.forename),
@@ -28,7 +35,7 @@ const PupilReportComponent = ({
   );
 
   // Get reports for given/selected studentId
-  const getStudentReports = useCallback(
+  const getStudentsGroupReports = useCallback(
     (studentId: number) => {
       return classSubjects.map((item) => ({
         id: item.id,
@@ -47,15 +54,13 @@ const PupilReportComponent = ({
   const [selectedStudent, setSelectedStudent] = useState<number>(
     classStudents[0].student.id
   );
-  const [selectedStudentReports, setSelectedStudentReports] = useState(
-    getStudentReports(selectedStudent)
-  );
-  const [studentComment, setStudentComment] = useState<Array<string>>();
+  const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
+    useState(getStudentsGroupReports(selectedStudent));
 
   useEffect(() => {
-    const pupilReports = getStudentReports(selectedStudent);
-    setSelectedStudentReports(pupilReports);
-  }, [selectedStudent, getStudentReports]);
+    const pupilReports = getStudentsGroupReports(selectedStudent);
+    setSelectedStudentsGroupReports(pupilReports);
+  }, [selectedStudent, getStudentsGroupReports]);
 
   return (
     <div className="flex flex-col md:flex-row md:gap-8 m-8">
@@ -75,15 +80,15 @@ const PupilReportComponent = ({
           </div>
           <div className="md:w-3/4">
             <div className="w-full flex flex-col gap-8">
-              {selectedStudentReports
+              {selectedStudentsGroupReports
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
-                .map((item, index) => (
+                .map((item) => (
                   <PupilSubjectReport
                     key={item.id}
                     item={item}
-                    index={index}
                     studentNames={studentNames}
-                    studentComment={studentComment}
+                    studentComments={studentComments}
+                    selectedStudent={selectedStudent}
                   />
                 ))}
             </div>

@@ -1,24 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import { EditorState } from "lexical";
 
 import Editor from "../Editor";
+import { StudentComment } from "@/types/types";
 
 export const PupilSubjectReport = ({
   item,
-  index,
   studentNames,
-  studentComment,
+  studentComments,
+  selectedStudent,
 }: {
   item: any;
-  index: number;
   studentNames: Array<string>;
-  studentComment: Array<string> | undefined;
+  studentComments: Array<StudentComment>;
+  selectedStudent: number;
 }) => {
   const [editorState, setEditorState] = useState(
-    studentComment?.[index] || item.class_subject_group?.[0]?.group_comment
+    () =>
+      studentComments.find(
+        (comment) =>
+          comment.class_subject_group_id ===
+            item.class_subject_group?.[0]?.id &&
+          comment.student_id === selectedStudent
+      )?.student_comment || item.class_subject_group?.[0]?.group_comment
+  );
+
+  const studentComment = useMemo(
+    () =>
+      studentComments.find(
+        (comment) =>
+          comment.class_subject_group_id ===
+            item.class_subject_group?.[0]?.id &&
+          comment.student_id === selectedStudent
+      ),
+    [item.class_subject_group, studentComments, selectedStudent]
   );
 
   function updateEditorState(update: EditorState) {
@@ -30,7 +48,7 @@ export const PupilSubjectReport = ({
       <h2>{item.subject.description}</h2>
       <p className="text-center">
         {item.class_subject_group?.[0]?.report_group?.description} report group{" "}
-        {studentComment?.[index] ? "(edited for student)" : ""}
+        {studentComment ? "(edited for student)" : ""}
       </p>
       <div className="flex flex-col items-center">
         <Editor
