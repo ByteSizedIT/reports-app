@@ -84,7 +84,7 @@ const PupilReportComponent = ({
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
                 .map((item) => (
                   <PupilSubjectReport
-                    key={item.id}
+                    key={`${selectedStudent}.${item.id}`}
                     item={item}
                     studentNames={studentNames}
                     studentComments={studentComments}
