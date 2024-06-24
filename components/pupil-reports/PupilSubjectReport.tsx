@@ -7,6 +7,8 @@ import { EditorState } from "lexical";
 import Editor from "../Editor";
 import { StudentComment } from "@/types/types";
 
+import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
+
 export const PupilSubjectReport = ({
   item,
   studentNames,
@@ -18,7 +20,7 @@ export const PupilSubjectReport = ({
   studentComments: Array<StudentComment>;
   selectedStudent: number;
 }) => {
-  const [editorState, setEditorState] = useState(
+  const [editorState, setEditorState] = useState<EditorState | undefined>(
     () =>
       studentComments.find(
         (comment) =>
@@ -27,6 +29,8 @@ export const PupilSubjectReport = ({
           comment.student_id === selectedStudent
       )?.student_comment || item.class_subject_group?.[0]?.group_comment
   );
+
+  const { words, chars } = useEditorCounts(editorState);
 
   const studentComment = useMemo(
     () =>
@@ -56,6 +60,7 @@ export const PupilSubjectReport = ({
           updateEditorState={updateEditorState}
           studentNames={studentNames}
         />
+        <p className="mb-4">{`chars: ${chars} | words: ${words}`}</p>
       </div>
     </div>
   );

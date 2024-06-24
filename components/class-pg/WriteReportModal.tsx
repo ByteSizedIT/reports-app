@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
+import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
 
 import Button from "../Button";
 
@@ -11,7 +12,7 @@ import ModalOuter from "../ModalOuter";
 import { ClassSubjectGroupStudent } from "@/types/types";
 
 import Editor from "../Editor";
-import { $getRoot, $getSelection, EditorState } from "lexical";
+import { EditorState } from "lexical";
 
 const WriteReportModal = ({
   group,
@@ -37,7 +38,8 @@ const WriteReportModal = ({
   const [editorState, setEditorState] = useState<EditorState | undefined>(
     undefined
   );
-  const [counts, setCounts] = useState({ chars: 0, words: 0 });
+
+  const { chars, words } = useEditorCounts(editorState);
 
   const supabase = createClient();
 
@@ -52,20 +54,6 @@ const WriteReportModal = ({
       ),
     [group.class_subject_group_student]
   );
-
-  // Update character & word counts
-  useEffect(() => {
-    const editorStateTextString = editorState?.read(() =>
-      $getRoot().getTextContent()
-    );
-    const charCount = editorStateTextString?.length;
-    const wordCount = editorStateTextString
-      ?.trim()
-      .split(" ")
-      .filter((word) => word !== "").length;
-
-    setCounts({ chars: charCount || 0, words: wordCount || 0 });
-  }, [editorState]);
 
   // Insert data into Supabase
   const insertData = async (editorState: {}) => {
@@ -103,7 +91,7 @@ const WriteReportModal = ({
           studentNames={studentNames}
         />
       </div>
-      <p className="mb-4">{`chars: ${counts.chars} | words: ${counts.words}`}</p>
+      <p className="mb-4">{`chars: ${chars} | words: ${words}`}</p>
       <div className="flex justify-center">
         <Button
           label="Save"
