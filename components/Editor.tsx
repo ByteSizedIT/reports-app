@@ -21,6 +21,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { PronounsPlugin } from "@/utils/lexical-plugins/addPronounPlaceholders";
 import { MyOnChangePlugin } from "@/utils/lexical-plugins/onChange";
 import { CompromisePlugin } from "@/utils/lexical-plugins/CompromisePlugin";
+import { ActionsPlugin } from "@/utils/lexical-plugins/ActionsPlugin";
 
 interface Props {}
 
@@ -47,22 +48,37 @@ const Editor = ({
   const initialConfig = {
     namespace: "MyEditor",
     editorState: editorState,
-    theme,
+    theme: {
+      root: "p-4 border-slate-500 border rounded focus:outline-none focus-visible:border-black text-left",
+      link: "cursor-pointer",
+      text: {
+        bold: "font-semibold",
+        underline: "underline",
+        italic: "italic",
+        strikethrough: "line-through",
+        underlineStrikethrough: "underlined-line-through",
+      },
+    },
     onError,
     // onError: (error, editor) => {},
   };
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <RichTextPlugin
-        contentEditable={
-          <ContentEditable className="w-full h-full border border-black rounded-md text-left p-2 " />
-        }
-        placeholder={
-          <div className="absolute top-4 left-4 ">Enter your text here...</div>
-        }
-        ErrorBoundary={LexicalErrorBoundary}
-      />
+      <div className="flex flex-col h-full">
+        <ActionsPlugin />
+        <RichTextPlugin
+          contentEditable={
+            <ContentEditable className="flex-1 border border-black rounded-md" />
+          }
+          placeholder={
+            <div className="absolute top-16 left-6 opacity-50">
+              Enter your text here...
+            </div>
+          }
+          ErrorBoundary={LexicalErrorBoundary}
+        />
+      </div>
       <HistoryPlugin />
       <AutoFocusPlugin />
       {/* <PronounsPlugin /> */}
