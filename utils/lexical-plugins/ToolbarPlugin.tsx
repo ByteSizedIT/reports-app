@@ -1,15 +1,30 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
-import { $getRoot, $isParagraphNode, CLEAR_EDITOR_COMMAND } from "lexical";
+import { mergeRegister } from "@lexical/utils";
+import {
+  $getRoot,
+  $getSelection,
+  $isParagraphNode,
+  $isRangeSelection,
+  CAN_UNDO_COMMAND,
+  UNDO_COMMAND,
+  CLEAR_EDITOR_COMMAND,
+  COMMAND_PRIORITY_CRITICAL,
+} from "lexical";
 
 import { CiUndo } from "react-icons/ci";
+import { AiOutlineBold } from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
 import Button from "@/components/Button";
 
 export function ToolBarPlugin({ modal }: { modal: boolean }) {
-  const [isEditorEmpty, setIsEditorEmpty] = useState(true);
   const [editor] = useLexicalComposerContext();
+
+  const [activeEditor, setActiveEditor] = useState(editor);
+  const [isEditorEmpty, setIsEditorEmpty] = useState(true);
+  const [isEditable, setIsEditable] = useState(() => editor.isEditable());
+  const [canUndo, setCanUndo] = useState(false);
 
   const MandatoryPlugins = useMemo(() => {
     return <ClearEditorPlugin />;
@@ -36,6 +51,22 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
     [editor]
   );
 
+  useEffect(() => {
+    return mergeRegister(
+      editor.registerEditableListener((editable) => {
+        setIsEditable(editable);
+      }),
+      activeEditor.registerCommand<boolean>(
+        CAN_UNDO_COMMAND,
+        (payload) => {
+          setCanUndo(payload);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL
+      )
+    );
+  }, [activeEditor, editor]);
+
   return (
     <>
       {MandatoryPlugins}
@@ -46,9 +77,9 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
           small
-          disabled={isEditorEmpty}
+          disabled={!canUndo || !isEditable}
           onClick={() => {
-            console.log("clicked");
+            editor.dispatchCommand(UNDO_COMMAND, undefined);
           }}
         >
           <CiUndo className="text-xl sm:text-2xl md:text-5xl" />
