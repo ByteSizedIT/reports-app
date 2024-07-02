@@ -25,8 +25,17 @@ import { ActionsPlugin } from "@/utils/lexical-plugins/ActionsPlugin";
 
 interface Props {}
 
+// Lexical theme styling
 const theme = {
-  // Theme styling goes here
+  root: "p-4 border-slate-500 border rounded focus:outline-none text-left",
+  link: "cursor-pointer",
+  text: {
+    bold: "font-semibold",
+    underline: "underline",
+    italic: "italic",
+    strikethrough: "line-through",
+    underlineStrikethrough: "underlined-line-through",
+  },
 };
 
 // Catch any errors that occur during Lexical updates and log them
@@ -48,36 +57,28 @@ const Editor = ({
   const initialConfig = {
     namespace: "MyEditor",
     editorState: editorState,
-    theme: {
-      root: "p-4 border-slate-500 border rounded focus:outline-none focus-visible:border-black text-left",
-      link: "cursor-pointer",
-      text: {
-        bold: "font-semibold",
-        underline: "underline",
-        italic: "italic",
-        strikethrough: "line-through",
-        underlineStrikethrough: "underlined-line-through",
-      },
-    },
+    theme,
     onError,
     // onError: (error, editor) => {},
   };
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className="flex flex-col h-full">
-        <ActionsPlugin />
-        <RichTextPlugin
-          contentEditable={
-            <ContentEditable className="flex-1 border border-black rounded-md" />
-          }
-          placeholder={
-            <div className="absolute top-16 left-6 opacity-50">
-              Enter your text here...
-            </div>
-          }
-          ErrorBoundary={LexicalErrorBoundary}
-        />
+      <div className="relative w-full h-full">
+        <div className="flex flex-col w-full h-full">
+          <ActionsPlugin />
+          <RichTextPlugin
+            contentEditable={
+              <ContentEditable className="flex-1 border border-black rounded-md" />
+            }
+            placeholder={
+              <div className="absolute top-20 left-4 opacity-50">
+                Enter your text here...
+              </div>
+            }
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+        </div>
       </div>
       <HistoryPlugin />
       <AutoFocusPlugin />
