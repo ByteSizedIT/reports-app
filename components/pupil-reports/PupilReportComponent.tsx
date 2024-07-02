@@ -55,7 +55,13 @@ const PupilReportComponent = ({
     classStudents[0].student.id
   );
   const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
-    useState(getStudentsGroupReports(selectedStudent));
+    useState<
+      {
+        id: any;
+        class_subject_group: ClassSubjectGroupStudent[];
+        subject: Subject;
+      }[]
+    >([]);
 
   useEffect(() => {
     const pupilReports = getStudentsGroupReports(selectedStudent);
@@ -63,10 +69,10 @@ const PupilReportComponent = ({
   }, [selectedStudent, getStudentsGroupReports]);
 
   return (
-    <div className="flex flex-col md:flex-row md:gap-8 m-8">
+    <div className="flex flex-col item-center md:flex-row md:gap-8 md:m-8">
       {
         <>
-          <div className="flex flex-row flex-wrap md:flex-col gap-8 md:w-1/4">
+          <div className="flex flex-row flex-wrap md:flex-col gap-2 justify-around md:justify-normal m-4 md:m-0 md:gap-8 md:w-1/4">
             {classStudents.map((item) => (
               <Button
                 key={item.student.id}

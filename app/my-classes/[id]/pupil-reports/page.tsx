@@ -31,7 +31,7 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
   const studentComments = await getStudentComments(id);
 
   return (
-    <div className="w-full m-8">
+    <div className="w-full md:m-8">
       <h1 className="text-center pb-4">
         {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
       </h1>
