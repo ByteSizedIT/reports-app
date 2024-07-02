@@ -21,7 +21,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { PronounsPlugin } from "@/utils/lexical-plugins/addPronounPlaceholders";
 import { MyOnChangePlugin } from "@/utils/lexical-plugins/onChange";
 import { CompromisePlugin } from "@/utils/lexical-plugins/CompromisePlugin";
-import { ActionsPlugin } from "@/utils/lexical-plugins/ActionsPlugin";
+import { ToolBarPlugin } from "@/utils/lexical-plugins/ToolbarPlugin";
 
 interface Props {}
 
@@ -68,7 +68,7 @@ const Editor = ({
     <LexicalComposer initialConfig={initialConfig}>
       <div className="relative w-full h-full">
         <div className="flex flex-col w-full h-full">
-          <ActionsPlugin modal={parentModal} />
+          <ToolBarPlugin modal={parentModal} />
           <RichTextPlugin
             contentEditable={
               <ContentEditable className="flex-1 border border-black rounded-md" />

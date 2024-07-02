@@ -7,7 +7,7 @@ import { CiUndo } from "react-icons/ci";
 import { MdDeleteForever } from "react-icons/md";
 import Button from "@/components/Button";
 
-export function ActionsPlugin({ modal }: { modal: boolean }) {
+export function ToolBarPlugin({ modal }: { modal: boolean }) {
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
   const [editor] = useLexicalComposerContext();
 
@@ -21,6 +21,10 @@ export function ActionsPlugin({ modal }: { modal: boolean }) {
         editorState.read(() => {
           const root = $getRoot();
           const children = root.getChildren();
+          if (children.length > 1) {
+            setIsEditorEmpty(false);
+            return;
+          }
           if ($isParagraphNode(children[0])) {
             setIsEditorEmpty(children[0].getChildren().length === 0);
           } else {
