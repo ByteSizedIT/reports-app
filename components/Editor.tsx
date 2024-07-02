@@ -49,10 +49,12 @@ const Editor = ({
   editorState,
   updateEditorState,
   studentNames,
+  parentModal,
 }: {
   editorState: EditorState | undefined;
   updateEditorState: (update: EditorState) => void;
   studentNames: Array<string>;
+  parentModal: boolean;
 }) => {
   const initialConfig = {
     namespace: "MyEditor",
@@ -66,7 +68,7 @@ const Editor = ({
     <LexicalComposer initialConfig={initialConfig}>
       <div className="relative w-full h-full">
         <div className="flex flex-col w-full h-full">
-          <ActionsPlugin />
+          <ActionsPlugin modal={parentModal} />
           <RichTextPlugin
             contentEditable={
               <ContentEditable className="flex-1 border border-black rounded-md" />

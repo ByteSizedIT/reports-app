@@ -84,11 +84,12 @@ const WriteReportModal = ({
       <h2>
         {`${thisClassDataState.subject.description} ${group.report_group.description} Group Report`}
       </h2>
-      <div className="relative h-full w-full md:w-3/4 mx-auto mt-4 p-2">
+      <div className="relative h-full w-full md:w-3/4 mx-auto mt-1 md:mt-4 p-2">
         <Editor
           editorState={editorState}
           updateEditorState={updateEditorState}
           studentNames={studentNames}
+          parentModal={true}
         />
       </div>
       <p className="mb-4">{`chars: ${chars} | words: ${words}`}</p>
