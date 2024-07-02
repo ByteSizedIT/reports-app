@@ -95,6 +95,7 @@ const WriteReportModal = ({
       <p className="mb-4">{`chars: ${chars} | words: ${words}`}</p>
       <div className="flex justify-center">
         <Button
+          disabled={chars < 1}
           label="Save"
           pendingLabel="Saving"
           color="primary-button"

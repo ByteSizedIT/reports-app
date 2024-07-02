@@ -72,6 +72,7 @@ export const PupilSubjectReport = ({
         />
         <p>{`words: ${words} | chars: ${chars} `}</p>
         <Button
+          disabled={chars < 1}
           color="primary-button"
           label="Save"
           pendingLabel="Saving"
