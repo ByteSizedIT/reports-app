@@ -8,9 +8,12 @@ import {
   $isParagraphNode,
   $isRangeSelection,
   CAN_UNDO_COMMAND,
+  CAN_REDO_COMMAND,
   UNDO_COMMAND,
+  REDO_COMMAND,
   CLEAR_EDITOR_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
+  FORMAT_TEXT_COMMAND,
 } from "lexical";
 
 import { CiUndo } from "react-icons/ci";
@@ -24,6 +27,7 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
+  const [isBold, setIsBold] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
 
   const MandatoryPlugins = useMemo(() => {
@@ -51,10 +55,23 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
     [editor]
   );
 
+  const $updateToolbar = useCallback(() => {
+    const selection = $getSelection();
+    if ($isRangeSelection(selection)) {
+      // Update text format
+      setIsBold(selection.hasFormat("bold"));
+    }
+  }, []);
+
   useEffect(() => {
     return mergeRegister(
       editor.registerEditableListener((editable) => {
         setIsEditable(editable);
+      }),
+      activeEditor.registerUpdateListener(({ editorState }) => {
+        editorState.read(() => {
+          $updateToolbar();
+        });
       }),
       activeEditor.registerCommand<boolean>(
         CAN_UNDO_COMMAND,
@@ -65,7 +82,7 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
         COMMAND_PRIORITY_CRITICAL
       )
     );
-  }, [activeEditor, editor]);
+  }, [$updateToolbar, activeEditor, editor]);
 
   return (
     <>
@@ -83,6 +100,22 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
           }}
         >
           <CiUndo className="text-xl sm:text-2xl md:text-5xl" />
+        </Button>
+        <Button
+          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          small
+          disabled={!isEditable}
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+          }}
+          activeBorder={isBold}
+          // title={"Bold (⌘B OR Ctrl+B)"}
+          // type="button"
+          aria-label={`Format text as bold. Shortcut: 
+            "⌘B" OR "Ctrl+B"
+          }`}
+        >
+          <AiOutlineBold className="text-xl sm:text-2xl md:text-5xl" />
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
