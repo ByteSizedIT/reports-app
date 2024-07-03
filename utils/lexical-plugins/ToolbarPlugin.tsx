@@ -16,7 +16,7 @@ import {
   FORMAT_TEXT_COMMAND,
 } from "lexical";
 
-import { CiUndo } from "react-icons/ci";
+import { CiUndo, CiRedo } from "react-icons/ci";
 import { AiOutlineBold } from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
 import Button from "@/components/Button";
@@ -29,6 +29,7 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [isBold, setIsBold] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   const MandatoryPlugins = useMemo(() => {
     return <ClearEditorPlugin />;
@@ -80,6 +81,14 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
           return false;
         },
         COMMAND_PRIORITY_CRITICAL
+      ),
+      activeEditor.registerCommand<boolean>(
+        CAN_REDO_COMMAND,
+        (payload) => {
+          setCanRedo(payload);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL
       )
     );
   }, [$updateToolbar, activeEditor, editor]);
@@ -100,6 +109,16 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
           }}
         >
           <CiUndo className="text-xl sm:text-2xl md:text-5xl" />
+        </Button>
+        <Button
+          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          small
+          disabled={!canRedo || !isEditable}
+          onClick={() => {
+            editor.dispatchCommand(REDO_COMMAND, undefined);
+          }}
+        >
+          <CiRedo className="text-xl sm:text-2xl md:text-5xl" />
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
