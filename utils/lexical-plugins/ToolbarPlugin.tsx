@@ -17,7 +17,11 @@ import {
 } from "lexical";
 
 import { CiUndo, CiRedo } from "react-icons/ci";
-import { AiOutlineBold, AiOutlineItalic } from "react-icons/ai";
+import {
+  AiOutlineBold,
+  AiOutlineItalic,
+  AiOutlineUnderline,
+} from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
 import Button from "@/components/Button";
 
@@ -31,6 +35,7 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
   const [canRedo, setCanRedo] = useState(false);
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
 
   const MandatoryPlugins = useMemo(() => {
     return <ClearEditorPlugin />;
@@ -63,6 +68,7 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
       // Update text format
       setIsBold(selection.hasFormat("bold"));
       setIsItalic(selection.hasFormat("italic"));
+      setIsUnderline(selection.hasFormat("underline"));
     }
   }, []);
 
@@ -155,6 +161,20 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
           aria-label="Format text as italics. Shortcut: '⌘I' OR 'Ctrl+I'"
         >
           <AiOutlineItalic className="text-xl sm:text-2xl md:text-5xl" />
+        </Button>
+        <Button
+          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          small
+          disabled={!isEditable}
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
+          }}
+          activeBorder={isUnderline}
+          // title={"Underline (⌘U OR Ctrl+U)"}
+          // type="button"
+          aria-label="Format text as italics. Shortcut: '⌘U' OR 'Ctrl+U'"
+        >
+          <AiOutlineUnderline className="text-xl sm:text-2xl md:text-5xl" />
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
