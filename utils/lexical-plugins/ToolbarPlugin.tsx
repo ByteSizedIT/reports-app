@@ -17,7 +17,7 @@ import {
 } from "lexical";
 
 import { CiUndo, CiRedo } from "react-icons/ci";
-import { AiOutlineBold } from "react-icons/ai";
+import { AiOutlineBold, AiOutlineItalic } from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
 import Button from "@/components/Button";
 
@@ -27,9 +27,10 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
-  const [isBold, setIsBold] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
 
   const MandatoryPlugins = useMemo(() => {
     return <ClearEditorPlugin />;
@@ -61,6 +62,7 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
     if ($isRangeSelection(selection)) {
       // Update text format
       setIsBold(selection.hasFormat("bold"));
+      setIsItalic(selection.hasFormat("italic"));
     }
   }, []);
 
@@ -107,6 +109,9 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
           onClick={() => {
             editor.dispatchCommand(UNDO_COMMAND, undefined);
           }}
+          // title="'Undo (⌘Y OR Ctrl+Y)"
+          // type="button"
+          aria-label="Undo. Shortcut:'⌘Y' OR 'Ctrl+Y'"
         >
           <CiUndo className="text-xl sm:text-2xl md:text-5xl" />
         </Button>
@@ -117,6 +122,9 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
           onClick={() => {
             editor.dispatchCommand(REDO_COMMAND, undefined);
           }}
+          // title="'Undo (⌘Z OR Ctrl+Z)"
+          // type="button"
+          aria-label="Redo. Shortcut:'⌘Z' OR 'Ctrl+Z'"
         >
           <CiRedo className="text-xl sm:text-2xl md:text-5xl" />
         </Button>
@@ -128,13 +136,25 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
           }}
           activeBorder={isBold}
-          // title={"Bold (⌘B OR Ctrl+B)"}
+          // title="Bold (⌘B OR Ctrl+B)"
           // type="button"
-          aria-label={`Format text as bold. Shortcut: 
-            "⌘B" OR "Ctrl+B"
-          }`}
+          aria-label="Format text as bold. Shortcut:'⌘B' OR 'Ctrl+B'"
         >
           <AiOutlineBold className="text-xl sm:text-2xl md:text-5xl" />
+        </Button>
+        <Button
+          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          small
+          disabled={!isEditable}
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
+          }}
+          activeBorder={isItalic}
+          // title={"Italic (⌘I OR Ctrl+I)"}
+          // type="button"
+          aria-label="Format text as italics. Shortcut: '⌘I' OR 'Ctrl+I'"
+        >
+          <AiOutlineItalic className="text-xl sm:text-2xl md:text-5xl" />
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
