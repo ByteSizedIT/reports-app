@@ -247,7 +247,7 @@ export default function DropDown({
         type="button"
         disabled={disabled}
         aria-label={buttonAriaLabel || buttonLabel}
-        className={`flex rounded-lg px-2 py-1 cursor-pointer items-center justify-between whitespace-nowrap overflow-hidden
+        className={`flex rounded-lg w-32 h-9 px-2 py-1 cursor-pointer items-center justify-between whitespace-nowrap overflow-hidden
         ${
           showDropDown ? "border-2 border-green-700" : "border border-slate-500"
         }

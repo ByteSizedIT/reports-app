@@ -200,6 +200,8 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
         />
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          width="w-10"
+          height="h-9"
           small
           disabled={!canUndo || !isEditable}
           onClick={() => {
@@ -226,6 +228,8 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          width="w-10"
+          height="h-9"
           small
           disabled={!isEditable}
           onClick={() => {
@@ -240,6 +244,8 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          width="w-10"
+          height="h-9"
           small
           disabled={!isEditable}
           onClick={() => {
@@ -254,6 +260,8 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          width="w-10"
+          height="h-9"
           small
           disabled={!isEditable}
           onClick={() => {
@@ -268,6 +276,8 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
         </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          width="w-10"
+          height="h-9"
           small
           disabled={isEditorEmpty}
           onClick={() => {
