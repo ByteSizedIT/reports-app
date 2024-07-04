@@ -1,0 +1,14 @@
+Ref Dropdown.tsx...
+
+Why Use useMemo?
+
+Performance Optimization:
+useMemo helps prevent unnecessary re-renders of the context consumers by ensuring that the context value only changes when the registerItem function changes.
+Without useMemo, every render of the DropDownItems component would create a new object for the contextValue, which would trigger re-renders of all context consumers (all DropDownItem components).
+
+Why It Might Seem Redundant Here:
+Since registerItem is already memoized with useCallback, it has a stable identity unless its dependencies change. This means the contextValue object itself doesn’t change unnecessarily.
+In this case, passing registerItem directly to the context provider would work similarly because the registerItem function doesn't change on every render due to useCallback.
+
+Using useMemo for Consistency:
+It's a common practice to wrap context values with useMemo to ensure that all dependencies are taken into account and to provide a consistent pattern for maintaining context values. This ensures that any additional values added to the context in the future also benefit from memoization without additional changes.
