@@ -8,7 +8,7 @@
  *
  */
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
@@ -52,8 +52,15 @@ const FONT_FAMILY_OPTIONS: [string, string][] = [
   ["Verdana", "Verdana"],
 ];
 
-export function ToolBarPlugin({ modal }: { modal: boolean }) {
+export function ToolBarPlugin({
+  modal,
+  onHeightChange,
+}: {
+  modal: boolean;
+  onHeightChange: (height: number) => void;
+}) {
   const [editor] = useLexicalComposerContext();
+  const toolBarRef = useRef<HTMLDivElement>(null);
 
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
@@ -132,6 +139,12 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
     );
   }, [$updateToolbar, activeEditor, editor]);
 
+  useEffect(() => {
+    if (toolBarRef?.current) {
+      onHeightChange(toolBarRef.current.clientHeight);
+    }
+  }, []);
+
   function FontDropDown({
     editor,
     disabled = false,
@@ -190,8 +203,8 @@ export function ToolBarPlugin({ modal }: { modal: boolean }) {
     <>
       {MandatoryPlugins}
       <div
-        className="flex flex-wrap items-center justify-center gap-2 border border-slate-500
-         mb-4 p-2"
+        ref={toolBarRef}
+        className="flex flex-wrap items-center justify-center gap-2 border border-slate-500 mb-4 p-2"
       >
         <FontDropDown
           disabled={!isEditable}

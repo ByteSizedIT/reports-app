@@ -8,7 +8,7 @@ import {
   TextNode,
 } from "lexical";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
@@ -63,18 +63,25 @@ const Editor = ({
     onError,
     // onError: (error, editor) => {},
   };
+  const [toolbarHeight, setToolbarHeight] = useState(0);
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className="relative w-full h-full">
         <div className="flex flex-col w-full h-full">
-          <ToolBarPlugin modal={parentModal} />
+          <ToolBarPlugin
+            modal={parentModal}
+            onHeightChange={setToolbarHeight}
+          />
           <RichTextPlugin
             contentEditable={
               <ContentEditable className="flex-1 border border-black rounded-md" />
             }
             placeholder={
-              <div className="absolute top-20 left-4 opacity-50">
+              <div
+                style={{ top: `${toolbarHeight + 8 + 16 + 8}px` }}
+                className="absolute left-4 opacity-50"
+              >
                 Enter your text here...
               </div>
             }
