@@ -69,7 +69,10 @@
 
 @layer components {
   .primary-button {
-    @apply bg-branding-background text-branding-foreground hover:bg-branding-background-hover;
+    @apply bg-branding-background text-branding-foreground;
+  }
+  .primary-button:not(:disabled):hover {
+    @apply bg-branding-background-hover;
   }
   .secondary-button {
     @apply bg-btn-background hover:bg-btn-background-hover;

@@ -1,5 +1,7 @@
 // Database query only types
 
+import { EditorState } from "lexical";
+
 export type SubjectDetails = Array<{
   organisation_id: number;
   subject: Subject;
@@ -101,3 +103,12 @@ export interface newClassRegister {
 }
 
 export type Student = PreSaveStudent & { id: number };
+
+export interface StudentComment {
+  id: number;
+  student_id: number;
+  student_comment: EditorState;
+  class_id: number;
+  class_subject_group_id: number;
+  group_comment_updated: boolean;
+}

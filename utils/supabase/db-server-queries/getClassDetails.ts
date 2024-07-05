@@ -17,7 +17,7 @@ export const getClassDetails = async (id: string) => {
       academic_year_end, 
       year_group, 
       organisation_id,
-      class_student(*),
+      class_student(*, student(*)),
       class_subject(
         id, 
         subject(*),
