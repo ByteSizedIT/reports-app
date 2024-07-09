@@ -52,6 +52,62 @@ const FONT_FAMILY_OPTIONS: [string, string][] = [
   ["Verdana", "Verdana"],
 ];
 
+function FontDropDown({
+  editor,
+  disabled = false,
+  value,
+  modal,
+}: {
+  editor: LexicalEditor;
+  disabled?: boolean;
+  value: string;
+  modal: boolean;
+}): JSX.Element {
+  const handleClick = useCallback(
+    (option: string) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if (selection !== null) {
+          $patchStyleText(selection, {
+            "font-family": option,
+          });
+        }
+      });
+    },
+    [editor, value]
+  );
+
+  return (
+    <DropDown
+      disabled={disabled}
+      buttonLabel={value} // e.g "font-family"
+      buttonAriaLabel="Formatting options for font family"
+      modal={modal}
+    >
+      {FONT_FAMILY_OPTIONS.map(([option, text], index) => {
+        return (
+          <DropDownItem
+            className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+          ${index === 0 ? "mt-2" : ""} 
+          ${index === FONT_FAMILY_OPTIONS.length - 1 ? "mb-2" : ""} 
+          ${value === option ? "bg-green-700 border " : ""}
+          `}
+            onClick={() => handleClick(option)}
+            key={option}
+          >
+            <span
+              className={`block
+            ${value === "font-family" ? "max-w-40" : "max-w-10"}`}
+            >
+              {text}
+            </span>
+          </DropDownItem>
+        );
+      })}
+    </DropDown>
+  );
+}
+
 export function ToolBarPlugin({
   modal,
   updateToolbarHeight,
@@ -145,60 +201,6 @@ export function ToolBarPlugin({
     }
   }, [toolBarRef.current?.clientHeight]);
 
-  function FontDropDown({
-    editor,
-    disabled = false,
-    value,
-  }: {
-    editor: LexicalEditor;
-    disabled?: boolean;
-    value: string;
-  }): JSX.Element {
-    const handleClick = useCallback(
-      (option: string) => {
-        editor.update(() => {
-          const selection = $getSelection();
-          if (selection !== null) {
-            $patchStyleText(selection, {
-              "font-family": option,
-            });
-          }
-        });
-      },
-      [editor, value]
-    );
-
-    return (
-      <DropDown
-        disabled={disabled}
-        buttonLabel={value} // e.g "font-family"
-        buttonAriaLabel="Formatting options for font family"
-        modal={modal}
-      >
-        {FONT_FAMILY_OPTIONS.map(([option, text], index) => {
-          return (
-            <DropDownItem
-              className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
-            ${index === 0 ? "mt-2" : ""} 
-            ${index === FONT_FAMILY_OPTIONS.length - 1 ? "mb-2" : ""} 
-            ${value === option ? "bg-green-700 border " : ""}
-            `}
-              onClick={() => handleClick(option)}
-              key={option}
-            >
-              <span
-                className={`block
-              ${value === "font-family" ? "max-w-40" : "max-w-10"}`}
-              >
-                {text}
-              </span>
-            </DropDownItem>
-          );
-        })}
-      </DropDown>
-    );
-  }
-
   return (
     <>
       {MandatoryPlugins}
@@ -210,6 +212,7 @@ export function ToolBarPlugin({
           disabled={!isEditable}
           value={fontFamily}
           editor={activeEditor}
+          modal={modal}
         />
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
