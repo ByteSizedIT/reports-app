@@ -71,7 +71,7 @@ const Editor = ({
         <div className="flex flex-col w-full h-full">
           <ToolBarPlugin
             modal={parentModal}
-            onHeightChange={setToolbarHeight}
+            updateToolbarHeight={setToolbarHeight}
           />
           <RichTextPlugin
             contentEditable={

@@ -54,10 +54,10 @@ const FONT_FAMILY_OPTIONS: [string, string][] = [
 
 export function ToolBarPlugin({
   modal,
-  onHeightChange,
+  updateToolbarHeight,
 }: {
   modal: boolean;
-  onHeightChange: (height: number) => void;
+  updateToolbarHeight: (height: number) => void;
 }) {
   const [editor] = useLexicalComposerContext();
   const toolBarRef = useRef<HTMLDivElement>(null);
@@ -97,7 +97,7 @@ export function ToolBarPlugin({
     [editor]
   );
 
-  const $updateToolbar = useCallback(() => {
+  const updateToolbar = useCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
       // Update text format
@@ -117,7 +117,7 @@ export function ToolBarPlugin({
       }),
       activeEditor.registerUpdateListener(({ editorState }) => {
         editorState.read(() => {
-          $updateToolbar();
+          updateToolbar();
         });
       }),
       activeEditor.registerCommand<boolean>(
@@ -137,13 +137,13 @@ export function ToolBarPlugin({
         COMMAND_PRIORITY_CRITICAL
       )
     );
-  }, [$updateToolbar, activeEditor, editor]);
+  }, [updateToolbar, activeEditor, editor]);
 
   useEffect(() => {
     if (toolBarRef?.current) {
-      onHeightChange(toolBarRef.current.clientHeight);
+      updateToolbarHeight(toolBarRef.current.clientHeight);
     }
-  }, []);
+  }, [toolBarRef.current?.clientHeight]);
 
   function FontDropDown({
     editor,
