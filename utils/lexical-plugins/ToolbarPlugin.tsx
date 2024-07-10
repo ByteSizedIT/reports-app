@@ -40,7 +40,8 @@ import {
 } from "react-icons/ai";
 import { MdDeleteForever } from "react-icons/md";
 
-import DropDown, { DropDownItem } from "@/components/ui/Dropdown";
+import DropDown from "@/components/toolbar-ui/Dropdown";
+import DropDownItem from "@/components/toolbar-ui/DropdownItem";
 import Button from "@/components/Button";
 
 const FONT_FAMILY_OPTIONS: [string, string][] = [
@@ -74,7 +75,7 @@ function FontDropDown({
         }
       });
     },
-    [editor, value]
+    [editor]
   );
 
   return (
@@ -199,7 +200,7 @@ export function ToolBarPlugin({
     if (toolBarRef?.current) {
       updateToolbarHeight(toolBarRef.current.clientHeight);
     }
-  }, [toolBarRef.current?.clientHeight]);
+  }, [toolBarRef.current?.clientHeight, updateToolbarHeight]);
 
   return (
     <>
