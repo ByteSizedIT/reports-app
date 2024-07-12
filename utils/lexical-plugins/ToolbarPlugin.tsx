@@ -41,7 +41,7 @@ import {
 } from "lexical";
 
 import { BsTextParagraph } from "react-icons/bs";
-import { RiH1, RiH2, RiH3 } from "react-icons/ri";
+import { RiH1, RiH2, RiH3, RiH4, RiH5, RiH6 } from "react-icons/ri";
 import { CiUndo, CiRedo } from "react-icons/ci";
 import {
   AiOutlineBold,
@@ -61,6 +61,7 @@ const BLOCK_TYPE_OPTIONS = [
   { name: "h1", description: "Heading 1", iconComponent: RiH1 },
   { name: "h2", description: "Heading 2", iconComponent: RiH2 },
   { name: "h3", description: "Heading 3", iconComponent: RiH3 },
+  { name: "h4", description: "Heading 4", iconComponent: RiH4 },
 ];
 
 function BlockFormatDropdown({
