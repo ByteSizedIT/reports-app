@@ -17,6 +17,7 @@ import {
   $createHeadingNode,
   $isHeadingNode,
   HeadingTagType,
+  $createQuoteNode,
 } from "@lexical/rich-text";
 import {
   $getSelectionStyleValueForProperty,
@@ -40,7 +41,7 @@ import {
   FORMAT_TEXT_COMMAND,
 } from "lexical";
 
-import { BsTextParagraph } from "react-icons/bs";
+import { BsTextParagraph, BsChatLeftQuote } from "react-icons/bs";
 import { RiH1, RiH2, RiH3, RiH4, RiH5, RiH6 } from "react-icons/ri";
 import { CiUndo, CiRedo } from "react-icons/ci";
 import {
@@ -62,6 +63,7 @@ const BLOCK_TYPE_OPTIONS = [
   { name: "h2", description: "Heading 2", iconComponent: RiH2 },
   { name: "h3", description: "Heading 3", iconComponent: RiH3 },
   { name: "h4", description: "Heading 4", iconComponent: RiH4 },
+  { name: "quote", description: "Quote", iconComponent: BsChatLeftQuote },
 ];
 
 function BlockFormatDropdown({
@@ -93,6 +95,15 @@ function BlockFormatDropdown({
     }
   }
 
+  const formatAsQuote = () => {
+    if (blockType !== "quote") {
+      editor.update(() => {
+        const selection = $getSelection();
+        $setBlocksType(selection, () => $createQuoteNode());
+      });
+    }
+  };
+
   return (
     <DropDown
       disabled={disabled}
@@ -116,6 +127,8 @@ function BlockFormatDropdown({
             onClick={
               item.description.startsWith("Heading")
                 ? () => formatAsHeading(name as HeadingTagType)
+                : item.description === "Quote"
+                ? formatAsQuote
                 : formatAsParagraph
             }
           >
@@ -275,12 +288,17 @@ export function ToolBarPlugin({
         const type = $isHeadingNode(element)
           ? element.getTag() // .getTag is a method on the HeadingNode class
           : element.getType(); // .getType is a method on the LexicalNode class for other Node types, e.g paragraphNode
+        console.log(">>>>>", { type });
         if (BLOCK_TYPE_OPTIONS.some((block) => block.name === type)) {
           setBlockType(type as (typeof BLOCK_TYPE_OPTIONS)[number]["name"]);
         }
       }
     }
   }, [activeEditor]);
+
+  useEffect(() => {
+    console.log({ blockType });
+  }, [blockType]);
 
   useEffect(() => {
     return mergeRegister(
