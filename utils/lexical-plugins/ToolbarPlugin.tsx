@@ -110,7 +110,7 @@ function BlockFormatDropdown({
         <span className="text">Normal</span>
       </DropDownItem>
       <DropDownItem
-        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
           ${blockType === "h1" ? "bg-green-700 border " : ""}
           `}
         onClick={() => formatAsHeading("h1")}
@@ -118,7 +118,7 @@ function BlockFormatDropdown({
         <span className="text">Heading 1</span>
       </DropDownItem>
       <DropDownItem
-        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
           ${blockType === "h2" ? "bg-green-700 border " : ""}
           `}
         onClick={() => formatAsHeading("h2")}
@@ -126,7 +126,7 @@ function BlockFormatDropdown({
         <span className="text">Heading 2</span>
       </DropDownItem>
       <DropDownItem
-        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        className={`mb-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
           ${blockType === "h3" ? "bg-green-700 border " : ""}
           `}
         onClick={() => formatAsHeading("h3")}
