@@ -111,6 +111,10 @@ function BlockFormatDropdown({
       buttonLabel={
         BLOCK_TYPE_OPTIONS.find((item) => item.name === blockType)?.description
       }
+      IconComponent={
+        BLOCK_TYPE_OPTIONS.find((item) => item.name === blockType)
+          ?.iconComponent
+      }
       modal={modal}
     >
       {BLOCK_TYPE_OPTIONS.map((item, index) => {

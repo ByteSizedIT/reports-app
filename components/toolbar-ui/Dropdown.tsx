@@ -32,13 +32,15 @@ export default function DropDown({
   disabled = false,
   buttonLabel,
   buttonAriaLabel,
+  IconComponent,
   children,
   stopCloseOnClickSelf,
   modal,
 }: {
   disabled?: boolean;
-  buttonAriaLabel?: string;
   buttonLabel?: string;
+  buttonAriaLabel?: string;
+  IconComponent?: React.ComponentType<{ className?: string }>;
   children: ReactNode;
   stopCloseOnClickSelf?: boolean;
   modal: boolean;
@@ -132,7 +134,9 @@ export default function DropDown({
         onClick={() => setShowDropDown(!showDropDown)}
         ref={buttonRef}
       >
-        <PiTextT className="text-xl sm:text-2xl" />
+        {IconComponent && (
+          <IconComponent className="text-xl sm:text-2xl mr-2" />
+        )}
         {buttonLabel && (
           <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
             {buttonLabel}
