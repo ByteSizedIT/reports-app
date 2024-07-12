@@ -56,15 +56,12 @@ import Button from "@/components/Button";
 
 // CODE FOR BLOCK TEXT STYLE SELECTION
 
-const blockTypeToBlockName = {
-  paragraph: "Normal",
-  h1: "Heading 1",
-  h2: "Heading 2",
-  h3: "Heading 3",
-  h4: "Heading 4",
-  h5: "Heading 5",
-  h6: "Heading 6",
-};
+const BLOCK_TYPE_OPTIONS = [
+  { name: "paragraph", description: "Normal", iconComponent: BsTextParagraph },
+  { name: "h1", description: "Heading 1", iconComponent: RiH1 },
+  { name: "h2", description: "Heading 2", iconComponent: RiH2 },
+  { name: "h3", description: "Heading 3", iconComponent: RiH3 },
+];
 
 function BlockFormatDropdown({
   editor,
@@ -72,73 +69,60 @@ function BlockFormatDropdown({
   disabled = false,
   modal,
 }: {
-  blockType: keyof typeof blockTypeToBlockName; // TS keyof operator used to obtain union type of all keys of an object type
+  blockType: (typeof BLOCK_TYPE_OPTIONS)[number]["name"]; // used to obtain union type of name name properties of the objects within the blockTypeToBlockName array.
   editor: LexicalEditor;
   disabled?: boolean;
   modal: boolean;
 }): JSX.Element {
-  const formatAsParagraph = () => {
+  function formatAsParagraph() {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         $setBlocksType(selection, () => $createParagraphNode());
       }
     });
-  };
+  }
 
-  const formatAsHeading = (headingSize: HeadingTagType) => {
-    console.log({ headingSize, blockType });
+  function formatAsHeading(headingSize: HeadingTagType) {
     if (blockType !== headingSize) {
       editor.update(() => {
         const selection = $getSelection();
         $setBlocksType(selection, () => $createHeadingNode(headingSize));
       });
     }
-  };
+  }
 
   return (
     <DropDown
       disabled={disabled}
       buttonAriaLabel="Formatting options for text style"
-      buttonLabel={blockTypeToBlockName[blockType]}
+      buttonLabel={
+        BLOCK_TYPE_OPTIONS.find((item) => item.name === blockType)?.description
+      }
       modal={modal}
     >
-      <DropDownItem
-        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
-        ${blockType === "paragraph" ? "bg-green-700 border " : ""}
-        `}
-        onClick={formatAsParagraph}
-      >
-        <BsTextParagraph className="text-xl sm:text-2xl" />
-        <span className="text">Normal</span>
-      </DropDownItem>
-      <DropDownItem
-        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
-          ${blockType === "h1" ? "bg-green-700 border " : ""}
-          `}
-        onClick={() => formatAsHeading("h1")}
-      >
-        <RiH1 className="text-xl sm:text-2xl" />
-        <span className="text">Heading 1</span>
-      </DropDownItem>
-      <DropDownItem
-        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
-          ${blockType === "h2" ? "bg-green-700 border " : ""}
-          `}
-        onClick={() => formatAsHeading("h2")}
-      >
-        <RiH2 className="text-xl sm:text-2xl" />
-        <span className="text">Heading 2</span>
-      </DropDownItem>
-      <DropDownItem
-        className={`mb-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
-          ${blockType === "h3" ? "bg-green-700 border " : ""}
-          `}
-        onClick={() => formatAsHeading("h3")}
-      >
-        <RiH3 className="text-xl sm:text-2xl" />
-        <span className="text">Heading 3</span>
-      </DropDownItem>
+      {BLOCK_TYPE_OPTIONS.map((item, index) => {
+        const { name, description } = item;
+        return (
+          <DropDownItem
+            key={description}
+            className={`
+              px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
+              ${blockType === name ? "bg-green-700 border " : ""}
+              ${index === 0 ? "mt-2" : ""} 
+              ${index === BLOCK_TYPE_OPTIONS.length - 1 ? "mb-2" : ""}
+              `}
+            onClick={
+              item.description.startsWith("Heading")
+                ? () => formatAsHeading(name as HeadingTagType)
+                : formatAsParagraph
+            }
+          >
+            <item.iconComponent className="text-xl sm:text-2xl" />
+            <span className="text">{item.description}</span>
+          </DropDownItem>
+        );
+      })}
     </DropDown>
   );
 }
@@ -226,7 +210,7 @@ export function ToolBarPlugin({
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [blockType, setBlockType] =
-    useState<keyof typeof blockTypeToBlockName>("paragraph");
+    useState<(typeof BLOCK_TYPE_OPTIONS)[number]["name"]>("paragraph");
   const [fontFamily, setFontFamily] = useState<string>("Arial");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
@@ -290,8 +274,8 @@ export function ToolBarPlugin({
         const type = $isHeadingNode(element)
           ? element.getTag() // .getTag is a method on the HeadingNode class
           : element.getType(); // .getType is a method on the LexicalNode class for other Node types, e.g paragraphNode
-        if (type in blockTypeToBlockName) {
-          setBlockType(type as keyof typeof blockTypeToBlockName);
+        if (BLOCK_TYPE_OPTIONS.some((block) => block.name === type)) {
+          setBlockType(type as (typeof BLOCK_TYPE_OPTIONS)[number]["name"]);
         }
       }
     }
@@ -339,15 +323,15 @@ export function ToolBarPlugin({
         ref={toolBarRef}
         className="flex flex-wrap items-center justify-center gap-2 border border-slate-500 mb-4 p-2"
       >
-        {blockType in blockTypeToBlockName && (
-          <BlockFormatDropdown
-            disabled={!isEditable}
-            blockType={blockType}
-            // rootType={rootType}
-            editor={activeEditor}
-            modal={modal}
-          />
-        )}
+        {/* {blockType in blockTypeToBlockName && ( */}
+        <BlockFormatDropdown
+          disabled={!isEditable}
+          blockType={blockType}
+          // rootType={rootType}
+          editor={activeEditor}
+          modal={modal}
+        />
+        {/* )} */}
         <FontDropDown
           disabled={!isEditable}
           value={fontFamily}
