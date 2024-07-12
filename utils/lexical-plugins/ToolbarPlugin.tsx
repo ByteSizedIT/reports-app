@@ -40,6 +40,8 @@ import {
   FORMAT_TEXT_COMMAND,
 } from "lexical";
 
+import { BsTextParagraph } from "react-icons/bs";
+import { RiH1, RiH2, RiH3 } from "react-icons/ri";
 import { CiUndo, CiRedo } from "react-icons/ci";
 import {
   AiOutlineBold,
@@ -102,35 +104,39 @@ function BlockFormatDropdown({
       modal={modal}
     >
       <DropDownItem
-        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
         ${blockType === "paragraph" ? "bg-green-700 border " : ""}
         `}
         onClick={formatAsParagraph}
       >
+        <BsTextParagraph className="text-xl sm:text-2xl" />
         <span className="text">Normal</span>
       </DropDownItem>
       <DropDownItem
-        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
           ${blockType === "h1" ? "bg-green-700 border " : ""}
           `}
         onClick={() => formatAsHeading("h1")}
       >
+        <RiH1 className="text-xl sm:text-2xl" />
         <span className="text">Heading 1</span>
       </DropDownItem>
       <DropDownItem
-        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
           ${blockType === "h2" ? "bg-green-700 border " : ""}
           `}
         onClick={() => formatAsHeading("h2")}
       >
+        <RiH2 className="text-xl sm:text-2xl" />
         <span className="text">Heading 2</span>
       </DropDownItem>
       <DropDownItem
-        className={`mb-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        className={`mb-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
           ${blockType === "h3" ? "bg-green-700 border " : ""}
           `}
         onClick={() => formatAsHeading("h3")}
       >
+        <RiH3 className="text-xl sm:text-2xl" />
         <span className="text">Heading 3</span>
       </DropDownItem>
     </DropDown>
