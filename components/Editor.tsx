@@ -8,6 +8,8 @@ import {
   TextNode,
 } from "lexical";
 
+import { HeadingNode } from "@lexical/rich-text";
+
 import { useEffect, useState } from "react";
 
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
@@ -62,6 +64,7 @@ const Editor = ({
     theme,
     onError,
     // onError: (error, editor) => {},
+    nodes: [HeadingNode],
   };
   const [toolbarHeight, setToolbarHeight] = useState(0);
 

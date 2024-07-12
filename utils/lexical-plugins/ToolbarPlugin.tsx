@@ -1,5 +1,5 @@
 /**
- * Modified Code from https://github.com/facebook/lexical/blob/main/packages/lexical-playground/src/ui/DropDown.tsx
+ * Includes modified Code from https://github.com/facebook/lexical/blob/main/packages/lexical-playground/src/ui/DropDown.tsx
  *
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -12,17 +12,25 @@ import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
-import { mergeRegister } from "@lexical/utils";
+import { $findMatchingParent, mergeRegister } from "@lexical/utils";
+import {
+  $createHeadingNode,
+  $isHeadingNode,
+  HeadingTagType,
+} from "@lexical/rich-text";
 import {
   $getSelectionStyleValueForProperty,
   $patchStyleText,
+  $setBlocksType,
 } from "@lexical/selection";
 import {
   LexicalEditor,
   $getRoot,
   $getSelection,
+  $isRootOrShadowRoot,
   $isParagraphNode,
   $isRangeSelection,
+  $createParagraphNode,
   CAN_UNDO_COMMAND,
   CAN_REDO_COMMAND,
   UNDO_COMMAND,
@@ -43,6 +51,93 @@ import { MdDeleteForever } from "react-icons/md";
 import DropDown from "@/components/toolbar-ui/Dropdown";
 import DropDownItem from "@/components/toolbar-ui/DropdownItem";
 import Button from "@/components/Button";
+
+// CODE FOR BLOCK TEXT STYLE SELECTION
+
+const blockTypeToBlockName = {
+  paragraph: "Normal",
+  h1: "Heading 1",
+  h2: "Heading 2",
+  h3: "Heading 3",
+  h4: "Heading 4",
+  h5: "Heading 5",
+  h6: "Heading 6",
+};
+
+function BlockFormatDropdown({
+  editor,
+  blockType,
+  disabled = false,
+  modal,
+}: {
+  blockType: keyof typeof blockTypeToBlockName; // TS keyof operator used to obtain union type of all keys of an object type
+  editor: LexicalEditor;
+  disabled?: boolean;
+  modal: boolean;
+}): JSX.Element {
+  const formatAsParagraph = () => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        $setBlocksType(selection, () => $createParagraphNode());
+      }
+    });
+  };
+
+  const formatAsHeading = (headingSize: HeadingTagType) => {
+    console.log({ headingSize, blockType });
+    if (blockType !== headingSize) {
+      editor.update(() => {
+        const selection = $getSelection();
+        $setBlocksType(selection, () => $createHeadingNode(headingSize));
+      });
+    }
+  };
+
+  return (
+    <DropDown
+      disabled={disabled}
+      buttonAriaLabel="Formatting options for text style"
+      buttonLabel={blockTypeToBlockName[blockType]}
+      modal={modal}
+    >
+      <DropDownItem
+        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+        ${blockType === "paragraph" ? "bg-green-700 border " : ""}
+        `}
+        onClick={formatAsParagraph}
+      >
+        <span className="text">Normal</span>
+      </DropDownItem>
+      <DropDownItem
+        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+          ${blockType === "h1" ? "bg-green-700 border " : ""}
+          `}
+        onClick={() => formatAsHeading("h1")}
+      >
+        <span className="text">Heading 1</span>
+      </DropDownItem>
+      <DropDownItem
+        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+          ${blockType === "h2" ? "bg-green-700 border " : ""}
+          `}
+        onClick={() => formatAsHeading("h2")}
+      >
+        <span className="text">Heading 2</span>
+      </DropDownItem>
+      <DropDownItem
+        className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+          ${blockType === "h3" ? "bg-green-700 border " : ""}
+          `}
+        onClick={() => formatAsHeading("h3")}
+      >
+        <span className="text">Heading 3</span>
+      </DropDownItem>
+    </DropDown>
+  );
+}
+
+// CODE FOR FONT FAMILY SELECTION
 
 const FONT_FAMILY_OPTIONS: [string, string][] = [
   ["Arial", "Arial"],
@@ -124,6 +219,8 @@ export function ToolBarPlugin({
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [blockType, setBlockType] =
+    useState<keyof typeof blockTypeToBlockName>("paragraph");
   const [fontFamily, setFontFamily] = useState<string>("Arial");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
@@ -164,8 +261,35 @@ export function ToolBarPlugin({
       setFontFamily(
         $getSelectionStyleValueForProperty(selection, "font-family", "Arial")
       );
+
+      // Identify anchor node (as const 'element') on Editor
+      const anchorNode = selection.anchor.getNode();
+      let element =
+        anchorNode.getKey() === "root" // .getKey is a method on the LexicalNode class
+          ? anchorNode
+          : $findMatchingParent(anchorNode, (e) => {
+              const parent = e.getParent();
+              return parent !== null && $isRootOrShadowRoot(parent);
+            });
+      if (element === null) {
+        element = anchorNode.getTopLevelElementOrThrow();
+      }
+
+      // Identify anchor node (as 'elementDom') on activeEditor
+      const elementKey = element.getKey(); // .getKey is a method on the LexicalNode class
+      const elementDOM = activeEditor.getElementByKey(elementKey); // getElementByKey is a method on the LexicalEditor class
+
+      // Get 'type' of anchorNode on activeEditor
+      if (elementDOM !== null) {
+        const type = $isHeadingNode(element)
+          ? element.getTag() // .getTag is a method on the HeadingNode class
+          : element.getType(); // .getType is a method on the LexicalNode class for other Node types, e.g paragraphNode
+        if (type in blockTypeToBlockName) {
+          setBlockType(type as keyof typeof blockTypeToBlockName);
+        }
+      }
     }
-  }, []);
+  }, [activeEditor]);
 
   useEffect(() => {
     return mergeRegister(
@@ -209,6 +333,15 @@ export function ToolBarPlugin({
         ref={toolBarRef}
         className="flex flex-wrap items-center justify-center gap-2 border border-slate-500 mb-4 p-2"
       >
+        {blockType in blockTypeToBlockName && (
+          <BlockFormatDropdown
+            disabled={!isEditable}
+            blockType={blockType}
+            // rootType={rootType}
+            editor={activeEditor}
+            modal={modal}
+          />
+        )}
         <FontDropDown
           disabled={!isEditable}
           value={fontFamily}
