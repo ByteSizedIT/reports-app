@@ -12,7 +12,17 @@ import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
-import { $findMatchingParent, mergeRegister } from "@lexical/utils";
+import {
+  ListNode,
+  $isListNode,
+  INSERT_UNORDERED_LIST_COMMAND,
+  insertList,
+} from "@lexical/list";
+import {
+  $findMatchingParent,
+  mergeRegister,
+  $getNearestNodeOfType,
+} from "@lexical/utils";
 import {
   $createHeadingNode,
   $isHeadingNode,
@@ -38,11 +48,13 @@ import {
   REDO_COMMAND,
   CLEAR_EDITOR_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
+  COMMAND_PRIORITY_LOW,
   FORMAT_TEXT_COMMAND,
 } from "lexical";
 
 import { BsTextParagraph, BsChatLeftQuote } from "react-icons/bs";
-import { RiH1, RiH2, RiH3, RiH4, RiH5, RiH6 } from "react-icons/ri";
+import { RiH1, RiH2, RiH3, RiH4 } from "react-icons/ri";
+import { PiListBullets } from "react-icons/pi";
 import { CiUndo, CiRedo } from "react-icons/ci";
 import {
   AiOutlineBold,
@@ -63,6 +75,11 @@ const BLOCK_TYPE_OPTIONS = [
   { name: "h2", description: "Heading 2", iconComponent: RiH2 },
   { name: "h3", description: "Heading 3", iconComponent: RiH3 },
   { name: "h4", description: "Heading 4", iconComponent: RiH4 },
+  {
+    name: "bullet",
+    description: "Bulleted List",
+    iconComponent: PiListBullets,
+  },
   { name: "quote", description: "Quote", iconComponent: BsChatLeftQuote },
 ];
 
@@ -104,6 +121,14 @@ function BlockFormatDropdown({
     }
   };
 
+  const formatAsBulletList = () => {
+    if (blockType !== "bullet") {
+      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+    } else {
+      formatAsParagraph();
+    }
+  };
+
   return (
     <DropDown
       disabled={disabled}
@@ -133,6 +158,8 @@ function BlockFormatDropdown({
                 ? () => formatAsHeading(name as HeadingTagType)
                 : item.description === "Quote"
                 ? formatAsQuote
+                : item.description === "Bulleted List"
+                ? formatAsBulletList
                 : formatAsParagraph
             }
           >
@@ -289,20 +316,26 @@ export function ToolBarPlugin({
 
       // Get 'type' of anchorNode on activeEditor
       if (elementDOM !== null) {
-        const type = $isHeadingNode(element)
-          ? element.getTag() // .getTag is a method on the HeadingNode class
-          : element.getType(); // .getType is a method on the LexicalNode class for other Node types, e.g paragraphNode
-        console.log(">>>>>", { type });
-        if (BLOCK_TYPE_OPTIONS.some((block) => block.name === type)) {
-          setBlockType(type as (typeof BLOCK_TYPE_OPTIONS)[number]["name"]);
+        if ($isListNode(element)) {
+          const parentList = $getNearestNodeOfType<ListNode>(
+            anchorNode,
+            ListNode
+          );
+          const type = parentList
+            ? parentList.getListType()
+            : element.getListType();
+          setBlockType(type);
+        } else {
+          const type = $isHeadingNode(element)
+            ? element.getTag() // .getTag is a method on the HeadingNode class
+            : element.getType(); // .getType is a method on the LexicalNode class for other Node types, e.g paragraphNode
+          if (BLOCK_TYPE_OPTIONS.some((block) => block.name === type)) {
+            setBlockType(type as (typeof BLOCK_TYPE_OPTIONS)[number]["name"]);
+          }
         }
       }
     }
   }, [activeEditor]);
-
-  useEffect(() => {
-    console.log({ blockType });
-  }, [blockType]);
 
   useEffect(() => {
     return mergeRegister(
@@ -329,6 +362,14 @@ export function ToolBarPlugin({
           return false;
         },
         COMMAND_PRIORITY_CRITICAL
+      ),
+      activeEditor.registerCommand(
+        INSERT_UNORDERED_LIST_COMMAND,
+        () => {
+          insertList(activeEditor, "bullet");
+          return true;
+        },
+        COMMAND_PRIORITY_LOW
       )
     );
   }, [updateToolbar, activeEditor, editor]);

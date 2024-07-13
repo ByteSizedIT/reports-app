@@ -54,6 +54,14 @@
     @apply p-2 pl-5 border-l-4 border-gray-300 bg-gray-100 italic my-5;
   }
 
+  ul {
+    @apply list-disc pl-5;
+  }
+
+  li {
+    @apply mb-1;
+  }
+
   @screen md {
     h1 {
       @apply text-4xl font-bold text-center;

@@ -8,6 +8,7 @@ import {
   TextNode,
 } from "lexical";
 
+import { ListNode, ListItemNode } from "@lexical/list";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 
 import { useEffect, useState } from "react";
@@ -64,7 +65,7 @@ const Editor = ({
     theme,
     onError,
     // onError: (error, editor) => {},
-    nodes: [HeadingNode, QuoteNode],
+    nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode],
   };
   const [toolbarHeight, setToolbarHeight] = useState(0);
 
