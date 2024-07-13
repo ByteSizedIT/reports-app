@@ -16,6 +16,7 @@ import {
   ListNode,
   $isListNode,
   INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
   insertList,
 } from "@lexical/list";
 import {
@@ -54,7 +55,7 @@ import {
 
 import { BsTextParagraph, BsChatLeftQuote } from "react-icons/bs";
 import { RiH1, RiH2, RiH3, RiH4 } from "react-icons/ri";
-import { PiListBullets } from "react-icons/pi";
+import { MdFormatListBulleted, MdFormatListNumbered } from "react-icons/md";
 import { CiUndo, CiRedo } from "react-icons/ci";
 import {
   AiOutlineBold,
@@ -78,7 +79,12 @@ const BLOCK_TYPE_OPTIONS = [
   {
     name: "bullet",
     description: "Bulleted List",
-    iconComponent: PiListBullets,
+    iconComponent: MdFormatListBulleted,
+  },
+  {
+    name: "number",
+    description: "Numbered List",
+    iconComponent: MdFormatListNumbered,
   },
   { name: "quote", description: "Quote", iconComponent: BsChatLeftQuote },
 ];
@@ -129,6 +135,14 @@ function BlockFormatDropdown({
     }
   };
 
+  const formatAsNumberedList = () => {
+    if (blockType !== "number") {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    } else {
+      formatAsParagraph();
+    }
+  };
+
   return (
     <DropDown
       disabled={disabled}
@@ -160,6 +174,8 @@ function BlockFormatDropdown({
                 ? formatAsQuote
                 : item.description === "Bulleted List"
                 ? formatAsBulletList
+                : item.description === "Numbered List"
+                ? formatAsNumberedList
                 : formatAsParagraph
             }
           >
@@ -367,6 +383,14 @@ export function ToolBarPlugin({
         INSERT_UNORDERED_LIST_COMMAND,
         () => {
           insertList(activeEditor, "bullet");
+          return true;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+      activeEditor.registerCommand(
+        INSERT_ORDERED_LIST_COMMAND,
+        () => {
+          insertList(activeEditor, "number");
           return true;
         },
         COMMAND_PRIORITY_LOW

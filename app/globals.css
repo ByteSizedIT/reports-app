@@ -58,6 +58,10 @@
     @apply list-disc pl-5;
   }
 
+  ol {
+    @apply list-decimal pl-5;
+  }
+
   li {
     @apply mb-1;
   }
