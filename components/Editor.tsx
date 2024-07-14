@@ -5,6 +5,7 @@ import {
   $getSelection,
   $getTextContent,
   EditorState,
+  EditorThemeClasses,
   TextNode,
 } from "lexical";
 
@@ -28,10 +29,12 @@ import { ToolBarPlugin } from "@/utils/lexical-plugins/ToolbarPlugin";
 
 import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 
+import "../utils/lexical-plugins/theme/EditorTheme.css";
+
 interface Props {}
 
 // Lexical theme styling
-const theme = {
+const theme: EditorThemeClasses = {
   root: "p-4 border-slate-500 border rounded focus:outline-none text-left",
   link: "cursor-pointer",
   text: {
@@ -40,6 +43,23 @@ const theme = {
     italic: "italic",
     strikethrough: "line-through",
     underlineStrikethrough: "underlined-line-through",
+  },
+  list: {
+    checklist: "PlaygroundEditorTheme__checklist",
+    listitem: "PlaygroundEditorTheme__listItem",
+    listitemChecked: "PlaygroundEditorTheme__listItemChecked",
+    listitemUnchecked: "PlaygroundEditorTheme__listItemUnchecked",
+    nested: {
+      listitem: "PlaygroundEditorTheme__nestedListItem",
+    },
+    olDepth: [
+      "PlaygroundEditorTheme__ol1",
+      "PlaygroundEditorTheme__ol2",
+      "PlaygroundEditorTheme__ol3",
+      "PlaygroundEditorTheme__ol4",
+      "PlaygroundEditorTheme__ol5",
+    ],
+    ul: "PlaygroundEditorTheme__ul",
   },
 };
 
