@@ -17,6 +17,7 @@ import {
   $isListNode,
   INSERT_UNORDERED_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
+  INSERT_CHECK_LIST_COMMAND,
   insertList,
 } from "@lexical/list";
 import {
@@ -55,7 +56,11 @@ import {
 
 import { BsTextParagraph, BsChatLeftQuote } from "react-icons/bs";
 import { RiH1, RiH2, RiH3, RiH4 } from "react-icons/ri";
-import { MdFormatListBulleted, MdFormatListNumbered } from "react-icons/md";
+import {
+  MdFormatListBulleted,
+  MdFormatListNumbered,
+  MdChecklist,
+} from "react-icons/md";
 import { CiUndo, CiRedo } from "react-icons/ci";
 import {
   AiOutlineBold,
@@ -85,6 +90,11 @@ const BLOCK_TYPE_OPTIONS = [
     name: "number",
     description: "Numbered List",
     iconComponent: MdFormatListNumbered,
+  },
+  {
+    name: "check",
+    description: "Checked List",
+    iconComponent: MdChecklist,
   },
   { name: "quote", description: "Quote", iconComponent: BsChatLeftQuote },
 ];
@@ -143,6 +153,14 @@ function BlockFormatDropdown({
     }
   };
 
+  const formatAsCheckedList = () => {
+    if (blockType !== "check") {
+      editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
+    } else {
+      formatAsParagraph();
+    }
+  };
+
   return (
     <DropDown
       disabled={disabled}
@@ -176,6 +194,8 @@ function BlockFormatDropdown({
                 ? formatAsBulletList
                 : item.description === "Numbered List"
                 ? formatAsNumberedList
+                : item.description === "Checked List"
+                ? formatAsCheckedList
                 : formatAsParagraph
             }
           >
@@ -391,6 +411,14 @@ export function ToolBarPlugin({
         INSERT_ORDERED_LIST_COMMAND,
         () => {
           insertList(activeEditor, "number");
+          return true;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+      activeEditor.registerCommand(
+        INSERT_CHECK_LIST_COMMAND,
+        () => {
+          insertList(activeEditor, "check");
           return true;
         },
         COMMAND_PRIORITY_LOW

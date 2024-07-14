@@ -26,6 +26,8 @@ import { MyOnChangePlugin } from "@/utils/lexical-plugins/onChange";
 import { CompromisePlugin } from "@/utils/lexical-plugins/CompromisePlugin";
 import { ToolBarPlugin } from "@/utils/lexical-plugins/ToolbarPlugin";
 
+import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
+
 interface Props {}
 
 // Lexical theme styling
@@ -102,6 +104,7 @@ const Editor = ({
           updateEditorState(editorState);
         }}
       />
+      <CheckListPlugin />
     </LexicalComposer>
   );
 };
