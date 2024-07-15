@@ -208,7 +208,7 @@ function BlockFormatDropdown({
   );
 }
 
-// CODE FOR FONT FAMILY SELECTION
+// CODE FOR FONT FAMILY & FONT SIZE SELECTION
 
 const FONT_FAMILY_OPTIONS: [string, string][] = [
   ["Arial", "Arial"],
@@ -219,14 +219,30 @@ const FONT_FAMILY_OPTIONS: [string, string][] = [
   ["Verdana", "Verdana"],
 ];
 
+const FONT_SIZE_OPTIONS: [string, string][] = [
+  ["10px", "10px"],
+  ["11px", "11px"],
+  ["12px", "12px"],
+  ["13px", "13px"],
+  ["14px", "14px"],
+  ["15px", "15px"],
+  ["16px", "16px"],
+  ["17px", "17px"],
+  ["18px", "18px"],
+  ["19px", "19px"],
+  ["20px", "20px"],
+];
+
 function FontDropDown({
   editor,
   disabled = false,
+  style,
   value,
   modal,
 }: {
   editor: LexicalEditor;
   disabled?: boolean;
+  style: string;
   value: string;
   modal: boolean;
 }): JSX.Element {
@@ -236,41 +252,43 @@ function FontDropDown({
         const selection = $getSelection();
         if (selection !== null) {
           $patchStyleText(selection, {
-            "font-family": option,
+            [style]: option,
           });
         }
       });
     },
-    [editor]
+    [editor, style]
   );
 
   return (
     <DropDown
       disabled={disabled}
       buttonLabel={value} // e.g "font-family"
-      buttonAriaLabel="Formatting options for font family"
+      buttonAriaLabel={`Formatting options for ${style}`}
       modal={modal}
     >
-      {FONT_FAMILY_OPTIONS.map(([option, text], index) => {
-        return (
-          <DropDownItem
-            className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
+      {(style === "font-family" ? FONT_FAMILY_OPTIONS : FONT_SIZE_OPTIONS).map(
+        ([option, text], index) => {
+          return (
+            <DropDownItem
+              className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 justify-between items-center w-full hover:bg-green-700
           ${index === 0 ? "mt-2" : ""} 
           ${index === FONT_FAMILY_OPTIONS.length - 1 ? "mb-2" : ""} 
           ${value === option ? "bg-green-700 border " : ""}
           `}
-            onClick={() => handleClick(option)}
-            key={option}
-          >
-            <span
-              className={`block
-            ${value === "font-family" ? "max-w-40" : "max-w-10"}`}
+              onClick={() => handleClick(option)}
+              key={option}
             >
-              {text}
-            </span>
-          </DropDownItem>
-        );
-      })}
+              <span
+                className={`block
+            ${value === "font-family" ? "max-w-40" : "max-w-10"}`}
+              >
+                {text}
+              </span>
+            </DropDownItem>
+          );
+        }
+      )}
     </DropDown>
   );
 }
@@ -293,6 +311,7 @@ export function ToolBarPlugin({
   const [blockType, setBlockType] =
     useState<(typeof BLOCK_TYPE_OPTIONS)[number]["name"]>("paragraph");
   const [fontFamily, setFontFamily] = useState<string>("Arial");
+  const [fontSize, setFontSize] = useState<string>("12px");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
@@ -331,6 +350,9 @@ export function ToolBarPlugin({
       setIsUnderline(selection.hasFormat("underline"));
       setFontFamily(
         $getSelectionStyleValueForProperty(selection, "font-family", "Arial")
+      );
+      setFontSize(
+        $getSelectionStyleValueForProperty(selection, "font-size", "12px")
       );
 
       // Identify anchor node (as const 'element') on Editor
@@ -450,7 +472,15 @@ export function ToolBarPlugin({
         {/* )} */}
         <FontDropDown
           disabled={!isEditable}
+          style="font-family"
           value={fontFamily}
+          editor={activeEditor}
+          modal={modal}
+        />
+        <FontDropDown
+          disabled={!isEditable}
+          style="font-size"
+          value={fontSize}
           editor={activeEditor}
           modal={modal}
         />
