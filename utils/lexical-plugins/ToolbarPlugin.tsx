@@ -556,34 +556,6 @@ export function ToolBarPlugin({
           width="w-10"
           height="h-9"
           small
-          disabled={!canUndo || !isEditable}
-          onClick={() => {
-            editor.dispatchCommand(UNDO_COMMAND, undefined);
-          }}
-          // title="'Undo (⌘Y OR Ctrl+Y)"
-          // type="button"
-          aria-label="Undo. Shortcut:'⌘Y' OR 'Ctrl+Y'"
-        >
-          <CiUndo className="text-xl sm:text-2xl" />
-        </Button>
-        <Button
-          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
-          small
-          disabled={!canRedo || !isEditable}
-          onClick={() => {
-            editor.dispatchCommand(REDO_COMMAND, undefined);
-          }}
-          // title="'Undo (⌘Z OR Ctrl+Z)"
-          // type="button"
-          aria-label="Redo. Shortcut:'⌘Z' OR 'Ctrl+Z'"
-        >
-          <CiRedo className="text-xl sm:text-2xl" />
-        </Button>
-        <Button
-          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
-          width="w-10"
-          height="h-9"
-          small
           disabled={!isEditable}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
@@ -692,6 +664,34 @@ export function ToolBarPlugin({
             <span className="text">Clear Formatting</span>
           </DropDownItem>
         </DropDown>
+        <Button
+          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          width="w-10"
+          height="h-9"
+          small
+          disabled={!canUndo || !isEditable}
+          onClick={() => {
+            editor.dispatchCommand(UNDO_COMMAND, undefined);
+          }}
+          // title="'Undo (⌘Y OR Ctrl+Y)"
+          // type="button"
+          aria-label="Undo. Shortcut:'⌘Y' OR 'Ctrl+Y'"
+        >
+          <CiUndo className="text-xl sm:text-2xl" />
+        </Button>
+        <Button
+          color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
+          small
+          disabled={!canRedo || !isEditable}
+          onClick={() => {
+            editor.dispatchCommand(REDO_COMMAND, undefined);
+          }}
+          // title="'Undo (⌘Z OR Ctrl+Z)"
+          // type="button"
+          aria-label="Redo. Shortcut:'⌘Z' OR 'Ctrl+Z'"
+        >
+          <CiRedo className="text-xl sm:text-2xl" />
+        </Button>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
           width="w-10"
