@@ -24,11 +24,13 @@ import {
   $findMatchingParent,
   mergeRegister,
   $getNearestNodeOfType,
+  $getNearestBlockElementAncestorOrThrow,
 } from "@lexical/utils";
 import {
   $createHeadingNode,
   $isHeadingNode,
   HeadingTagType,
+  $isQuoteNode,
   $createQuoteNode,
 } from "@lexical/rich-text";
 import {
@@ -52,6 +54,7 @@ import {
   COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_LOW,
   FORMAT_TEXT_COMMAND,
+  $isTextNode,
 } from "lexical";
 
 import { BsTextParagraph, BsChatLeftQuote } from "react-icons/bs";
@@ -60,18 +63,23 @@ import {
   MdFormatListBulleted,
   MdFormatListNumbered,
   MdChecklist,
+  MdStrikethroughS,
+  MdSubscript,
+  MdSuperscript,
+  MdDeleteForever,
 } from "react-icons/md";
+import { PiTextAa } from "react-icons/pi";
 import { CiUndo, CiRedo } from "react-icons/ci";
 import {
   AiOutlineBold,
   AiOutlineItalic,
   AiOutlineUnderline,
 } from "react-icons/ai";
-import { MdDeleteForever } from "react-icons/md";
 
 import DropDown from "@/components/toolbar-ui/Dropdown";
 import DropDownItem from "@/components/toolbar-ui/DropdownItem";
 import Button from "@/components/Button";
+import { $isDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
 
 // CODE FOR BLOCK TEXT STYLE SELECTION
 
@@ -315,6 +323,9 @@ export function ToolBarPlugin({
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
+  const [isStrikethrough, setStrikethrough] = useState(false);
+  const [isSubscript, setSubscript] = useState(false);
+  const [isSuperscript, setIsSuperscript] = useState(false);
 
   const MandatoryPlugins = useMemo(() => {
     return <ClearEditorPlugin />;
@@ -348,6 +359,9 @@ export function ToolBarPlugin({
       setIsBold(selection.hasFormat("bold"));
       setIsItalic(selection.hasFormat("italic"));
       setIsUnderline(selection.hasFormat("underline"));
+      setStrikethrough(selection.hasFormat("strikethrough"));
+      setSubscript(selection.hasFormat("subscript"));
+      setIsSuperscript(selection.hasFormat("superscript"));
       setFontFamily(
         $getSelectionStyleValueForProperty(selection, "font-family", "Arial")
       );
@@ -447,6 +461,59 @@ export function ToolBarPlugin({
       )
     );
   }, [updateToolbar, activeEditor, editor]);
+
+  const clearFormatting = useCallback(() => {
+    activeEditor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const anchor = selection.anchor;
+        const focus = selection.focus;
+        const nodes = selection.getNodes();
+        const extractedNodes = selection.extract();
+
+        // If no range, just a single point), early return early as nothing to format.
+        if (anchor.key === focus.key && anchor.offset === focus.offset) {
+          return;
+        }
+
+        nodes.forEach((node, index) => {
+          // Ensure unselected text inside the selected nodes is not formatted
+          if ($isTextNode(node)) {
+            // Use a separate variable to ensure TS does not lose the refinement below
+            let textNode = node;
+
+            // Handle Partial Selection in the First Node:
+            if (index === 0 && anchor.offset !== 0) {
+              textNode = textNode.splitText(anchor.offset)[1] || textNode; // node is split at the anchor.offset position. The splitText method returns an array where the second element is the text after the split. textNode is set to the second part of the split (the part that starts from anchor.offset)
+            }
+            // Handle Partial Selection in the Last Node:
+            if (index === nodes.length - 1) {
+              textNode = textNode.splitText(focus.offset)[0] || textNode; // node is split at the focus.offset position. The splitText method returns an array where the first element is the text before the split. textNode is set to the first part of the split (the part that ends at focus.offset)
+            }
+
+            // If selection spans only one node, the extracted node (extractedNodes[0]) is assigned to textNode if it is also a text node.
+            const extractedTextNode = extractedNodes[0];
+            if (nodes.length === 1 && $isTextNode(extractedTextNode)) {
+              textNode = extractedTextNode;
+            }
+
+            //If the text node has a style applied, the style is cleared
+            if (textNode.__style !== "") {
+              textNode.setStyle("");
+            }
+            // If text node has a format applied (__format is not zero), the format is cleared
+            if (textNode.__format !== 0) {
+              textNode.setFormat(0);
+              // Additionally, the nearest block element ancestor is found, and its format is also cleared
+              $getNearestBlockElementAncestorOrThrow(textNode).setFormat("");
+            }
+            // the original node variable is updated to reference the modified textNode, ensuring that any further operations in the loop use the updated node.
+            node = textNode;
+          }
+        });
+      }
+    });
+  }, [activeEditor]);
 
   useEffect(() => {
     if (toolBarRef?.current) {
@@ -560,6 +627,71 @@ export function ToolBarPlugin({
         >
           <AiOutlineUnderline className="text-xl sm:text-2xl" />
         </Button>
+        <DropDown
+          disabled={!isEditable}
+          buttonAriaLabel="Formatting options for additional text styles"
+          IconComponent={PiTextAa}
+          // stopCloseOnClickSelf?: boolean;
+          modal={modal}
+          small
+        >
+          <DropDownItem
+            onClick={() => {
+              activeEditor.dispatchCommand(
+                FORMAT_TEXT_COMMAND,
+                "strikethrough"
+              );
+            }}
+            className={`
+              mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
+              ${isStrikethrough ? "bg-green-700 border " : ""}
+              `}
+            title="Strikethrough"
+            aria-label="Format text with a strikethrough"
+          >
+            <MdStrikethroughS className="text-xl sm:text-2xl" />
+            <span className="text">Strikethrough</span>
+          </DropDownItem>
+          <DropDownItem
+            onClick={() => {
+              activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, "subscript");
+            }}
+            className={`
+              px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
+              ${isSubscript ? "bg-green-700 border " : ""}
+              `}
+            title="Subscript"
+            aria-label="Format text with a subscript"
+          >
+            <MdSubscript className="text-xl sm:text-2xl" />
+            <span className="text">Subscript</span>
+          </DropDownItem>
+          <DropDownItem
+            onClick={() => {
+              activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, "superscript");
+            }}
+            className={`
+              px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
+              ${isSuperscript ? "bg-green-700 border " : ""}
+              `}
+            title="Superscript"
+            aria-label="Format text with a superscript"
+          >
+            <MdSuperscript className="text-xl sm:text-2xl" />
+            <span className="text">Superscript</span>
+          </DropDownItem>
+          <DropDownItem
+            className={`
+              px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-4 items-center w-full hover:bg-green-700
+              `}
+            onClick={clearFormatting}
+            title="Clear text formatting"
+            aria-label="Clear all text formatting"
+          >
+            <MdDeleteForever className="text-xl sm:text-2xl" />
+            <span className="text">Clear Formatting</span>
+          </DropDownItem>
+        </DropDown>
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
           width="w-10"

@@ -36,6 +36,7 @@ export default function DropDown({
   children,
   stopCloseOnClickSelf,
   modal,
+  small,
 }: {
   disabled?: boolean;
   buttonLabel?: string;
@@ -44,6 +45,7 @@ export default function DropDown({
   children: ReactNode;
   stopCloseOnClickSelf?: boolean;
   modal: boolean;
+  small?: boolean;
 }): JSX.Element {
   const dropDownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -124,7 +126,9 @@ export default function DropDown({
         type="button"
         disabled={disabled}
         aria-label={buttonAriaLabel || buttonLabel}
-        className={`flex rounded-lg w-32 h-9 px-2 py-1 cursor-pointer items-center justify-between whitespace-nowrap overflow-hidden
+        className={`flex rounded-lg ${
+          !small ? "w-32" : ""
+        } h-9 px-2 py-1 cursor-pointer items-center justify-between whitespace-nowrap overflow-hidden
         ${
           showDropDown ? "border-2 border-green-700" : "border border-slate-500"
         }
