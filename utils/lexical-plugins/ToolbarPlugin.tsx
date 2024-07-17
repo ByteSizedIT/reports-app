@@ -30,7 +30,6 @@ import {
   $createHeadingNode,
   $isHeadingNode,
   HeadingTagType,
-  $isQuoteNode,
   $createQuoteNode,
 } from "@lexical/rich-text";
 import {
@@ -55,7 +54,14 @@ import {
   COMMAND_PRIORITY_LOW,
   FORMAT_TEXT_COMMAND,
   $isTextNode,
+  ElementFormatType,
+  $isElementNode,
+  FORMAT_ELEMENT_COMMAND,
+  OUTDENT_CONTENT_COMMAND,
+  INDENT_CONTENT_COMMAND,
 } from "lexical";
+
+import { getSelectedNode } from "./functions/getSelectedNode";
 
 import { BsTextParagraph, BsChatLeftQuote } from "react-icons/bs";
 import { RiH1, RiH2, RiH3, RiH4 } from "react-icons/ri";
@@ -67,6 +73,12 @@ import {
   MdSubscript,
   MdSuperscript,
   MdDeleteForever,
+  MdFormatAlignCenter,
+  MdFormatAlignLeft,
+  MdFormatAlignRight,
+  MdFormatAlignJustify,
+  MdFormatIndentDecrease,
+  MdFormatIndentIncrease,
 } from "react-icons/md";
 import { PiTextAa } from "react-icons/pi";
 import { CiUndo, CiRedo } from "react-icons/ci";
@@ -79,7 +91,6 @@ import {
 import DropDown from "@/components/toolbar-ui/Dropdown";
 import DropDownItem from "@/components/toolbar-ui/DropdownItem";
 import Button from "@/components/Button";
-import { $isDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
 
 // CODE FOR BLOCK TEXT STYLE SELECTION
 
@@ -216,6 +227,94 @@ function BlockFormatDropdown({
   );
 }
 
+// CODE FOR ELEMENT FORMAT SELECTION
+
+const ELEMENT_FORMAT_OPTIONS: {
+  [K in Exclude<ElementFormatType, "">]?: {
+    iconComponent: React.FC;
+    description: string;
+  };
+} = {
+  ["left"]: {
+    iconComponent: MdFormatAlignLeft,
+    description: "Left Align",
+  },
+  ["center"]: {
+    iconComponent: MdFormatAlignCenter,
+    description: "Center Align",
+  },
+  ["right"]: {
+    iconComponent: MdFormatAlignRight,
+    description: "Right Align",
+  },
+  ["justify"]: {
+    iconComponent: MdFormatAlignJustify,
+    description: "Justify Align",
+  },
+};
+
+function ElementFormatDropdown({
+  editor,
+  value,
+  disabled = false,
+  modal,
+}: {
+  editor: LexicalEditor;
+  value: ElementFormatType;
+  disabled: boolean;
+  modal: boolean;
+}) {
+  const formatOption = ELEMENT_FORMAT_OPTIONS[value || "left"];
+
+  return (
+    <DropDown
+      disabled={disabled}
+      buttonLabel={formatOption?.description}
+      buttonAriaLabel="Formatting options for text alignment"
+      IconComponent={formatOption?.iconComponent}
+      modal={modal}
+    >
+      {Object.entries(ELEMENT_FORMAT_OPTIONS).map(([k, v]) => {
+        return (
+          <DropDownItem
+            key={k}
+            onClick={() => {
+              editor.dispatchCommand(
+                FORMAT_ELEMENT_COMMAND,
+                k as ElementFormatType
+              );
+            }}
+            className={`mt-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-2 items-center w-full hover:bg-green-700
+            ${k === value ? "bg-green-700 border " : ""}
+            `}
+          >
+            <v.iconComponent />
+            <span className="text">{v.description}</span>
+          </DropDownItem>
+        );
+      })}
+      <DropDownItem
+        onClick={() => {
+          editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
+        }}
+        className={`mb-2 px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-2 items-center w-full hover:bg-green-700`}
+      >
+        <MdFormatIndentIncrease />
+        <span>Indent</span>
+      </DropDownItem>
+      <DropDownItem
+        onClick={() => {
+          editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+        }}
+        className={`px-2 py-2 cursor-pointer leading-4 text-sm md:text-base flex flex-row flex-shrink-0 gap-2 items-center w-full hover:bg-green-700`}
+      >
+        <MdFormatIndentDecrease />
+        <span>Outdent</span>
+      </DropDownItem>
+    </DropDown>
+  );
+}
+
 // CODE FOR FONT FAMILY & FONT SIZE SELECTION
 
 const FONT_FAMILY_OPTIONS: [string, string][] = [
@@ -274,6 +373,7 @@ function FontDropDown({
       buttonLabel={value} // e.g "font-family"
       buttonAriaLabel={`Formatting options for ${style}`}
       modal={modal}
+      small
     >
       {(style === "font-family" ? FONT_FAMILY_OPTIONS : FONT_SIZE_OPTIONS).map(
         ([option, text], index) => {
@@ -326,6 +426,7 @@ export function ToolBarPlugin({
   const [isStrikethrough, setStrikethrough] = useState(false);
   const [isSubscript, setSubscript] = useState(false);
   const [isSuperscript, setIsSuperscript] = useState(false);
+  const [elementFormat, setElementFormat] = useState<ElementFormatType>("left");
 
   const MandatoryPlugins = useMemo(() => {
     return <ClearEditorPlugin />;
@@ -369,6 +470,9 @@ export function ToolBarPlugin({
         $getSelectionStyleValueForProperty(selection, "font-size", "12px")
       );
 
+      const node = getSelectedNode(selection);
+      const parent = node.getParent();
+
       // Identify anchor node (as const 'element') on Editor
       const anchorNode = selection.anchor.getNode();
       let element =
@@ -406,6 +510,12 @@ export function ToolBarPlugin({
           }
         }
       }
+
+      setElementFormat(
+        $isElementNode(node)
+          ? node.getFormatType()
+          : parent?.getFormatType() || "left"
+      );
     }
   }, [activeEditor]);
 
@@ -664,6 +774,12 @@ export function ToolBarPlugin({
             <span className="text">Clear Formatting</span>
           </DropDownItem>
         </DropDown>
+        <ElementFormatDropdown
+          disabled={!isEditable}
+          value={elementFormat}
+          editor={activeEditor}
+          modal={modal}
+        />
         <Button
           color={`${modal ? "modal-secondary-button" : "secondary-button"}`}
           width="w-10"
