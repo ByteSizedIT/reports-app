@@ -5,8 +5,12 @@ import {
   $getSelection,
   $getTextContent,
   EditorState,
+  EditorThemeClasses,
   TextNode,
 } from "lexical";
+
+import { ListNode, ListItemNode } from "@lexical/list";
+import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 
 import { useEffect, useState } from "react";
 
@@ -23,10 +27,14 @@ import { MyOnChangePlugin } from "@/utils/lexical-plugins/onChange";
 import { CompromisePlugin } from "@/utils/lexical-plugins/CompromisePlugin";
 import { ToolBarPlugin } from "@/utils/lexical-plugins/ToolbarPlugin";
 
+import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
+
+import "../utils/lexical-plugins/theme/EditorTheme.css";
+
 interface Props {}
 
 // Lexical theme styling
-const theme = {
+const theme: EditorThemeClasses = {
   root: "p-4 border-slate-500 border rounded focus:outline-none text-left",
   link: "cursor-pointer",
   text: {
@@ -35,6 +43,23 @@ const theme = {
     italic: "italic",
     strikethrough: "line-through",
     underlineStrikethrough: "underlined-line-through",
+  },
+  list: {
+    checklist: "PlaygroundEditorTheme__checklist",
+    listitem: "PlaygroundEditorTheme__listItem",
+    listitemChecked: "PlaygroundEditorTheme__listItemChecked",
+    listitemUnchecked: "PlaygroundEditorTheme__listItemUnchecked",
+    nested: {
+      listitem: "PlaygroundEditorTheme__nestedListItem",
+    },
+    olDepth: [
+      "PlaygroundEditorTheme__ol1",
+      "PlaygroundEditorTheme__ol2",
+      "PlaygroundEditorTheme__ol3",
+      "PlaygroundEditorTheme__ol4",
+      "PlaygroundEditorTheme__ol5",
+    ],
+    ul: "PlaygroundEditorTheme__ul",
   },
 };
 
@@ -62,6 +87,7 @@ const Editor = ({
     theme,
     onError,
     // onError: (error, editor) => {},
+    nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode],
   };
   const [toolbarHeight, setToolbarHeight] = useState(0);
 
@@ -71,7 +97,7 @@ const Editor = ({
         <div className="flex flex-col w-full h-full">
           <ToolBarPlugin
             modal={parentModal}
-            onHeightChange={setToolbarHeight}
+            updateToolbarHeight={setToolbarHeight}
           />
           <RichTextPlugin
             contentEditable={
@@ -98,6 +124,7 @@ const Editor = ({
           updateEditorState(editorState);
         }}
       />
+      <CheckListPlugin />
     </LexicalComposer>
   );
 };
