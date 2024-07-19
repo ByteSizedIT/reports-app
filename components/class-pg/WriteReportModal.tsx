@@ -62,7 +62,7 @@ const WriteReportModal = ({
       const { data, error } = await supabase
         .from("class_subject_group")
         .update([{ group_comment: JSON.stringify(editorState) }])
-        .eq("id", 290);
+        .eq("id", group.id); // class_subject_group.id
       if (error) {
         console.error("Error inserting data:", error.message);
       } else {
