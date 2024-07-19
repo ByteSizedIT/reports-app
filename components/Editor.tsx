@@ -83,7 +83,7 @@ const Editor = ({
 }) => {
   const initialConfig = {
     namespace: "MyEditor",
-    editorState: editorState,
+    editorState: JSON.stringify(editorState),
     theme,
     onError,
     // onError: (error, editor) => {},

@@ -36,7 +36,9 @@ const WriteReportModal = ({
 }) => {
   const [isPending, setIsPending] = useState(false);
   const [editorState, setEditorState] = useState<EditorState | undefined>(
-    undefined
+    group.group_comment
+      ? (JSON.parse(group.group_comment) as EditorState)
+      : undefined
   );
 
   const { chars, words } = useEditorCounts(editorState);
