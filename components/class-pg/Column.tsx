@@ -18,6 +18,7 @@ import Button from "../Button";
 import { createClient } from "@/utils/supabase/clients/browserClient";
 import deepClone from "@/utils/functions/deepClone";
 import MessageModal from "./MessageModal";
+import { EditorState } from "lexical";
 
 interface ColumnProps {
   group: ClassSubjectGroupStudent;
@@ -128,8 +129,15 @@ const Column = ({
     setShowReportModal(bool);
   }
 
-  function saveReportToState() {
-    // console.log("Need to add functionality to add report to state");
+  function saveReportToState(updatedComment: EditorState | {}) {
+    console.log({ classDataState });
+    const classDataCopy = deepClone(classDataState);
+    classDataCopy[0].class_subject[displayedSubjectIndex].class_subject_group[
+      classDataCopy[0].class_subject[
+        displayedSubjectIndex
+      ].class_subject_group.findIndex((item) => item.id === group.id)
+    ].group_comment = JSON.stringify(updatedComment);
+    updateClassDataState(classDataCopy);
   }
 
   return (
@@ -206,7 +214,7 @@ const Column = ({
               classDataState[0].class_subject[displayedSubjectIndex]
             }
             updateShowReportModal={updateShowReportModal}
-            saveReportToState={saveReportToState}
+            saveGroupCommentToState={saveReportToState}
           />
         )}
         {reportButton && (
