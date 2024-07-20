@@ -17,12 +17,12 @@ import { EditorState } from "lexical";
 const WriteReportModal = ({
   group,
   updateShowReportModal,
-  saveReportToState,
+  saveGroupCommentToState,
   thisClassDataState,
 }: {
   group: ClassSubjectGroupStudent;
   updateShowReportModal: (bool: boolean) => void;
-  saveReportToState: () => void;
+  saveGroupCommentToState: (updatedComment: EditorState | {}) => void;
   thisClassDataState: {
     id: any;
     subject: { id: number; description: string };
@@ -36,7 +36,9 @@ const WriteReportModal = ({
 }) => {
   const [isPending, setIsPending] = useState(false);
   const [editorState, setEditorState] = useState<EditorState | undefined>(
-    undefined
+    group.group_comment
+      ? (JSON.parse(group.group_comment) as EditorState)
+      : undefined
   );
 
   const { chars, words } = useEditorCounts(editorState);
@@ -56,24 +58,25 @@ const WriteReportModal = ({
   );
 
   // Insert data into Supabase
-  const insertData = async (editorState: {}) => {
+  async function saveGroupComment(editorState: {}) {
     try {
       setIsPending(true);
       const { data, error } = await supabase
         .from("class_subject_group")
         .update([{ group_comment: JSON.stringify(editorState) }])
-        .eq("id", 290);
+        .eq("id", group.id); // class_subject_group.id
       if (error) {
         console.error("Error inserting data:", error.message);
       } else {
-        console.log("Data inserted successfully:", data);
+        console.log("Data inserted to Supabase successfully:", data);
+        saveGroupCommentToState(editorState || {});
       }
     } catch (error) {
       console.error("Error inserting data:");
     } finally {
       setIsPending(false);
     }
-  };
+  }
 
   return (
     <ModalOuter
@@ -101,7 +104,7 @@ const WriteReportModal = ({
           color="primary-button"
           pending={isPending}
           onClick={async () => {
-            await insertData(editorState || {});
+            await saveGroupComment(editorState || {});
             updateShowReportModal(false);
           }}
         />

@@ -38,16 +38,14 @@ const Subjects = ({
         {classDataState[0].class_subject.length > 0 &&
           classDataState[0].class_subject?.map(
             (c: { id: number; subject: any }, index: number) => (
-              <>
-                <Button
-                  key={c.id}
-                  label={c.subject.description}
-                  color="secondary-button"
-                  activeBorder={displayedSubjectId === c.id}
-                  small
-                  onClick={() => updateDisplayedSubjectId(c.id)}
-                />
-              </>
+              <Button
+                key={c.id}
+                label={c.subject.description}
+                color="secondary-button"
+                activeBorder={displayedSubjectId === c.id}
+                small
+                onClick={() => updateDisplayedSubjectId(c.id)}
+              />
             )
           )}
         <Button

@@ -10,6 +10,7 @@ import { ClassDetails } from "@/types/types";
 import Column from "./Column";
 import NewColumn from "./NewColumn";
 import MessageModal from "./MessageModal";
+import Button from "../Button";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
 import Link from "next/link";
@@ -25,21 +26,7 @@ const SubjectReportGroups = ({
 }) => {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
-  const [groupReportsComplete, setGroupReportsComplete] = useState(() =>
-    classDataState[0].class_subject
-      .flatMap((subject) => subject.class_subject_group)
-      .filter((subject) => subject.report_group.description !== "Class Default")
-      .every((group) => group.group_comment !== null)
-  );
-
-  useEffect(() => {
-    const reportsWritten = classDataState[0].class_subject
-      .flatMap((subject) => subject.class_subject_group)
-      .filter((subject) => subject.report_group.description !== "Class Default")
-      .every((group) => group.group_comment !== null);
-
-    setGroupReportsComplete(reportsWritten);
-  }, [classDataState]);
+  const [groupReportsComplete, setGroupReportsComplete] = useState(false);
 
   const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
     (s) => s.id === displayedSubjectId
@@ -47,6 +34,15 @@ const SubjectReportGroups = ({
   const displayedSubjectReportGroups =
     classDataState[0]?.class_subject?.[displayedSubjectIndex]
       ?.class_subject_group;
+
+  useEffect(() => {
+    if (displayedSubjectId) {
+      const reportsWritten = displayedSubjectReportGroups
+        .filter((item) => item.report_group.description !== "Class Register")
+        .every((group) => group.group_comment !== null);
+      setGroupReportsComplete(reportsWritten);
+    }
+  }, [classDataState, displayedSubjectId, displayedSubjectReportGroups]);
 
   function onDragStart() {}
   function onDragUpdate() {}
@@ -111,7 +107,7 @@ const SubjectReportGroups = ({
       // ... add student into the destination index in the start studentArr, removing 0 items
       newStartStudentsArr.splice(newColumnIndex, 0, ...movedItem);
     } else {
-      // if student is dragged and dropped between differeing reportGroup columns...
+      // if student is dragged and dropped between differing reportGroup columns...
       // ... move student to new index in copy of destination studentArr, removing 0 items
       const newFinishStudentsArr = Array.from(
         finishColumn.class_subject_group_student
@@ -208,7 +204,7 @@ const SubjectReportGroups = ({
   return (
     <>
       {displayedSubjectId && (
-        <>
+        <div className="mb-6">
           <p className="mb-2">
             Drag and drop students between groups, click `Report` to write...
           </p>
@@ -218,7 +214,7 @@ const SubjectReportGroups = ({
             onDragUpdate={onDragUpdate}
           >
             <div className="flex gap-4">
-              <div className="flex gap-4 overflow-x-auto">
+              <div className="mb-6 flex gap-4 overflow-x-auto">
                 {displayedSubjectId !== undefined &&
                   displayedSubjectReportGroups
                     .sort((a, b) => a.report_group.id - b.report_group.id)
@@ -242,12 +238,15 @@ const SubjectReportGroups = ({
           </DragDropContext>
           {groupReportsComplete && (
             <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
-              <button className="py-1 px-2 m-2 w-40 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50">
-                Pupil Reports
-              </button>
+              <Button
+                label="Review Pupil Reports"
+                color="primary-button"
+                topMargin
+                bottomMargin
+              />
             </Link>
           )}
-        </>
+        </div>
       )}
       {showWarningModal && (
         <MessageModal
