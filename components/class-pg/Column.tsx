@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 
 import { MdDeleteForever } from "react-icons/md";
-import { FaPen } from "react-icons/fa";
+import { FaPen, FaCheck } from "react-icons/fa";
 
 import { ClassDetails, ClassSubjectGroupStudent } from "@/types/types";
 
@@ -187,24 +187,15 @@ const Column = ({
           </Droppable>
           {reportButton && (
             <Button
-              label="Report "
+              label="Comment"
               color="primary-button"
               topMargin
               bottomMargin
               onClick={() => updateShowReportModal(true)}
               disabled={group.class_subject_group_student.length < 1}
             >
-              <FaPen />
+              {group.group_comment ? <FaCheck /> : <FaPen />}
             </Button>
-            // <button
-            //   className="py-1 px-2 mb-2 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50"
-            //   onClick={() => updateShowReportModal(true)}
-            //   disabled={group.class_subject_group_student.length < 1}
-            // >
-            //   <div className="flex items-center">
-            //     <FaPen /> <p className="pl-2"> Report</p>
-            //   </div>
-            // </button>
           )}
         </div>
         {showReportModal && (

@@ -37,8 +37,12 @@ const SubjectReportGroups = ({
 
   useEffect(() => {
     if (displayedSubjectId) {
-      const reportsWritten = displayedSubjectReportGroups
-        .filter((item) => item.report_group.description !== "Class Register")
+      const reportsWritten = classDataState[0].class_subject
+        .flatMap((subject) => subject.class_subject_group)
+        .filter(
+          (subject) => subject.report_group.description !== "Class Register"
+        )
+
         .every((group) => group.group_comment !== null);
       setGroupReportsComplete(reportsWritten);
     }
@@ -236,16 +240,15 @@ const SubjectReportGroups = ({
               </div>
             </div>
           </DragDropContext>
-          {groupReportsComplete && (
-            <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
-              <Button
-                label="Review Pupil Reports"
-                color="primary-button"
-                topMargin
-                bottomMargin
-              />
-            </Link>
-          )}
+          <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
+            <Button
+              disabled={!groupReportsComplete}
+              label="Review Pupil Reports"
+              color="primary-button"
+              topMargin
+              bottomMargin
+            />
+          </Link>
         </div>
       )}
       {showWarningModal && (
