@@ -10,6 +10,7 @@ import { ClassDetails } from "@/types/types";
 import Column from "./Column";
 import NewColumn from "./NewColumn";
 import MessageModal from "./MessageModal";
+import Button from "../Button";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
 import Link from "next/link";
@@ -203,7 +204,7 @@ const SubjectReportGroups = ({
   return (
     <>
       {displayedSubjectId && (
-        <>
+        <div className="mb-6">
           <p className="mb-2">
             Drag and drop students between groups, click `Report` to write...
           </p>
@@ -213,7 +214,7 @@ const SubjectReportGroups = ({
             onDragUpdate={onDragUpdate}
           >
             <div className="flex gap-4">
-              <div className="flex gap-4 overflow-x-auto">
+              <div className="mb-6 flex gap-4 overflow-x-auto">
                 {displayedSubjectId !== undefined &&
                   displayedSubjectReportGroups
                     .sort((a, b) => a.report_group.id - b.report_group.id)
@@ -237,12 +238,15 @@ const SubjectReportGroups = ({
           </DragDropContext>
           {groupReportsComplete && (
             <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
-              <button className="py-1 px-2 m-2 w-40 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50">
-                Pupil Reports
-              </button>
+              <Button
+                label="Review Pupil Reports"
+                color="primary-button"
+                topMargin
+                bottomMargin
+              />
             </Link>
           )}
-        </>
+        </div>
       )}
       {showWarningModal && (
         <MessageModal
