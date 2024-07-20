@@ -42,6 +42,7 @@ const SubjectReportGroups = ({
         .filter(
           (subject) => subject.report_group.description !== "Class Register"
         )
+
         .every((group) => group.group_comment !== null);
       setGroupReportsComplete(reportsWritten);
     }
@@ -239,7 +240,6 @@ const SubjectReportGroups = ({
               </div>
             </div>
           </DragDropContext>
-
           <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
             <Button
               disabled={!groupReportsComplete}
