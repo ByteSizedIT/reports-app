@@ -25,21 +25,7 @@ const SubjectReportGroups = ({
 }) => {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
-  const [groupReportsComplete, setGroupReportsComplete] = useState(() =>
-    classDataState[0].class_subject
-      .flatMap((subject) => subject.class_subject_group)
-      .filter((subject) => subject.report_group.description !== "Class Default")
-      .every((group) => group.group_comment !== null)
-  );
-
-  useEffect(() => {
-    const reportsWritten = classDataState[0].class_subject
-      .flatMap((subject) => subject.class_subject_group)
-      .filter((subject) => subject.report_group.description !== "Class Default")
-      .every((group) => group.group_comment !== null);
-
-    setGroupReportsComplete(reportsWritten);
-  }, [classDataState]);
+  const [groupReportsComplete, setGroupReportsComplete] = useState(false);
 
   const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
     (s) => s.id === displayedSubjectId
@@ -47,6 +33,18 @@ const SubjectReportGroups = ({
   const displayedSubjectReportGroups =
     classDataState[0]?.class_subject?.[displayedSubjectIndex]
       ?.class_subject_group;
+
+  useEffect(() => {
+    if (displayedSubjectId) {
+      const reportsWritten = classDataState[0].class_subject
+        .flatMap((subject) => subject.class_subject_group)
+        .filter(
+          (subject) => subject.report_group.description !== "Class Register"
+        )
+        .every((group) => group.group_comment !== null);
+      setGroupReportsComplete(reportsWritten);
+    }
+  }, [classDataState, displayedSubjectId, displayedSubjectReportGroups]);
 
   function onDragStart() {}
   function onDragUpdate() {}
@@ -111,7 +109,7 @@ const SubjectReportGroups = ({
       // ... add student into the destination index in the start studentArr, removing 0 items
       newStartStudentsArr.splice(newColumnIndex, 0, ...movedItem);
     } else {
-      // if student is dragged and dropped between differeing reportGroup columns...
+      // if student is dragged and dropped between differing reportGroup columns...
       // ... move student to new index in copy of destination studentArr, removing 0 items
       const newFinishStudentsArr = Array.from(
         finishColumn.class_subject_group_student
