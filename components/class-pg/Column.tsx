@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 
 import { MdDeleteForever } from "react-icons/md";
-import { FaPen } from "react-icons/fa";
+import { FaPen, FaCheck } from "react-icons/fa";
 
 import { ClassDetails, ClassSubjectGroupStudent } from "@/types/types";
 
@@ -187,14 +187,14 @@ const Column = ({
           </Droppable>
           {reportButton && (
             <Button
-              label="Report "
+              label="Comment"
               color="primary-button"
               topMargin
               bottomMargin
               onClick={() => updateShowReportModal(true)}
               disabled={group.class_subject_group_student.length < 1}
             >
-              <FaPen />
+              {group.group_comment ? <FaCheck /> : <FaPen />}
             </Button>
           )}
         </div>
