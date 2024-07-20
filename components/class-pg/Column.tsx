@@ -196,15 +196,6 @@ const Column = ({
             >
               <FaPen />
             </Button>
-            // <button
-            //   className="py-1 px-2 mb-2 border border-slate-500 rounded-md no-underline bg-green-700 enabled:hover:bg-green-800 disabled:opacity-50"
-            //   onClick={() => updateShowReportModal(true)}
-            //   disabled={group.class_subject_group_student.length < 1}
-            // >
-            //   <div className="flex items-center">
-            //     <FaPen /> <p className="pl-2"> Report</p>
-            //   </div>
-            // </button>
           )}
         </div>
         {showReportModal && (
