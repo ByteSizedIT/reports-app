@@ -239,16 +239,16 @@ const SubjectReportGroups = ({
               </div>
             </div>
           </DragDropContext>
-          {groupReportsComplete && (
-            <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
-              <Button
-                label="Review Pupil Reports"
-                color="primary-button"
-                topMargin
-                bottomMargin
-              />
-            </Link>
-          )}
+
+          <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
+            <Button
+              disabled={!groupReportsComplete}
+              label="Review Pupil Reports"
+              color="primary-button"
+              topMargin
+              bottomMargin
+            />
+          </Link>
         </div>
       )}
       {showWarningModal && (
