@@ -23,13 +23,17 @@ export const PupilSubjectReport = ({
   selectedStudent: number;
 }) => {
   const [editorState, setEditorState] = useState<EditorState | undefined>(
-    () =>
-      studentComments.find(
+    () => {
+      let studentComment = studentComments.find(
         (comment) =>
           comment.class_subject_group_id ===
             item.class_subject_group?.[0]?.id &&
           comment.student_id === selectedStudent
-      )?.student_comment || item.class_subject_group?.[0]?.group_comment
+      )?.student_comment;
+      return studentComment
+        ? JSON.parse(studentComment)
+        : JSON.parse(item.class_subject_group?.[0]?.group_comment);
+    }
   );
 
   const [isPending, setIsPending] = useState(false);
