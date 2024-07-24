@@ -36,7 +36,7 @@ const PupilReportComponent = ({
 
   // Get reports for given/selected studentId
   const getStudentsGroupReports = useCallback(
-    (studentId: number) => {
+    async (studentId: number) => {
       return classSubjects.map((item) => ({
         id: item.id,
         class_subject_group: item.class_subject_group.filter(
@@ -54,6 +54,7 @@ const PupilReportComponent = ({
   const [selectedStudent, setSelectedStudent] = useState<number>(
     classStudents[0].student.id
   );
+
   const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
     useState<
       {
@@ -64,8 +65,15 @@ const PupilReportComponent = ({
     >([]);
 
   useEffect(() => {
-    const pupilReports = getStudentsGroupReports(selectedStudent);
-    setSelectedStudentsGroupReports(pupilReports);
+    // const pupilReports = getStudentsGroupReports(selectedStudent);
+    // setSelectedStudentsGroupReports(pupilReports);
+    async function getReports() {
+      // console.log("Gonna get pupil reports");
+      const pupilReports = await getStudentsGroupReports(selectedStudent);
+      // console.log("Recevived pupil reports");
+      setSelectedStudentsGroupReports(pupilReports);
+    }
+    getReports();
   }, [selectedStudent, getStudentsGroupReports]);
 
   return (
@@ -88,15 +96,23 @@ const PupilReportComponent = ({
             <div className="w-full flex flex-col gap-8">
               {selectedStudentsGroupReports
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
-                .map((item) => (
-                  <PupilSubjectReport
-                    key={`${selectedStudent}.${item.id}`}
-                    item={item}
-                    studentNames={studentNames}
-                    studentComments={studentComments}
-                    selectedStudent={selectedStudent}
-                  />
-                ))}
+                .map((item) => {
+                  const studentComment = studentComments.find(
+                    (comment) =>
+                      comment.class_subject_group_id ===
+                        item.class_subject_group?.[0]?.id &&
+                      comment.student_id === selectedStudent
+                  );
+
+                  return (
+                    <PupilSubjectReport
+                      key={`${selectedStudent}.${item.class_subject_group?.[0]?.id}`}
+                      item={item}
+                      studentNames={studentNames}
+                      studentComment={studentComment}
+                    />
+                  );
+                })}
             </div>
           </div>
         </>

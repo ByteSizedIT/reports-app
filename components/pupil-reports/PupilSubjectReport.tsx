@@ -14,42 +14,21 @@ import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
 export const PupilSubjectReport = ({
   item,
   studentNames,
-  studentComments,
-  selectedStudent,
+  studentComment,
 }: {
   item: any;
   studentNames: Array<string>;
-  studentComments: Array<StudentComment>;
-  selectedStudent: number;
+  studentComment: StudentComment | undefined;
 }) => {
-  const [editorState, setEditorState] = useState<EditorState | undefined>(
-    () => {
-      let studentComment = studentComments.find(
-        (comment) =>
-          comment.class_subject_group_id ===
-            item.class_subject_group?.[0]?.id &&
-          comment.student_id === selectedStudent
-      )?.student_comment;
-      return studentComment
-        ? JSON.parse(studentComment)
-        : JSON.parse(item.class_subject_group?.[0]?.group_comment);
-    }
+  const [editorState, setEditorState] = useState<EditorState | undefined>(() =>
+    studentComment
+      ? JSON.parse(studentComment.student_comment)
+      : JSON.parse(item.class_subject_group?.[0]?.group_comment)
   );
 
   const [isPending, setIsPending] = useState(false);
 
   const { words, chars } = useEditorCounts(editorState);
-
-  const studentComment = useMemo(
-    () =>
-      studentComments.find(
-        (comment) =>
-          comment.class_subject_group_id ===
-            item.class_subject_group?.[0]?.id &&
-          comment.student_id === selectedStudent
-      ),
-    [item.class_subject_group, studentComments, selectedStudent]
-  );
 
   function updateEditorState(update: EditorState) {
     setEditorState(update);
