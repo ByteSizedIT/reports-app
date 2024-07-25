@@ -240,7 +240,10 @@ const SubjectReportGroups = ({
             </div>
           </DragDropContext>
 
-          <Link href={`/my-classes/${classDataState[0].id}/pupil-reports`}>
+          <Link
+            href={`/my-classes/${classDataState[0].id}/pupil-reports`}
+            prefetch={false}
+          >
             <Button
               disabled={!groupReportsComplete}
               label="Review Pupil Reports"
