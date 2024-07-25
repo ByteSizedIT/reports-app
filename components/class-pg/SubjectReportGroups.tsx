@@ -209,7 +209,7 @@ const SubjectReportGroups = ({
       {displayedSubjectId && (
         <div className="mb-6">
           <p className="mb-2">
-            Drag and drop students between groups, click `Report` to write...
+            Drag and drop students between groups, click `Comment` to write...
           </p>
           <DragDropContext
             // onDragStart={onDragStart}

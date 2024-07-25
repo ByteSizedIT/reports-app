@@ -40,9 +40,11 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
 
   return (
     <div className="w-full mt-8">
-      <h1 className="text-center">
+      <h1>Create Group Comments</h1>
+      <h2 className="text-center pb-4">
         {`${classData?.[0]?.description} (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
-      </h1>
+      </h2>
+      <h3>Create pupil groups by subject and write initial shared comments</h3>
       {classData && (
         <ClientComponent
           classData={classData}
