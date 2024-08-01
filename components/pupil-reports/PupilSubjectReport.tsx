@@ -13,6 +13,8 @@ import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
 
 import { createClient } from "@/utils/supabase/clients/browserClient";
 
+import { objectsEqual } from "@/utils/functions/compareObjects";
+
 export const PupilSubjectReport = ({
   item,
   studentNames,
@@ -24,7 +26,13 @@ export const PupilSubjectReport = ({
   studentComment: StudentComment | undefined;
   selectedStudent: number;
 }) => {
-  const [editorState, setEditorState] = useState<EditorState | undefined>(() =>
+  const [editorState, setEditorState] = useState<EditorState>(() =>
+    studentComment
+      ? JSON.parse(studentComment.student_comment)
+      : JSON.parse(item.class_subject_group?.[0]?.group_comment)
+  );
+
+  const [savedState, setSavedState] = useState<EditorState>(() =>
     studentComment
       ? JSON.parse(studentComment.student_comment)
       : JSON.parse(item.class_subject_group?.[0]?.group_comment)
@@ -41,7 +49,7 @@ export const PupilSubjectReport = ({
   const supabase = createClient();
 
   // Insert data into Supabase
-  const insertData = async (editorState: EditorState | null) => {
+  const insertData = async (editorState: EditorState) => {
     try {
       setIsPending(true);
       if (studentComment) {
@@ -58,6 +66,7 @@ export const PupilSubjectReport = ({
           );
         } else {
           console.log(`Existing Student Comment successfully updated: `, data);
+          setSavedState(editorState);
         }
       } else {
         const { data, error } = await supabase.from("student_comment").insert([
@@ -71,6 +80,7 @@ export const PupilSubjectReport = ({
           throw new Error(`Error inserting new Student Comment`);
         } else {
           console.log(`New Student Comment inserted: `, data);
+          setSavedState(editorState);
         }
       }
     } catch (error) {
@@ -104,14 +114,17 @@ export const PupilSubjectReport = ({
         />
         <p>{`words: ${words} | chars: ${chars} `}</p>
         <Button
-          disabled={chars < 1}
+          disabled={
+            objectsEqual(JSON.parse(JSON.stringify(editorState)), savedState) ||
+            chars < 1
+          }
           color="primary-button"
           label="Save"
           pendingLabel="Saving"
           width="w-fit md:w-32"
           topMargin
           pending={isPending}
-          onClick={() => insertData(editorState || null)}
+          onClick={() => insertData(editorState)}
         />
       </div>
     </div>
