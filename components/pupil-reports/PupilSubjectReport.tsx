@@ -7,18 +7,22 @@ import { EditorState } from "lexical";
 import Editor from "../Editor";
 import Button from "../Button";
 
-import { StudentComment } from "@/types/types";
+import { Student, StudentComment } from "@/types/types";
 
 import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
+
+import { createClient } from "@/utils/supabase/clients/browserClient";
 
 export const PupilSubjectReport = ({
   item,
   studentNames,
   studentComment,
+  selectedStudent,
 }: {
   item: any;
   studentNames: Array<string>;
   studentComment: StudentComment | undefined;
+  selectedStudent: number;
 }) => {
   const [editorState, setEditorState] = useState<EditorState | undefined>(() =>
     studentComment
@@ -34,9 +38,54 @@ export const PupilSubjectReport = ({
     setEditorState(update);
   }
 
-  // TODO: Insert into Supabase
-  const insertData = async (editorState: {}) => {
-    console.log("TODO: Insert into Supabase");
+  const supabase = createClient();
+
+  // Insert data into Supabase
+  const insertData = async (editorState: EditorState | null) => {
+    try {
+      setIsPending(true);
+      if (studentComment) {
+        const { error, data } = await supabase
+          .from("student_comment")
+          .update([{ student_comment: JSON.stringify(editorState) }])
+          .eq("id", studentComment?.id) // class_subject_group.id
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(
+            `Error updating existing student comment: ${JSON.stringify(error)}`
+          );
+        } else {
+          console.log(`Existing Student Comment successfully updated: `, data);
+        }
+      } else {
+        const { data, error } = await supabase.from("student_comment").insert([
+          {
+            student_id: selectedStudent,
+            student_comment: JSON.stringify(editorState),
+            class_subject_group_id: item.class_subject_group[0].id,
+          },
+        ]);
+        if (error) {
+          throw new Error(`Error inserting new Student Comment`);
+        } else {
+          console.log(`New Student Comment inserted: `, data);
+        }
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        // Handle standard JavaScript Error
+        console.error(
+          `Error updating individual student comment: ${error.message}`
+        );
+      } else {
+        // Handle non-standard errors
+        console.error("An unexpected error occurred:", error);
+      }
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -62,7 +111,7 @@ export const PupilSubjectReport = ({
           width="w-fit md:w-32"
           topMargin
           pending={isPending}
-          onClick={() => insertData(editorState || {})}
+          onClick={() => insertData(editorState || null)}
         />
       </div>
     </div>

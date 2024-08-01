@@ -110,6 +110,7 @@ const PupilReportComponent = ({
                       item={item}
                       studentNames={studentNames}
                       studentComment={studentComment}
+                      selectedStudent={selectedStudent}
                     />
                   );
                 })}
