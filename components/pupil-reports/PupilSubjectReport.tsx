@@ -16,26 +16,37 @@ import { createClient } from "@/utils/supabase/clients/browserClient";
 import { objectsEqual } from "@/utils/functions/compareObjects";
 
 export const PupilSubjectReport = ({
-  item,
+  classSubject,
+  classId,
   studentNames,
   studentComment,
   selectedStudent,
 }: {
-  item: any;
+  classSubject: any;
+  classId: number;
   studentNames: Array<string>;
-  studentComment: StudentComment | undefined;
+  studentComment:
+    | {
+        id?: number;
+        student_id: number;
+        student_comment: string;
+        class_id: number;
+        class_subject_group_id: number;
+        group_comment_updated: boolean;
+      }
+    | undefined;
   selectedStudent: number;
 }) => {
   const [editorState, setEditorState] = useState<EditorState>(() =>
     studentComment
       ? JSON.parse(studentComment.student_comment)
-      : JSON.parse(item.class_subject_group?.[0]?.group_comment)
+      : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment)
   );
 
   const [savedState, setSavedState] = useState<EditorState>(() =>
     studentComment
       ? JSON.parse(studentComment.student_comment)
-      : JSON.parse(item.class_subject_group?.[0]?.group_comment)
+      : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment)
   );
 
   const [isPending, setIsPending] = useState(false);
@@ -72,8 +83,9 @@ export const PupilSubjectReport = ({
         const { data, error } = await supabase.from("student_comment").insert([
           {
             student_id: selectedStudent,
+            class_id: classId,
             student_comment: JSON.stringify(editorState),
-            class_subject_group_id: item.class_subject_group[0].id,
+            class_subject_group_id: classSubject.class_subject_group[0].id,
           },
         ]);
         if (error) {
@@ -99,11 +111,14 @@ export const PupilSubjectReport = ({
   };
 
   return (
-    <div key={item.id} className="border border-slate-500 rounded-md p-8">
-      <h2>{item.subject.description}</h2>
+    <div
+      key={classSubject.id}
+      className="border border-slate-500 rounded-md p-8"
+    >
+      <h2>{classSubject.subject.description}</h2>
       <p className="text-center">
-        {item.class_subject_group?.[0]?.report_group?.description} report group{" "}
-        {studentComment ? "(edited for student)" : ""}
+        {classSubject.class_subject_group?.[0]?.report_group?.description}{" "}
+        report group {studentComment ? "(edited for student)" : ""}
       </p>
       <div className="flex flex-col items-center mt-4 gap-4">
         <Editor

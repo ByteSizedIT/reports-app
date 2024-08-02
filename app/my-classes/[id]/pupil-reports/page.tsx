@@ -40,6 +40,7 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
         Select individual pupils on left to review/edit their personal report
       </h3>
       <PupilReportComponent
+        classId={classData[0].id}
         classStudents={classData[0].class_student}
         classSubjects={classData[0].class_subject}
         studentComments={studentComments}

@@ -13,10 +13,12 @@ import Button from "../Button";
 import { PupilSubjectReport } from "./PupilSubjectReport";
 
 const PupilReportComponent = ({
+  classId,
   classStudents,
   classSubjects,
   studentComments,
 }: {
+  classId: number;
   classStudents: Array<{
     student: Student;
     class_id: number;
@@ -96,18 +98,19 @@ const PupilReportComponent = ({
             <div className="w-full flex flex-col gap-8">
               {selectedStudentsGroupReports
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
-                .map((item) => {
+                .map((classSubject) => {
                   const studentComment = studentComments.find(
                     (comment) =>
                       comment.class_subject_group_id ===
-                        item.class_subject_group?.[0]?.id &&
+                        classSubject.class_subject_group?.[0]?.id &&
                       comment.student_id === selectedStudent
                   );
 
                   return (
                     <PupilSubjectReport
-                      key={`${selectedStudent}.${item.class_subject_group?.[0]?.id}`}
-                      item={item}
+                      key={`${selectedStudent}.${classSubject.class_subject_group?.[0]?.id}`}
+                      classSubject={classSubject}
+                      classId={classId}
                       studentNames={studentNames}
                       studentComment={studentComment}
                       selectedStudent={selectedStudent}
@@ -121,4 +124,5 @@ const PupilReportComponent = ({
     </div>
   );
 };
+
 export default PupilReportComponent;
