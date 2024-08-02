@@ -31,6 +31,41 @@ const PupilReportComponent = ({
   }>;
   studentComments: Array<StudentComment>;
 }) => {
+  const [studentCommentsState, setStudentCommentsState] =
+    useState<Array<StudentComment>>(studentComments);
+
+  const updateStudentCommentsState = useCallback(
+    (
+      id: number,
+      studentId: number,
+      classId: number,
+      classSubjectGroupId: number,
+      studentComment: string
+    ) => {
+      setStudentCommentsState((prev) => {
+        const index = prev.findIndex((comment) => comment.id === id);
+        if (index !== -1) {
+          const newState = [...prev];
+          newState[index].student_comment = studentComment;
+          return newState;
+        } else {
+          return [
+            ...prev,
+            {
+              id: id,
+              student_id: studentId,
+              student_comment: studentComment,
+              class_id: classId,
+              class_subject_group_id: classSubjectGroupId,
+              group_comment_updated: true,
+            },
+          ];
+        }
+      });
+    },
+    []
+  );
+
   const studentNames = useMemo(
     () => classStudents.map((student) => student.student.forename),
     [classStudents]
@@ -99,7 +134,7 @@ const PupilReportComponent = ({
               {selectedStudentsGroupReports
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
                 .map((classSubject) => {
-                  const studentComment = studentComments.find(
+                  const studentComment = studentCommentsState.find(
                     (comment) =>
                       comment.class_subject_group_id ===
                         classSubject.class_subject_group?.[0]?.id &&
@@ -114,6 +149,7 @@ const PupilReportComponent = ({
                       studentNames={studentNames}
                       studentComment={studentComment}
                       selectedStudent={selectedStudent}
+                      updateStudentCommentsState={updateStudentCommentsState}
                     />
                   );
                 })}

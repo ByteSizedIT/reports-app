@@ -21,13 +21,14 @@ export const PupilSubjectReport = ({
   studentNames,
   studentComment,
   selectedStudent,
+  updateStudentCommentsState,
 }: {
   classSubject: any;
   classId: number;
   studentNames: Array<string>;
   studentComment:
     | {
-        id?: number;
+        id: number;
         student_id: number;
         student_comment: string;
         class_id: number;
@@ -36,6 +37,13 @@ export const PupilSubjectReport = ({
       }
     | undefined;
   selectedStudent: number;
+  updateStudentCommentsState: (
+    id: number,
+    studentId: number,
+    classId: number,
+    classSubjectGroupId: number,
+    studentComment: string
+  ) => void;
 }) => {
   const [editorState, setEditorState] = useState<EditorState>(() =>
     studentComment
@@ -76,21 +84,39 @@ export const PupilSubjectReport = ({
             `Error updating existing student comment: ${JSON.stringify(error)}`
           );
         } else {
+          updateStudentCommentsState(
+            data.id,
+            data.studentId,
+            data.class_id,
+            data.class_subject_group_id,
+            data.student_comment
+          );
           console.log(`Existing Student Comment successfully updated: `, data);
           setSavedState(editorState);
         }
       } else {
-        const { data, error } = await supabase.from("student_comment").insert([
-          {
-            student_id: selectedStudent,
-            class_id: classId,
-            student_comment: JSON.stringify(editorState),
-            class_subject_group_id: classSubject.class_subject_group[0].id,
-          },
-        ]);
+        const { data, error } = await supabase
+          .from("student_comment")
+          .insert([
+            {
+              student_id: selectedStudent,
+              class_id: classId,
+              student_comment: JSON.stringify(editorState),
+              class_subject_group_id: classSubject.class_subject_group[0].id,
+            },
+          ])
+          .select()
+          .single();
         if (error) {
           throw new Error(`Error inserting new Student Comment`);
         } else {
+          updateStudentCommentsState(
+            data.id,
+            data.studentId,
+            data.class_id,
+            data.class_subject_group_id,
+            data.student_comment
+          );
           console.log(`New Student Comment inserted: `, data);
           setSavedState(editorState);
         }
