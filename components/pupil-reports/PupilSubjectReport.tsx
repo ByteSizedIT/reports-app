@@ -86,7 +86,7 @@ export const PupilSubjectReport = ({
         } else {
           updateStudentCommentsState(
             data.id,
-            data.studentId,
+            data.student_id,
             data.class_id,
             data.class_subject_group_id,
             data.student_comment
@@ -112,7 +112,7 @@ export const PupilSubjectReport = ({
         } else {
           updateStudentCommentsState(
             data.id,
-            data.studentId,
+            data.student_id,
             data.class_id,
             data.class_subject_group_id,
             data.student_comment
