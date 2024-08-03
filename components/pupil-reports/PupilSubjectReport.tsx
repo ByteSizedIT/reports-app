@@ -42,7 +42,8 @@ export const PupilSubjectReport = ({
     studentId: number,
     classId: number,
     classSubjectGroupId: number,
-    studentComment: string
+    studentComment: string,
+    groupCommentUpdated: boolean
   ) => void;
 }) => {
   const [editorState, setEditorState] = useState<EditorState>(() =>
@@ -74,7 +75,12 @@ export const PupilSubjectReport = ({
       if (studentComment) {
         const { error, data } = await supabase
           .from("student_comment")
-          .update([{ student_comment: JSON.stringify(editorState) }])
+          .update([
+            {
+              student_comment: JSON.stringify(editorState),
+              group_comment_updated: true,
+            },
+          ])
           .eq("id", studentComment?.id) // class_subject_group.id
           .select()
           .single();
@@ -89,12 +95,17 @@ export const PupilSubjectReport = ({
             data.student_id,
             data.class_id,
             data.class_subject_group_id,
-            data.student_comment
+            data.student_comment,
+            data.group_comment_updated
           );
           console.log(`Existing Student Comment successfully updated: `, data);
           setSavedState(JSON.parse(JSON.stringify(editorState)));
         }
       } else {
+        const updated = !objectsEqual(
+          JSON.parse(JSON.stringify(editorState)),
+          savedState
+        );
         const { data, error } = await supabase
           .from("student_comment")
           .insert([
@@ -103,6 +114,7 @@ export const PupilSubjectReport = ({
               class_id: classId,
               student_comment: JSON.stringify(editorState),
               class_subject_group_id: classSubject.class_subject_group[0].id,
+              group_comment_updated: updated,
             },
           ])
           .select()
@@ -115,7 +127,8 @@ export const PupilSubjectReport = ({
             data.student_id,
             data.class_id,
             data.class_subject_group_id,
-            data.student_comment
+            data.student_comment,
+            data.group_comment_updated
           );
           console.log(`New Student Comment inserted: `, data);
           setSavedState(JSON.parse(JSON.stringify(editorState)));
@@ -151,7 +164,10 @@ export const PupilSubjectReport = ({
       <h2>{classSubject.subject.description}</h2>
       <p className="text-center">
         {classSubject.class_subject_group?.[0]?.report_group?.description}{" "}
-        report group {studentComment ? "(edited for student)" : ""}
+        report group{" "}
+        {studentComment?.group_comment_updated
+          ? "(edited for student)"
+          : "(unedited group comment)"}
       </p>
       <div className="flex flex-col items-center mt-4 gap-4">
         <Editor
@@ -163,7 +179,11 @@ export const PupilSubjectReport = ({
         <p>{`words: ${words} | chars: ${chars} `}</p>
         <Button
           disabled={
-            objectsEqual(JSON.parse(JSON.stringify(editorState)), savedState) ||
+            (objectsEqual(
+              JSON.parse(JSON.stringify(editorState)),
+              savedState
+            ) &&
+              studentComment !== undefined) ||
             chars < 1
           }
           color="primary-button"

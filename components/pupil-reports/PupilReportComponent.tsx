@@ -40,7 +40,8 @@ const PupilReportComponent = ({
       studentId: number,
       classId: number,
       classSubjectGroupId: number,
-      studentComment: string
+      studentComment: string,
+      groupCommentUpdated: boolean
     ) => {
       setStudentCommentsState((prev) => {
         const index = prev.findIndex((comment) => comment.id === id);
@@ -57,7 +58,7 @@ const PupilReportComponent = ({
               student_comment: studentComment,
               class_id: classId,
               class_subject_group_id: classSubjectGroupId,
-              group_comment_updated: true,
+              group_comment_updated: groupCommentUpdated,
             },
           ];
         }
