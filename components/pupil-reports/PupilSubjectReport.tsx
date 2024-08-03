@@ -92,7 +92,7 @@ export const PupilSubjectReport = ({
             data.student_comment
           );
           console.log(`Existing Student Comment successfully updated: `, data);
-          setSavedState(editorState);
+          setSavedState(JSON.parse(JSON.stringify(editorState)));
         }
       } else {
         const { data, error } = await supabase
@@ -118,7 +118,7 @@ export const PupilSubjectReport = ({
             data.student_comment
           );
           console.log(`New Student Comment inserted: `, data);
-          setSavedState(editorState);
+          setSavedState(JSON.parse(JSON.stringify(editorState)));
         }
       }
     } catch (error) {
@@ -135,6 +135,13 @@ export const PupilSubjectReport = ({
       setIsPending(false);
     }
   };
+
+  useEffect(() => {
+    console.log(
+      { savedState, editorState },
+      JSON.parse(JSON.stringify(editorState))
+    );
+  }, [savedState, editorState]);
 
   return (
     <div
