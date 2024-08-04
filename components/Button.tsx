@@ -18,6 +18,12 @@ type Props = {
   children?: React.ReactNode;
   width?: string;
   height?: string;
+  id?: string;
+  ariaDescribedBy?: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 
 const Button = ({
@@ -35,6 +41,12 @@ const Button = ({
   children,
   width,
   height,
+  id,
+  ariaDescribedBy,
+  onMouseEnter,
+  onMouseLeave,
+  onFocus,
+  onBlur,
 }: Props) => {
   return (
     <button
@@ -51,6 +63,12 @@ const Button = ({
     `}
       disabled={pending || disabled}
       onClick={onClick}
+      id={id}
+      aria-describedby={ariaDescribedBy}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
     >
       {pending ? (
         <div className="flex justify-center items-center gap-2">
