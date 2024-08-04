@@ -42,6 +42,7 @@ const SubjectReportGroups = ({
         .filter(
           (subject) => subject.report_group.description !== "Class Register"
         )
+
         .every((group) => group.group_comment !== null);
       setGroupReportsComplete(reportsWritten);
     }
