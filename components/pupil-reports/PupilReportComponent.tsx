@@ -13,10 +13,12 @@ import Button from "../Button";
 import { PupilSubjectReport } from "./PupilSubjectReport";
 
 const PupilReportComponent = ({
+  classId,
   classStudents,
   classSubjects,
   studentComments,
 }: {
+  classId: number;
   classStudents: Array<{
     student: Student;
     class_id: number;
@@ -29,6 +31,42 @@ const PupilReportComponent = ({
   }>;
   studentComments: Array<StudentComment>;
 }) => {
+  const [studentCommentsState, setStudentCommentsState] =
+    useState<Array<StudentComment>>(studentComments);
+
+  const updateStudentCommentsState = useCallback(
+    (
+      id: number,
+      studentId: number,
+      classId: number,
+      classSubjectGroupId: number,
+      studentComment: string,
+      groupCommentUpdated: boolean
+    ) => {
+      setStudentCommentsState((prev) => {
+        const index = prev.findIndex((comment) => comment.id === id);
+        if (index !== -1) {
+          const newState = [...prev];
+          newState[index].student_comment = studentComment;
+          return newState;
+        } else {
+          return [
+            ...prev,
+            {
+              id: id,
+              student_id: studentId,
+              student_comment: studentComment,
+              class_id: classId,
+              class_subject_group_id: classSubjectGroupId,
+              group_comment_updated: groupCommentUpdated,
+            },
+          ];
+        }
+      });
+    },
+    []
+  );
+
   const studentNames = useMemo(
     () => classStudents.map((student) => student.student.forename),
     [classStudents]
@@ -36,7 +74,7 @@ const PupilReportComponent = ({
 
   // Get reports for given/selected studentId
   const getStudentsGroupReports = useCallback(
-    (studentId: number) => {
+    async (studentId: number) => {
       return classSubjects.map((item) => ({
         id: item.id,
         class_subject_group: item.class_subject_group.filter(
@@ -54,6 +92,7 @@ const PupilReportComponent = ({
   const [selectedStudent, setSelectedStudent] = useState<number>(
     classStudents[0].student.id
   );
+
   const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
     useState<
       {
@@ -64,8 +103,15 @@ const PupilReportComponent = ({
     >([]);
 
   useEffect(() => {
-    const pupilReports = getStudentsGroupReports(selectedStudent);
-    setSelectedStudentsGroupReports(pupilReports);
+    // const pupilReports = getStudentsGroupReports(selectedStudent);
+    // setSelectedStudentsGroupReports(pupilReports);
+    async function getReports() {
+      // console.log("Gonna get pupil reports");
+      const pupilReports = await getStudentsGroupReports(selectedStudent);
+      // console.log("Recevived pupil reports");
+      setSelectedStudentsGroupReports(pupilReports);
+    }
+    getReports();
   }, [selectedStudent, getStudentsGroupReports]);
 
   return (
@@ -88,15 +134,26 @@ const PupilReportComponent = ({
             <div className="w-full flex flex-col gap-8">
               {selectedStudentsGroupReports
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
-                .map((item) => (
-                  <PupilSubjectReport
-                    key={`${selectedStudent}.${item.id}`}
-                    item={item}
-                    studentNames={studentNames}
-                    studentComments={studentComments}
-                    selectedStudent={selectedStudent}
-                  />
-                ))}
+                .map((classSubject) => {
+                  const studentComment = studentCommentsState.find(
+                    (comment) =>
+                      comment.class_subject_group_id ===
+                        classSubject.class_subject_group?.[0]?.id &&
+                      comment.student_id === selectedStudent
+                  );
+
+                  return (
+                    <PupilSubjectReport
+                      key={`${selectedStudent}.${classSubject.class_subject_group?.[0]?.id}`}
+                      classSubject={classSubject}
+                      classId={classId}
+                      studentNames={studentNames}
+                      studentComment={studentComment}
+                      selectedStudent={selectedStudent}
+                      updateStudentCommentsState={updateStudentCommentsState}
+                    />
+                  );
+                })}
             </div>
           </div>
         </>
@@ -104,4 +161,5 @@ const PupilReportComponent = ({
     </div>
   );
 };
+
 export default PupilReportComponent;

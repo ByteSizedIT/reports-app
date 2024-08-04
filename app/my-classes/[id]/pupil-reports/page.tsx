@@ -32,11 +32,15 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
 
   return (
     <div className="w-full md:m-8">
-      <h1 className="text-center pb-4">
+      <h1>Review Individual Pupil Reports</h1>
+      <h2 className="text-center pb-4">
         {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
-      </h1>
-      <h3>Select pupil on left to edit their own reports</h3>
+      </h2>
+      <h3>
+        Select individual pupils on left to review/edit their personal report
+      </h3>
       <PupilReportComponent
+        classId={classData[0].id}
         classStudents={classData[0].class_student}
         classSubjects={classData[0].class_subject}
         studentComments={studentComments}

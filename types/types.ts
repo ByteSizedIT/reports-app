@@ -107,7 +107,7 @@ export type Student = PreSaveStudent & { id: number };
 export interface StudentComment {
   id: number;
   student_id: number;
-  student_comment: EditorState;
+  student_comment: string;
   class_id: number;
   class_subject_group_id: number;
   group_comment_updated: boolean;
