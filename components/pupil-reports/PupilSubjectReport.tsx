@@ -115,7 +115,7 @@ export const PupilSubjectReport = ({
           .from("student_comment")
           .insert([
             {
-              student_id: selectedStudent,
+              student_id: selectedStudent.id,
               class_id: classId,
               student_comment: JSON.stringify(editorState),
               class_subject_group_id: classSubject.class_subject_group[0].id,
