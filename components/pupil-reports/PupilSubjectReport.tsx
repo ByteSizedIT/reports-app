@@ -154,8 +154,40 @@ export const PupilSubjectReport = ({
     }
   };
 
-  function revertToGroupComment() {
-    console.log("Need to add functionality for revert");
+  async function revertToGroupComment() {
+    setIsPending(true);
+    try {
+      await deleteStudentCommentFromDB();
+      deleteStudentCommentFromState();
+    } catch (error) {
+      console.error("Failed to delete student comment from DB:", error);
+    } finally {
+      setIsPending(false);
+      setShowDeleteModal(false);
+    }
+  }
+
+  async function deleteStudentCommentFromDB() {
+    const { data, error } = await supabase
+      .from("student_comment")
+      .delete()
+      .eq("id", studentComment?.id);
+
+    if (error) {
+      throw new Error(
+        `Error deleting existing student comment: ${JSON.stringify(error)}`
+      );
+    }
+
+    console.log(
+      `Existing Student Comment successfully deleted from DB: ${data}`
+    );
+  }
+
+  function deleteStudentCommentFromState() {
+    console.log(
+      "Need to add functionality to delete individual studentComment from state"
+    );
   }
 
   function updateShowDeleteModal(bool: boolean) {
