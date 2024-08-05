@@ -14,6 +14,7 @@ import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
 import { createClient } from "@/utils/supabase/clients/browserClient";
 
 import { objectsEqual } from "@/utils/functions/compareObjects";
+import DeleteModal from "../class-pg/DeleteModal";
 
 export const PupilSubjectReport = ({
   classSubject,
@@ -36,7 +37,7 @@ export const PupilSubjectReport = ({
         group_comment_updated: boolean;
       }
     | undefined;
-  selectedStudent: number;
+  selectedStudent: Student;
   updateStudentCommentsState: (
     id: number,
     studentId: number,
@@ -61,6 +62,8 @@ export const PupilSubjectReport = ({
   const [isPending, setIsPending] = useState(false);
 
   const [tooltipVisible, setTooltipVisible] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { words, chars } = useEditorCounts(editorState);
 
@@ -155,89 +158,92 @@ export const PupilSubjectReport = ({
     console.log("Need to add functionality for revert");
   }
 
-  useEffect(() => {
-    console.log(
-      { savedState, editorState },
-      JSON.parse(JSON.stringify(editorState))
-    );
-  }, [savedState, editorState]);
-
-  useEffect(() => {
-    console.log({ tooltipVisible });
-  }, [tooltipVisible]);
+  function updateShowDeleteModal(bool: boolean) {
+    setShowDeleteModal(bool);
+  }
 
   return (
-    <div
-      key={classSubject.id}
-      className="border border-slate-500 rounded-md p-8"
-    >
-      <h2>{classSubject.subject.description}</h2>
-      <p className="text-center">
-        {classSubject.class_subject_group?.[0]?.report_group?.description}{" "}
-        report group{" "}
-        {studentComment?.group_comment_updated
-          ? "(edited for student)"
-          : "(unedited group comment)"}
-      </p>
-      <div className="flex flex-col items-center mt-4 gap-4">
-        <Editor
-          editorState={editorState}
-          updateEditorState={updateEditorState}
-          studentNames={studentNames}
-          parentModal={false}
+    <>
+      {showDeleteModal && (
+        <DeleteModal
+          // group={group}
+          updateShowDeleteModal={updateShowDeleteModal}
+          message={`Are you sure you want to revert to the generic group comment. This will delete ${selectedStudent.forename}'s current individual comment`}
+          handleDelete={revertToGroupComment}
         />
-        <p>{`words: ${words} | chars: ${chars} `}</p>
-        <div className="flex gap-2">
-          <Button
-            disabled={
-              (objectsEqual(
-                JSON.parse(JSON.stringify(editorState)),
-                savedState
-              ) &&
-                studentComment !== undefined) ||
-              chars < 1
-            }
-            color="primary-button"
-            label="Save"
-            pendingLabel="Saving"
-            width="w-fit md:w-48"
-            topMargin
-            pending={isPending}
-            onClick={() => insertData(editorState)}
+      )}
+      <div
+        key={classSubject.id}
+        className="border border-slate-500 rounded-md p-8"
+      >
+        <h2>{classSubject.subject.description}</h2>
+        <p className="text-center">
+          {classSubject.class_subject_group?.[0]?.report_group?.description}{" "}
+          report group{" "}
+          {studentComment?.group_comment_updated
+            ? "(edited for student)"
+            : "(unedited group comment)"}
+        </p>
+        <div className="flex flex-col items-center mt-4 gap-4">
+          <Editor
+            editorState={editorState}
+            updateEditorState={updateEditorState}
+            studentNames={studentNames}
+            parentModal={false}
           />
-          <div className="relative">
+          <p>{`words: ${words} | chars: ${chars} `}</p>
+          <div className="flex gap-2">
             <Button
-              disabled={studentComment?.group_comment_updated !== true}
-              color="secondary-button"
-              label="Revert"
+              disabled={
+                (objectsEqual(
+                  JSON.parse(JSON.stringify(editorState)),
+                  savedState
+                ) &&
+                  studentComment !== undefined) ||
+                chars < 1
+              }
+              color="primary-button"
+              label="Save"
               pendingLabel="Saving"
               width="w-fit md:w-48"
               topMargin
               pending={isPending}
-              onClick={() => revertToGroupComment()}
-              id="revertButton"
-              ariaDescribedBy="revertTooltip"
-              onMouseEnter={() => setTooltipVisible(true)}
-              onMouseLeave={() => setTooltipVisible(false)}
-              onFocus={() => setTooltipVisible(true)}
-              onBlur={() => setTooltipVisible(false)}
+              onClick={() => insertData(editorState)}
             />
-            <div
-              id="revertTooltip"
-              role="tooltip"
-              className={`absolute bottom-full mb-2 w-48 bg-branding-background text-white text-center rounded py-1 px-2 transition-opacity duration-200  ${
-                tooltipVisible ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              Revert to the previous group comment text
-              <div
-                className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[5px] border-t-branding-background"
-                aria-hidden="true"
+            <div className="relative">
+              <Button
+                disabled={studentComment?.group_comment_updated !== true}
+                color="secondary-button"
+                label="Revert"
+                pendingLabel="Saving"
+                width="w-fit md:w-48"
+                topMargin
+                pending={isPending}
+                onClick={() => updateShowDeleteModal(true)}
+                id="revertButton"
+                ariaDescribedBy="revertTooltip"
+                onMouseEnter={() => setTooltipVisible(true)}
+                onMouseLeave={() => setTooltipVisible(false)}
+                onFocus={() => setTooltipVisible(true)}
+                onBlur={() => setTooltipVisible(false)}
               />
+              <div
+                id="revertTooltip"
+                role="tooltip"
+                className={`absolute bottom-full mb-2 w-48 bg-branding-background text-white text-center rounded py-1 px-2 transition-opacity duration-200  ${
+                  tooltipVisible ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                Revert to the previous group comment text
+                <div
+                  className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[5px] border-t-branding-background"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

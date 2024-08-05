@@ -89,8 +89,8 @@ const PupilReportComponent = ({
     [classSubjects]
   );
 
-  const [selectedStudent, setSelectedStudent] = useState<number>(
-    classStudents[0].student.id
+  const [selectedStudent, setSelectedStudent] = useState<Student>(
+    classStudents[0].student
   );
 
   const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
@@ -107,7 +107,7 @@ const PupilReportComponent = ({
     // setSelectedStudentsGroupReports(pupilReports);
     async function getReports() {
       // console.log("Gonna get pupil reports");
-      const pupilReports = await getStudentsGroupReports(selectedStudent);
+      const pupilReports = await getStudentsGroupReports(selectedStudent.id);
       // console.log("Recevived pupil reports");
       setSelectedStudentsGroupReports(pupilReports);
     }
@@ -124,8 +124,8 @@ const PupilReportComponent = ({
                 key={item.student.id}
                 label={`${item.student.surname}, ${item.student.forename}`}
                 color="secondary-button"
-                activeBorder={selectedStudent === item.student.id}
-                onClick={() => setSelectedStudent(item.student.id)}
+                activeBorder={selectedStudent.id === item.student.id}
+                onClick={() => setSelectedStudent(item.student)}
                 width="w-20 md:w-full"
               />
             ))}
@@ -139,7 +139,7 @@ const PupilReportComponent = ({
                     (comment) =>
                       comment.class_subject_group_id ===
                         classSubject.class_subject_group?.[0]?.id &&
-                      comment.student_id === selectedStudent
+                      comment.student_id === selectedStudent.id
                   );
 
                   return (
