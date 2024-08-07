@@ -20,23 +20,21 @@ export const PupilSubjectReport = ({
   classSubject,
   classId,
   studentNames,
-  studentComment,
+  studentCommentsState,
   selectedStudent,
   updateStudentCommentsState,
 }: {
   classSubject: any;
   classId: number;
   studentNames: Array<string>;
-  studentComment:
-    | {
-        id: number;
-        student_id: number;
-        student_comment: string;
-        class_id: number;
-        class_subject_group_id: number;
-        group_comment_updated: boolean;
-      }
-    | undefined;
+  studentCommentsState: Array<{
+    id: number;
+    student_id: number;
+    student_comment: string;
+    class_id: number;
+    class_subject_group_id: number;
+    group_comment_updated: boolean;
+  }>;
   selectedStudent: Student;
   updateStudentCommentsState: (
     id: number,
@@ -47,6 +45,15 @@ export const PupilSubjectReport = ({
     groupCommentUpdated: boolean
   ) => void;
 }) => {
+  const [studentComment, setStudentComment] = useState(() =>
+    studentCommentsState.find(
+      (comment) =>
+        comment.class_subject_group_id ===
+          classSubject.class_subject_group?.[0]?.id &&
+        comment.student_id === selectedStudent.id
+    )
+  );
+
   const [editorState, setEditorState] = useState<EditorState>(() =>
     studentComment
       ? JSON.parse(studentComment.student_comment)
@@ -59,11 +66,28 @@ export const PupilSubjectReport = ({
       : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment)
   );
 
+  const [revertedEditorState, setRevertedEditorState] = useState(undefined);
+
   const [isPending, setIsPending] = useState(false);
 
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    setStudentComment(() =>
+      studentCommentsState.find(
+        (comment) =>
+          comment.class_subject_group_id ===
+            classSubject.class_subject_group?.[0]?.id &&
+          comment.student_id === selectedStudent.id
+      )
+    );
+  }, [
+    classSubject.class_subject_group,
+    studentCommentsState,
+    selectedStudent.id,
+  ]);
 
   const { words, chars } = useEditorCounts(editorState);
 
@@ -103,8 +127,8 @@ export const PupilSubjectReport = ({
             data.student_comment,
             data.group_comment_updated
           );
-          console.log(`Existing Student Comment successfully updated: `, data);
           setSavedState(JSON.parse(JSON.stringify(editorState)));
+          setRevertedEditorState(undefined);
         }
       } else {
         const updated = !objectsEqual(
@@ -135,7 +159,6 @@ export const PupilSubjectReport = ({
             data.student_comment,
             data.group_comment_updated
           );
-          console.log(`New Student Comment inserted: `, data);
           setSavedState(JSON.parse(JSON.stringify(editorState)));
         }
       }
@@ -156,22 +179,44 @@ export const PupilSubjectReport = ({
 
   async function revertToGroupComment() {
     setIsPending(true);
-    try {
-      await deleteStudentCommentFromDB();
-      deleteStudentCommentFromState();
-    } catch (error) {
-      console.error("Failed to delete student comment from DB:", error);
-    } finally {
-      setIsPending(false);
-      setShowDeleteModal(false);
-    }
+    if (studentComment)
+      try {
+        const data = await deleteStudentCommentFromDB();
+
+        updateStudentCommentsState(
+          data.id,
+          data.student_id,
+          data.class_id,
+          data.class_subject_group_id,
+          data.student_comment,
+          data.group_comment_updated
+        );
+        setRevertedEditorState(
+          classSubject.class_subject_group?.[0]?.group_comment
+        );
+        // setSavedState(
+        //   JSON.parse(classSubject.class_subject_group?.[0]?.group_comment)
+        // );
+      } catch (error) {
+        console.error("Failed to delete student comment from DB:", error);
+      } finally {
+        setIsPending(false);
+        setShowDeleteModal(false);
+      }
   }
 
   async function deleteStudentCommentFromDB() {
     const { data, error } = await supabase
       .from("student_comment")
-      .delete()
-      .eq("id", studentComment?.id);
+      .update([
+        {
+          student_comment: classSubject.class_subject_group?.[0]?.group_comment,
+          group_comment_updated: false,
+        },
+      ])
+      .eq("id", studentComment?.id)
+      .select()
+      .single();
 
     if (error) {
       throw new Error(
@@ -182,12 +227,8 @@ export const PupilSubjectReport = ({
     console.log(
       `Existing Student Comment successfully deleted from DB: ${data}`
     );
-  }
 
-  function deleteStudentCommentFromState() {
-    console.log(
-      "Need to add functionality to delete individual studentComment from state"
-    );
+    return data;
   }
 
   function updateShowDeleteModal(bool: boolean) {
@@ -222,6 +263,7 @@ export const PupilSubjectReport = ({
             updateEditorState={updateEditorState}
             studentNames={studentNames}
             parentModal={false}
+            revertedEditorState={revertedEditorState}
           />
           <p>{`words: ${words} | chars: ${chars} `}</p>
           <div className="flex gap-2">

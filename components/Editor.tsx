@@ -75,11 +75,13 @@ const Editor = ({
   updateEditorState,
   studentNames,
   parentModal,
+  revertedEditorState,
 }: {
   editorState: EditorState | undefined;
   updateEditorState: (update: EditorState) => void;
   studentNames: Array<string>;
   parentModal: boolean;
+  revertedEditorState?: undefined | string;
 }) => {
   const initialConfig = {
     namespace: "MyEditor",
@@ -98,6 +100,7 @@ const Editor = ({
           <ToolBarPlugin
             modal={parentModal}
             updateToolbarHeight={setToolbarHeight}
+            revertedEditorState={revertedEditorState}
           />
           <RichTextPlugin
             contentEditable={

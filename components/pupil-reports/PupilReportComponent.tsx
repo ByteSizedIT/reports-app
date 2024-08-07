@@ -48,6 +48,7 @@ const PupilReportComponent = ({
         if (index !== -1) {
           const newState = [...prev];
           newState[index].student_comment = studentComment;
+          newState[index].group_comment_updated = groupCommentUpdated;
           return newState;
         } else {
           return [
@@ -135,20 +136,13 @@ const PupilReportComponent = ({
               {selectedStudentsGroupReports
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
                 .map((classSubject) => {
-                  const studentComment = studentCommentsState.find(
-                    (comment) =>
-                      comment.class_subject_group_id ===
-                        classSubject.class_subject_group?.[0]?.id &&
-                      comment.student_id === selectedStudent.id
-                  );
-
                   return (
                     <PupilSubjectReport
                       key={`${selectedStudent}.${classSubject.class_subject_group?.[0]?.id}`}
                       classSubject={classSubject}
                       classId={classId}
                       studentNames={studentNames}
-                      studentComment={studentComment}
+                      studentCommentsState={studentCommentsState}
                       selectedStudent={selectedStudent}
                       updateStudentCommentsState={updateStudentCommentsState}
                     />

@@ -404,9 +404,11 @@ function FontDropDown({
 export function ToolBarPlugin({
   modal,
   updateToolbarHeight,
+  revertedEditorState,
 }: {
   modal: boolean;
   updateToolbarHeight: (height: number) => void;
+  revertedEditorState: undefined | string;
 }) {
   const [editor] = useLexicalComposerContext();
   const toolBarRef = useRef<HTMLDivElement>(null);
@@ -431,6 +433,13 @@ export function ToolBarPlugin({
   const MandatoryPlugins = useMemo(() => {
     return <ClearEditorPlugin />;
   }, []);
+
+  useEffect(() => {
+    if (revertedEditorState) {
+      const parsedEditorState = editor.parseEditorState(revertedEditorState);
+      editor.setEditorState(parsedEditorState);
+    }
+  }, [editor, revertedEditorState]);
 
   useEffect(
     function checkEditorEmptyState() {
