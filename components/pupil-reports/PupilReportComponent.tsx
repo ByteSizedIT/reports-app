@@ -66,6 +66,18 @@ const PupilReportComponent = ({
     });
   }, []);
 
+  const [selectedStudent, setSelectedStudent] = useState<Student>(
+    classStudents[0].student
+  );
+  const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
+    useState<
+      {
+        id: any;
+        class_subject_group: ClassSubjectGroupStudent[];
+        subject: Subject;
+      }[]
+    >([]);
+
   const studentNames = useMemo(
     () => classStudents.map((student) => student.student.forename),
     [classStudents]
@@ -87,19 +99,6 @@ const PupilReportComponent = ({
     },
     [classSubjects]
   );
-
-  const [selectedStudent, setSelectedStudent] = useState<Student>(
-    classStudents[0].student
-  );
-
-  const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
-    useState<
-      {
-        id: any;
-        class_subject_group: ClassSubjectGroupStudent[];
-        subject: Subject;
-      }[]
-    >([]);
 
   useEffect(() => {
     async function getReports() {
