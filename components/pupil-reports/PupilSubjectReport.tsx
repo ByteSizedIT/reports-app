@@ -36,14 +36,7 @@ export const PupilSubjectReport = ({
     group_comment_updated: boolean;
   }>;
   selectedStudent: Student;
-  updateStudentCommentsState: (
-    id: number,
-    studentId: number,
-    classId: number,
-    classSubjectGroupId: number,
-    studentComment: string,
-    groupCommentUpdated: boolean
-  ) => void;
+  updateStudentCommentsState: (data: StudentComment) => void;
 }) => {
   const [studentComment, setStudentComment] = useState(() =>
     studentCommentsState.find(
@@ -147,14 +140,7 @@ export const PupilSubjectReport = ({
     setIsPending(true);
     try {
       const data = await updateDBStudentComments(editorState);
-      updateStudentCommentsState(
-        data.id,
-        data.student_id,
-        data.class_id,
-        data.class_subject_group_id,
-        data.student_comment,
-        data.group_comment_updated
-      );
+      updateStudentCommentsState(data);
       setSavedState(JSON.parse(JSON.stringify(editorState)));
     } catch (error) {
       if (error instanceof Error) {
@@ -177,14 +163,7 @@ export const PupilSubjectReport = ({
       try {
         const data = await deleteStudentCommentFromDB();
 
-        updateStudentCommentsState(
-          data.id,
-          data.student_id,
-          data.class_id,
-          data.class_subject_group_id,
-          data.student_comment,
-          data.group_comment_updated
-        );
+        updateStudentCommentsState(data);
         setRevertedEditorState(
           classSubject.class_subject_group?.[0]?.group_comment
         );

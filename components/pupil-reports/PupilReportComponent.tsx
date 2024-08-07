@@ -34,39 +34,37 @@ const PupilReportComponent = ({
   const [studentCommentsState, setStudentCommentsState] =
     useState<Array<StudentComment>>(studentComments);
 
-  const updateStudentCommentsState = useCallback(
-    (
-      id: number,
-      studentId: number,
-      classId: number,
-      classSubjectGroupId: number,
-      studentComment: string,
-      groupCommentUpdated: boolean
-    ) => {
-      setStudentCommentsState((prev) => {
-        const index = prev.findIndex((comment) => comment.id === id);
-        if (index !== -1) {
-          const newState = [...prev];
-          newState[index].student_comment = studentComment;
-          newState[index].group_comment_updated = groupCommentUpdated;
-          return newState;
-        } else {
-          return [
-            ...prev,
-            {
-              id: id,
-              student_id: studentId,
-              student_comment: studentComment,
-              class_id: classId,
-              class_subject_group_id: classSubjectGroupId,
-              group_comment_updated: groupCommentUpdated,
-            },
-          ];
-        }
-      });
-    },
-    []
-  );
+  const updateStudentCommentsState = useCallback((data: StudentComment) => {
+    const {
+      id,
+      student_id,
+      class_id,
+      student_comment,
+      group_comment_updated,
+      class_subject_group_id,
+    } = data;
+    setStudentCommentsState((prev) => {
+      const index = prev.findIndex((comment) => comment.id === id);
+      if (index !== -1) {
+        const newState = [...prev];
+        newState[index].student_comment = student_comment;
+        newState[index].group_comment_updated = group_comment_updated;
+        return newState;
+      } else {
+        return [
+          ...prev,
+          {
+            id,
+            student_id,
+            student_comment,
+            class_id,
+            class_subject_group_id,
+            group_comment_updated,
+          },
+        ];
+      }
+    });
+  }, []);
 
   const studentNames = useMemo(
     () => classStudents.map((student) => student.student.forename),
