@@ -97,71 +97,65 @@ export const PupilSubjectReport = ({
 
   const supabase = createClient();
 
-  // Insert data into Supabase
-  const insertData = async (editorState: EditorState) => {
-    try {
-      setIsPending(true);
-      if (studentComment) {
-        const { error, data } = await supabase
-          .from("student_comment")
-          .update([
-            {
-              student_comment: JSON.stringify(editorState),
-              group_comment_updated: true,
-            },
-          ])
-          .eq("id", studentComment?.id) // class_subject_group.id
-          .select()
-          .single();
+  async function updateDBStudentComments(editorState: EditorState) {
+    if (studentComment) {
+      const { error, data } = await supabase
+        .from("student_comment")
+        .update([
+          {
+            student_comment: JSON.stringify(editorState),
+            group_comment_updated: true,
+          },
+        ])
+        .eq("id", studentComment?.id) // class_subject_group.id
+        .select()
+        .single();
 
-        if (error) {
-          throw new Error(
-            `Error updating existing student comment: ${JSON.stringify(error)}`
-          );
-        } else {
-          updateStudentCommentsState(
-            data.id,
-            data.student_id,
-            data.class_id,
-            data.class_subject_group_id,
-            data.student_comment,
-            data.group_comment_updated
-          );
-          setSavedState(JSON.parse(JSON.stringify(editorState)));
-          setRevertedEditorState(undefined);
-        }
-      } else {
-        const updated = !objectsEqual(
-          JSON.parse(JSON.stringify(editorState)),
-          savedState
+      if (error) {
+        throw new Error(
+          `Error updating existing student comment: ${JSON.stringify(error)}`
         );
-        const { data, error } = await supabase
-          .from("student_comment")
-          .insert([
-            {
-              student_id: selectedStudent.id,
-              class_id: classId,
-              student_comment: JSON.stringify(editorState),
-              class_subject_group_id: classSubject.class_subject_group[0].id,
-              group_comment_updated: updated,
-            },
-          ])
-          .select()
-          .single();
-        if (error) {
-          throw new Error(`Error inserting new Student Comment`);
-        } else {
-          updateStudentCommentsState(
-            data.id,
-            data.student_id,
-            data.class_id,
-            data.class_subject_group_id,
-            data.student_comment,
-            data.group_comment_updated
-          );
-          setSavedState(JSON.parse(JSON.stringify(editorState)));
-        }
       }
+      setRevertedEditorState(undefined);
+      return data;
+    } else {
+      const updated = !objectsEqual(
+        JSON.parse(JSON.stringify(editorState)),
+        savedState
+      );
+      const { data, error } = await supabase
+        .from("student_comment")
+        .insert([
+          {
+            student_id: selectedStudent.id,
+            class_id: classId,
+            student_comment: JSON.stringify(editorState),
+            class_subject_group_id: classSubject.class_subject_group[0].id,
+            group_comment_updated: updated,
+          },
+        ])
+        .select()
+        .single();
+      if (error) {
+        throw new Error(`Error inserting new Student Comment`);
+      }
+      return data;
+    }
+  }
+
+  async function saveStudentComment(editorState: EditorState) {
+    setIsPending(true);
+    try {
+      const data = await updateDBStudentComments(editorState);
+      updateStudentCommentsState(
+        data.id,
+        data.student_id,
+        data.class_id,
+        data.class_subject_group_id,
+        data.student_comment,
+        data.group_comment_updated
+      );
+      setSavedState(JSON.parse(JSON.stringify(editorState)));
     } catch (error) {
       if (error instanceof Error) {
         // Handle standard JavaScript Error
@@ -175,7 +169,7 @@ export const PupilSubjectReport = ({
     } finally {
       setIsPending(false);
     }
-  };
+  }
 
   async function revertToGroupComment() {
     setIsPending(true);
@@ -282,7 +276,7 @@ export const PupilSubjectReport = ({
               width="w-fit md:w-48"
               topMargin
               pending={isPending}
-              onClick={() => insertData(editorState)}
+              onClick={() => saveStudentComment(editorState)}
             />
             <div className="relative">
               <Button
