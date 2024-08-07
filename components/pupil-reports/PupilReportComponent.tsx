@@ -102,12 +102,8 @@ const PupilReportComponent = ({
     >([]);
 
   useEffect(() => {
-    // const pupilReports = getStudentsGroupReports(selectedStudent);
-    // setSelectedStudentsGroupReports(pupilReports);
     async function getReports() {
-      // console.log("Gonna get pupil reports");
       const pupilReports = await getStudentsGroupReports(selectedStudent.id);
-      // console.log("Recevived pupil reports");
       setSelectedStudentsGroupReports(pupilReports);
     }
     getReports();

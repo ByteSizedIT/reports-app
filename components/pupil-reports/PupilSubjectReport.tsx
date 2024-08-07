@@ -1,20 +1,17 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-
+import { useState, useEffect, useCallback } from "react";
 import { EditorState } from "lexical";
 
 import Editor from "../Editor";
 import Button from "../Button";
+import DeleteModal from "../class-pg/DeleteModal";
 
 import { Student, StudentComment } from "@/types/types";
 
 import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
-
 import { createClient } from "@/utils/supabase/clients/browserClient";
-
 import { objectsEqual } from "@/utils/functions/compareObjects";
-import DeleteModal from "../class-pg/DeleteModal";
 
 export const PupilSubjectReport = ({
   classSubject,
@@ -27,14 +24,7 @@ export const PupilSubjectReport = ({
   classSubject: any;
   classId: number;
   studentNames: Array<string>;
-  studentCommentsState: Array<{
-    id: number;
-    student_id: number;
-    student_comment: string;
-    class_id: number;
-    class_subject_group_id: number;
-    group_comment_updated: boolean;
-  }>;
+  studentCommentsState: Array<StudentComment>;
   selectedStudent: Student;
   updateStudentCommentsState: (data: StudentComment) => void;
 }) => {
@@ -100,7 +90,7 @@ export const PupilSubjectReport = ({
             group_comment_updated: true,
           },
         ])
-        .eq("id", studentComment?.id) // class_subject_group.id
+        .eq("id", studentComment?.id)
         .select()
         .single();
 
@@ -144,12 +134,10 @@ export const PupilSubjectReport = ({
       setSavedState(JSON.parse(JSON.stringify(editorState)));
     } catch (error) {
       if (error instanceof Error) {
-        // Handle standard JavaScript Error
         console.error(
           `Error updating individual student comment: ${error.message}`
         );
       } else {
-        // Handle non-standard errors
         console.error("An unexpected error occurred:", error);
       }
     } finally {
@@ -162,14 +150,10 @@ export const PupilSubjectReport = ({
     if (studentComment)
       try {
         const data = await deleteStudentCommentFromDB();
-
         updateStudentCommentsState(data);
         setRevertedEditorState(
           classSubject.class_subject_group?.[0]?.group_comment
         );
-        // setSavedState(
-        //   JSON.parse(classSubject.class_subject_group?.[0]?.group_comment)
-        // );
       } catch (error) {
         console.error("Failed to delete student comment from DB:", error);
       } finally {
@@ -196,11 +180,6 @@ export const PupilSubjectReport = ({
         `Error deleting existing student comment: ${JSON.stringify(error)}`
       );
     }
-
-    console.log(
-      `Existing Student Comment successfully deleted from DB: ${data}`
-    );
-
     return data;
   }
 
@@ -212,7 +191,6 @@ export const PupilSubjectReport = ({
     <>
       {showDeleteModal && (
         <DeleteModal
-          // group={group}
           updateShowDeleteModal={updateShowDeleteModal}
           message={`Are you sure you want to revert to the generic group comment. This will delete ${selectedStudent.forename}'s current individual comment`}
           handleDelete={revertToGroupComment}

@@ -1,10 +1,10 @@
-import { createClient } from "@/utils/supabase/clients/serverClient";
-import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
-import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
-
 import { notFound, redirect } from "next/navigation";
 
 import PupilReportComponent from "@/components/pupil-reports/PupilReportComponent";
+
+import { createClient } from "@/utils/supabase/clients/serverClient";
+import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
+import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
 const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
   const supabase = createClient();
