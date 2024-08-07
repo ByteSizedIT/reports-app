@@ -28,49 +28,35 @@ export const PupilSubjectReport = ({
   selectedStudent: Student;
   updateStudentCommentsState: (data: StudentComment) => void;
 }) => {
-  const [studentComment, setStudentComment] = useState(() =>
-    studentCommentsState.find(
+  const getStudentComment = useCallback(() => {
+    return studentCommentsState.find(
       (comment) =>
         comment.class_subject_group_id ===
           classSubject.class_subject_group?.[0]?.id &&
         comment.student_id === selectedStudent.id
-    )
-  );
-
-  const [editorState, setEditorState] = useState<EditorState>(() =>
-    studentComment
-      ? JSON.parse(studentComment.student_comment)
-      : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment)
-  );
-
-  const [savedState, setSavedState] = useState<EditorState>(() =>
-    studentComment
-      ? JSON.parse(studentComment.student_comment)
-      : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment)
-  );
-
-  const [revertedEditorState, setRevertedEditorState] = useState(undefined);
-
-  const [isPending, setIsPending] = useState(false);
-
-  const [tooltipVisible, setTooltipVisible] = useState(false);
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  useEffect(() => {
-    setStudentComment(() =>
-      studentCommentsState.find(
-        (comment) =>
-          comment.class_subject_group_id ===
-            classSubject.class_subject_group?.[0]?.id &&
-          comment.student_id === selectedStudent.id
-      )
     );
   }, [
     classSubject.class_subject_group,
-    studentCommentsState,
     selectedStudent.id,
+    studentCommentsState,
   ]);
+
+  const initialStudentComment = getStudentComment();
+  const initialEditor = initialStudentComment
+    ? JSON.parse(initialStudentComment.student_comment)
+    : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment);
+
+  const [studentComment, setStudentComment] = useState(initialStudentComment);
+  const [editorState, setEditorState] = useState<EditorState>(initialEditor);
+  const [savedState, setSavedState] = useState<EditorState>(initialEditor);
+  const [revertedEditorState, setRevertedEditorState] = useState(undefined);
+  const [isPending, setIsPending] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    setStudentComment(() => getStudentComment());
+  }, [getStudentComment]);
 
   const { words, chars } = useEditorCounts(editorState);
 
