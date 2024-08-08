@@ -25,7 +25,7 @@ const PupilReportComponent = ({
     student_id: number;
   }>;
   classSubjects: Array<{
-    id: any;
+    id: number;
     subject: Subject;
     class_subject_group: Array<ClassSubjectGroupStudent>;
   }>;
@@ -33,6 +33,76 @@ const PupilReportComponent = ({
 }) => {
   const [studentCommentsState, setStudentCommentsState] =
     useState<Array<StudentComment>>(studentComments);
+
+  const [confirmedComments, setConfirmedComments] = useState(() => {
+    // Create an object, with a key for each studentId, and a value that is also an object. The nested object for each studentId should have their assigned classSubjectGroupIds (or subjectIds) as keys, and a boolean OR the comments themselves as values - indicating whether a studentComment entry exists for the given classSubjectGroupId/subjectId )
+    return classStudents.reduce((accum, student) => {
+      const thisStudentsClassGroups = classSubjects.reduce(
+        (accum, classSubject) => {
+          const classGroupIds = classSubject.class_subject_group
+            .filter((classSubjectGroup) =>
+              classSubjectGroup.class_subject_group_student.some(
+                (groupStudent) => student.student_id === groupStudent.student.id
+              )
+            )
+            .map((classSubjectGroup) => classSubjectGroup.id);
+
+          return [...accum, ...classGroupIds];
+        },
+        [] as number[]
+      );
+      // ALT METHOD
+      // const thisStudentsClassGroups = classSubjects.reduce(
+      //   (innerAccum, classSubject) => {
+      //     const classGroupIds = classSubject.class_subject_group.reduce(
+      //       (groupAccum, classSubjectGroup) => {
+      //         if (
+      //           classSubjectGroup.class_subject_group_student.some(
+      //             (groupStudent) =>
+      //               student.student_id === groupStudent.student.id
+      //           )
+      //         ) {
+      //           groupAccum.push(classSubjectGroup.id);
+      //         }
+      //         return groupAccum;
+      //       },
+      //       [] as number[] // Accumulate directly into an array of numbers
+      //     );
+
+      //     return innerAccum.concat(classGroupIds); // Concatenate results
+      //   },
+      //   [] as number[] // Inner accumulator is a flat array of numbers
+      // );
+
+      const thisStudentsCommentsArr = studentComments.filter(
+        (comment) => comment.student_id === student.student.id
+      );
+
+      // const thisStudentsCommentStatus: { [key: string]: boolean } = {};
+      const thisStudentsCommentStatus: {
+        [key: string]: StudentComment | undefined;
+      } = {};
+
+      thisStudentsClassGroups.forEach((classGroup) => {
+        const index = thisStudentsCommentsArr.findIndex(
+          (comment) => comment.class_subject_group_id === classGroup
+        );
+        index === -1
+          ? // ? (thisStudentsCommentStatus[classGroup.toString()] = false)
+            // : (thisStudentsCommentStatus[classGroup.toString()] = true);
+            (thisStudentsCommentStatus[classGroup.toString()] = undefined)
+          : (thisStudentsCommentStatus[classGroup.toString()] =
+              thisStudentsCommentsArr[index]);
+      });
+
+      return {
+        ...accum,
+        [student.student.id]: thisStudentsCommentStatus,
+      };
+    }, {});
+  });
+
+  useEffect(() => console.log({ confirmedComments }), [confirmedComments]);
 
   const updateStudentCommentsState = useCallback((data: StudentComment) => {
     const {
