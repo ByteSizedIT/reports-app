@@ -34,7 +34,7 @@ const PupilReportComponent = ({
   const [studentCommentsState, setStudentCommentsState] =
     useState<Array<StudentComment>>(studentComments);
 
-  const [confirmedComments, setConfirmedComments] = useState(() => {
+  const calcConfirmedComments = useCallback(() => {
     // Create an object, with a key for each studentId, and a value that is also an object. The nested object for each studentId should have their assigned classSubjectGroupIds (or subjectIds) as keys, and a boolean OR the comments themselves as values - indicating whether a studentComment entry exists for the given classSubjectGroupId/subjectId )
     return classStudents.reduce((accum, student) => {
       const thisStudentsClassGroups = classSubjects.reduce(
@@ -74,7 +74,7 @@ const PupilReportComponent = ({
       //   [] as number[] // Inner accumulator is a flat array of numbers
       // );
 
-      const thisStudentsCommentsArr = studentComments.filter(
+      const thisStudentsCommentsArr = studentCommentsState.filter(
         (comment) => comment.student_id === student.student.id
       );
 
@@ -100,7 +100,15 @@ const PupilReportComponent = ({
         [student.student.id]: thisStudentsCommentStatus,
       };
     }, {});
-  });
+  }, [classSubjects, classStudents, studentCommentsState]);
+
+  const [confirmedComments, setConfirmedComments] = useState(() =>
+    calcConfirmedComments()
+  );
+
+  useEffect(() => {
+    setConfirmedComments(calcConfirmedComments);
+  }, [calcConfirmedComments]);
 
   useEffect(() => console.log({ confirmedComments }), [confirmedComments]);
 
