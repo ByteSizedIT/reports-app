@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 
+import { PiWarning } from "react-icons/pi";
+import { FaCheck } from "react-icons/fa6";
+
 import {
   Student,
   Subject,
@@ -88,10 +91,10 @@ const PupilReportComponent = ({
           (comment) => comment.class_subject_group_id === classGroup
         );
         index === -1
-          ? // ? (thisStudentsCommentStatus[classGroup.toString()] = false)
-            // : (thisStudentsCommentStatus[classGroup.toString()] = true);
-            (thisStudentsCommentStatus[classGroup.toString()] = undefined)
-          : (thisStudentsCommentStatus[classGroup.toString()] =
+          ? // ? (thisStudentsCommentStatus[classGroup] = false)
+            // : (thisStudentsCommentStatus[classGroup] = true);
+            (thisStudentsCommentStatus[classGroup] = undefined)
+          : (thisStudentsCommentStatus[classGroup] =
               thisStudentsCommentsArr[index]);
       });
 
@@ -102,9 +105,12 @@ const PupilReportComponent = ({
     }, {});
   }, [classSubjects, classStudents, studentCommentsState]);
 
-  const [confirmedComments, setConfirmedComments] = useState(() =>
-    calcConfirmedComments()
-  );
+  const [confirmedComments, setConfirmedComments] = useState<
+    | {
+        [key: number]: { [key: number]: StudentComment | undefined };
+      }
+    | undefined
+  >(() => calcConfirmedComments());
 
   useEffect(() => {
     setConfirmedComments(calcConfirmedComments);
@@ -199,7 +205,15 @@ const PupilReportComponent = ({
                 activeBorder={selectedStudent.id === item.student.id}
                 onClick={() => setSelectedStudent(item.student)}
                 width="w-20 md:w-full"
-              />
+              >
+                {confirmedComments &&
+                Object.values(confirmedComments?.[item.student.id])
+                .some((comment: {} | undefined) => comment === undefined) ? (
+                  <PiWarning color="red" />
+                ) : (
+                  <FaCheck />
+                )}
+              </Button>
             ))}
           </div>
           <div className="md:w-3/4">
