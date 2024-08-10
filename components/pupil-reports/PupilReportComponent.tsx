@@ -34,121 +34,57 @@ const PupilReportComponent = ({
   }>;
   studentComments: Array<StudentComment>;
 }) => {
-  const [studentCommentsState, setStudentCommentsState] =
-    useState<Array<StudentComment>>(studentComments);
-
-  const calcConfirmedComments = useCallback(() => {
-    // Create an object, with a key for each studentId, and a value that is also an object. The nested object for each studentId should have their assigned classSubjectGroupIds (or subjectIds) as keys, and a boolean OR the comments themselves as values - indicating whether a studentComment entry exists for the given classSubjectGroupId/subjectId )
+  const initialConfirmedComments = useMemo(() => {
+    // for each student...
     return classStudents.reduce((accum, student) => {
-      const thisStudentsClassGroups = classSubjects.reduce(
+      // ...create array of their assigned subject groups...
+      const thisStudentsClassSubjectGroups = classSubjects.reduce(
         (accum, classSubject) => {
-          const classGroupIds = classSubject.class_subject_group
-            .filter((classSubjectGroup) =>
-              classSubjectGroup.class_subject_group_student.some(
-                (groupStudent) => student.student_id === groupStudent.student.id
-              )
+          const classSubjectGroupIds = classSubject.class_subject_group
+            .filter(
+              (classSubjectGroup) =>
+                classSubjectGroup.class_subject_group_student.some(
+                  (groupStudent) =>
+                    student.student_id === groupStudent.student.id
+                ) && classSubjectGroup.report_group.id !== 160 // filter out ClassRegisters (not report groups)
             )
             .map((classSubjectGroup) => classSubjectGroup.id);
 
-          return [...accum, ...classGroupIds];
+          return [...accum, ...classSubjectGroupIds];
         },
         [] as number[]
       );
-      // ALT METHOD
-      // const thisStudentsClassGroups = classSubjects.reduce(
-      //   (innerAccum, classSubject) => {
-      //     const classGroupIds = classSubject.class_subject_group.reduce(
-      //       (groupAccum, classSubjectGroup) => {
-      //         if (
-      //           classSubjectGroup.class_subject_group_student.some(
-      //             (groupStudent) =>
-      //               student.student_id === groupStudent.student.id
-      //           )
-      //         ) {
-      //           groupAccum.push(classSubjectGroup.id);
-      //         }
-      //         return groupAccum;
-      //       },
-      //       [] as number[] // Accumulate directly into an array of numbers
-      //     );
-
-      //     return innerAccum.concat(classGroupIds); // Concatenate results
-      //   },
-      //   [] as number[] // Inner accumulator is a flat array of numbers
-      // );
-
-      const thisStudentsCommentsArr = studentCommentsState.filter(
+      // ... create array of their confirmed comments
+      const thisStudentsCommentsArr = studentComments.filter(
         (comment) => comment.student_id === student.student.id
       );
-
-      // const thisStudentsCommentStatus: { [key: string]: boolean } = {};
-      const thisStudentsCommentStatus: {
+      // ... combine the above into an object, incl an undefined property as placeholder for reportgroups with o/standing comment
+      const thisStudentsCommentsObj: {
         [key: string]: StudentComment | undefined;
       } = {};
-
-      thisStudentsClassGroups.forEach((classGroup) => {
+      thisStudentsClassSubjectGroups.forEach((classGroup) => {
         const index = thisStudentsCommentsArr.findIndex(
           (comment) => comment.class_subject_group_id === classGroup
         );
         index === -1
-          ? // ? (thisStudentsCommentStatus[classGroup] = false)
-            // : (thisStudentsCommentStatus[classGroup] = true);
-            (thisStudentsCommentStatus[classGroup] = undefined)
-          : (thisStudentsCommentStatus[classGroup] =
+          ? (thisStudentsCommentsObj[classGroup] = undefined)
+          : (thisStudentsCommentsObj[classGroup] =
               thisStudentsCommentsArr[index]);
       });
 
       return {
         ...accum,
-        [student.student.id]: thisStudentsCommentStatus,
+        [student.student.id]: thisStudentsCommentsObj,
       };
     }, {});
-  }, [classSubjects, classStudents, studentCommentsState]);
+  }, [classStudents, classSubjects, studentComments]);
 
   const [confirmedComments, setConfirmedComments] = useState<
     | {
         [key: number]: { [key: number]: StudentComment | undefined };
       }
     | undefined
-  >(() => calcConfirmedComments());
-
-  useEffect(() => {
-    setConfirmedComments(calcConfirmedComments);
-  }, [calcConfirmedComments]);
-
-  useEffect(() => console.log({ confirmedComments }), [confirmedComments]);
-
-  const updateStudentCommentsState = useCallback((data: StudentComment) => {
-    const {
-      id,
-      student_id,
-      class_id,
-      student_comment,
-      group_comment_updated,
-      class_subject_group_id,
-    } = data;
-    setStudentCommentsState((prev) => {
-      const index = prev.findIndex((comment) => comment.id === id);
-      if (index !== -1) {
-        const newState = [...prev];
-        newState[index].student_comment = student_comment;
-        newState[index].group_comment_updated = group_comment_updated;
-        return newState;
-      } else {
-        return [
-          ...prev,
-          {
-            id,
-            student_id,
-            student_comment,
-            class_id,
-            class_subject_group_id,
-            group_comment_updated,
-          },
-        ];
-      }
-    });
-  }, []);
+  >(initialConfirmedComments);
 
   const [selectedStudent, setSelectedStudent] = useState<Student>(
     classStudents[0].student
@@ -165,6 +101,18 @@ const PupilReportComponent = ({
   const studentNames = useMemo(
     () => classStudents.map((student) => student.student.forename),
     [classStudents]
+  );
+
+  const updateConfirmedComments = useCallback(
+    (data: StudentComment) => {
+      const { class_subject_group_id } = data;
+      setConfirmedComments((prev) => {
+        const newState = { ...prev };
+        newState[selectedStudent.id][class_subject_group_id] = { ...data };
+        return newState;
+      });
+    },
+    [selectedStudent.id]
   );
 
   // Get reports for given/selected studentId
@@ -207,8 +155,9 @@ const PupilReportComponent = ({
                 width="w-20 md:w-full"
               >
                 {confirmedComments &&
-                Object.values(confirmedComments?.[item.student.id])
-                .some((comment: {} | undefined) => comment === undefined) ? (
+                Object.values(confirmedComments?.[item.student.id]).some(
+                  (comment: {} | undefined) => comment === undefined
+                ) ? (
                   <PiWarning color="red" />
                 ) : (
                   <FaCheck />
@@ -227,9 +176,13 @@ const PupilReportComponent = ({
                       classSubject={classSubject}
                       classId={classId}
                       studentNames={studentNames}
-                      studentCommentsState={studentCommentsState}
+                      studentComment={
+                        confirmedComments?.[selectedStudent.id][
+                          classSubject.class_subject_group?.[0]?.id
+                        ]
+                      }
                       selectedStudent={selectedStudent}
-                      updateStudentCommentsState={updateStudentCommentsState}
+                      updateConfirmedComments={updateConfirmedComments}
                     />
                   );
                 })}

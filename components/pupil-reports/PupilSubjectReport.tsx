@@ -17,46 +17,27 @@ export const PupilSubjectReport = ({
   classSubject,
   classId,
   studentNames,
-  studentCommentsState,
+  studentComment,
   selectedStudent,
-  updateStudentCommentsState,
+  updateConfirmedComments,
 }: {
   classSubject: any;
   classId: number;
   studentNames: Array<string>;
-  studentCommentsState: Array<StudentComment>;
+  studentComment: StudentComment | undefined;
   selectedStudent: Student;
-  updateStudentCommentsState: (data: StudentComment) => void;
+  updateConfirmedComments: (data: StudentComment) => void;
 }) => {
-  const getStudentComment = useCallback(() => {
-    return studentCommentsState.find(
-      (comment) =>
-        comment.class_subject_group_id ===
-          classSubject.class_subject_group?.[0]?.id &&
-        comment.student_id === selectedStudent.id
-    );
-  }, [
-    classSubject.class_subject_group,
-    selectedStudent.id,
-    studentCommentsState,
-  ]);
-
-  const initialStudentComment = getStudentComment();
-  const initialEditor = initialStudentComment
-    ? JSON.parse(initialStudentComment.student_comment)
+  const initialEditor = studentComment
+    ? JSON.parse(studentComment.student_comment)
     : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment);
 
-  const [studentComment, setStudentComment] = useState(initialStudentComment);
   const [editorState, setEditorState] = useState<EditorState>(initialEditor);
   const [savedState, setSavedState] = useState<EditorState>(initialEditor);
   const [revertedEditorState, setRevertedEditorState] = useState(undefined);
   const [isPending, setIsPending] = useState(false);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  useEffect(() => {
-    setStudentComment(() => getStudentComment());
-  }, [getStudentComment]);
 
   const { words, chars } = useEditorCounts(editorState);
 
@@ -116,7 +97,7 @@ export const PupilSubjectReport = ({
     setIsPending(true);
     try {
       const data = await updateDBStudentComments(editorState);
-      updateStudentCommentsState(data);
+      updateConfirmedComments(data);
       setSavedState(JSON.parse(JSON.stringify(editorState)));
     } catch (error) {
       if (error instanceof Error) {
@@ -136,7 +117,7 @@ export const PupilSubjectReport = ({
     if (studentComment)
       try {
         const data = await deleteStudentCommentFromDB();
-        updateStudentCommentsState(data);
+        updateConfirmedComments(data);
         setRevertedEditorState(
           classSubject.class_subject_group?.[0]?.group_comment
         );
