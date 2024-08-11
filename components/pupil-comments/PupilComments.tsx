@@ -13,6 +13,7 @@ import {
 } from "@/types/types";
 
 import Button from "../Button";
+import ButtonLink from "../ButtonLink";
 import { PupilSubjectComment } from "./PupilSubjectComment";
 
 const PupilComments = ({
@@ -164,6 +165,11 @@ const PupilComments = ({
                 )}
               </Button>
             ))}
+            <ButtonLink
+              label="Generate Pupil Reports"
+              color="primary-button"
+              href={`/my-classes/${classId}/pupil-reports`}
+            />
           </div>
           <div className="md:w-3/4">
             <div className="w-full flex flex-col gap-8">
