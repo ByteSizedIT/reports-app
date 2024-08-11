@@ -13,7 +13,7 @@ import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
 import { createClient } from "@/utils/supabase/clients/browserClient";
 import { objectsEqual } from "@/utils/functions/compareObjects";
 
-export const PupilSubjectReport = ({
+export const PupilSubjectComment = ({
   classSubject,
   classId,
   studentNames,

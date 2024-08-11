@@ -13,9 +13,9 @@ import {
 } from "@/types/types";
 
 import Button from "../Button";
-import { PupilSubjectReport } from "./PupilSubjectReport";
+import { PupilSubjectComment } from "./PupilSubjectComment";
 
-const PupilReportComponent = ({
+const PupilComments = ({
   classId,
   classStudents,
   classSubjects,
@@ -171,7 +171,7 @@ const PupilReportComponent = ({
                 .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
                 .map((classSubject) => {
                   return (
-                    <PupilSubjectReport
+                    <PupilSubjectComment
                       key={`${selectedStudent}.${classSubject.class_subject_group?.[0]?.id}`}
                       classSubject={classSubject}
                       classId={classId}
@@ -194,4 +194,4 @@ const PupilReportComponent = ({
   );
 };
 
-export default PupilReportComponent;
+export default PupilComments;

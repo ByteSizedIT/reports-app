@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import PupilReportComponent from "@/components/pupil-reports/PupilReportComponent";
+import PupilComments from "@/components/pupil-comments/PupilComments";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
@@ -32,14 +32,15 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
 
   return (
     <div className="w-full md:m-8">
-      <h1>Review Individual Pupil Reports</h1>
+      <h1>Personalise Pupil Comments</h1>
       <h2 className="text-center pb-4">
         {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
       </h2>
       <h3>
-        Select individual pupils on left to review/edit their personal report
+        Select individual pupils on left to review/edit their comments for each
+        subject
       </h3>
-      <PupilReportComponent
+      <PupilComments
         classId={classData[0].id}
         classStudents={classData[0].class_student}
         classSubjects={classData[0].class_subject}
