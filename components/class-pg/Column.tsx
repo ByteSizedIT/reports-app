@@ -144,7 +144,6 @@ const Column = ({
     <>
       {showDeleteModal && (
         <DeleteModal
-          group={group}
           updateShowDeleteModal={updateShowDeleteModal}
           message={`Are you sure you want to delete the '${group.report_group.description}' column?`}
           handleDelete={deleteColumn}

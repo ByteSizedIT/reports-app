@@ -242,12 +242,12 @@ const SubjectReportGroups = ({
           </DragDropContext>
 
           <Link
-            href={`/my-classes/${classDataState[0].id}/pupil-reports`}
+            href={`/my-classes/${classDataState[0].id}/pupil-comments`}
             prefetch={false}
           >
             <Button
               disabled={!groupReportsComplete}
-              label="Review Pupil Reports"
+              label="Personalise Pupil Comments"
               color="primary-button"
               topMargin
               bottomMargin
