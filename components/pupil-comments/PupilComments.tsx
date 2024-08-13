@@ -138,25 +138,6 @@ const PupilComments = ({
     getReports();
   }, [selectedStudent, getStudentsGroupReports]);
 
-  useEffect(() => {
-    console.log({ confirmedComments });
-    console.log(
-      Object.values(confirmedComments).map((group) => {
-        Object.values(group).flat();
-      })
-    );
-    console.log(
-      Object.values(confirmedComments)
-        .map((group) => Object.values(group))
-        .flat()
-        .some((item) => item === undefined)
-    );
-  }, [confirmedComments]);
-
-  // useEffect(() => {
-  //   console.log({ classStudents });
-  // }, [classStudents]);
-
   return (
     <div className="flex flex-col item-center md:flex-row md:gap-8 md:m-8">
       <>
