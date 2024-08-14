@@ -18,6 +18,8 @@ module.exports = {
           "modal-background": "hsl(var(--modal-btn-background))",
           "modal-background-hover": "hsl(var(--modal-btn-background-hover))",
         },
+
+        "logo-blue": "#3a4a69",
       },
     },
   },

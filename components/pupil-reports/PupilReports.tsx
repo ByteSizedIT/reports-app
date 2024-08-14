@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 
-import { Student } from "@/types/types";
+import { Student, Organisation } from "@/types/types";
 
 import Button from "../Button";
+import ReportTemplate from "./ReportTemplate";
 
-const PupilSelect = ({
+const PupilReports = ({
+  organisation,
+  classByLine,
   classStudents,
 }: {
+  organisation: Organisation;
+  classByLine: string;
   classStudents: Array<{
     student: Student;
     class_id: number;
@@ -32,8 +37,12 @@ const PupilSelect = ({
           />
         ))}
       </div>
-      <div className="md:w-3/4 border border-slate-500 aspect-[210/297]"></div>
+      <ReportTemplate
+        organisation={organisation}
+        classByLine={classByLine}
+        selectedStudent={selectedStudent}
+      />
     </div>
   );
 };
-export default PupilSelect;
+export default PupilReports;

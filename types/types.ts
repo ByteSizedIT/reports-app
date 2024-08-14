@@ -36,6 +36,15 @@ export type ClassSubjectGroupStudent = {
 
 // Database table interfaces
 
+export interface Organisation {
+  id: number;
+  name: string;
+  address1: string;
+  address2: string;
+  "town/city": string;
+  postcode: string;
+}
+
 export interface User {
   id: string;
   email?: string;

@@ -4,7 +4,16 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
-import PupilSelect from "@/components/pupil-reports/PupilReports";
+
+import { Organisation } from "@/types/types";
+
+import PupilReports from "@/components/pupil-reports/PupilReports";
+
+type UserOrgDetails = {
+  uuid: string;
+  role_id: string;
+  organisation_id: Organisation | Organisation[]; // Allow for both single obj and array. Will always be single as org_id is a unique identifier, but Supabase/ts seem to infer that the type is an array. Therefore managed here and bolow
+};
 
 const PupilReportsPage = async ({
   params: { id },
@@ -23,12 +32,25 @@ const PupilReportsPage = async ({
   }
 
   // Protect page, checking users's organisation matches that requested
-  const userQuery = supabase.from("user_info").select("*").eq("uuid", user.id);
+  const userQuery = supabase
+    .from("user_info")
+    .select(`uuid, role_id, organisation_id(*)`)
+    .eq("uuid", user.id)
+    .single();
   const { data: userInfoData, error: userInfoError } = await userQuery;
   // TODO: add error handling
 
+  const typedUserInfoData = userInfoData as UserOrgDetails;
+
+  console.log(userInfoData);
+
+  // Check if organisation_id is an array or an object - Will always be single as org_id is a unique identifier, but Supabase/ts seem tto infer that the type is an array. Therefore managed here and in
+  const usersOrganisation = Array.isArray(typedUserInfoData?.organisation_id)
+    ? typedUserInfoData.organisation_id[0] // If it's an array, access the first element
+    : typedUserInfoData?.organisation_id; // Otherwise, it's a single object
+
   const classData = await getClassDetails(id);
-  if (classData?.[0]?.organisation_id !== userInfoData?.[0]?.organisation_id) {
+  if (classData?.[0]?.organisation_id !== usersOrganisation.id) {
     notFound();
   }
 
@@ -43,7 +65,11 @@ const PupilReportsPage = async ({
       <h3>
         Select individual pupils on left to view/print their generated report
       </h3>
-      <PupilSelect classStudents={classData[0].class_student} />
+      <PupilReports
+        classStudents={classData[0].class_student}
+        classByLine={`${classData[0].description} | ${classData[0].year_group} | ${classData[0].academic_year_end}`}
+        organisation={usersOrganisation}
+      />
     </div>
   );
 };
