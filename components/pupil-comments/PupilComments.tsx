@@ -140,63 +140,61 @@ const PupilComments = ({
 
   return (
     <div className="flex flex-col item-center md:flex-row md:gap-8 md:m-8">
-      <>
-        <div className="flex flex-row flex-wrap md:flex-col gap-2 justify-around md:justify-normal m-4 md:m-0 md:gap-8 md:w-1/4">
-          {classStudents.map((item) => (
-            <Button
-              key={item.student.id}
-              label={`${item.student.surname}, ${item.student.forename}`}
-              color="secondary-button"
-              activeBorder={selectedStudent.id === item.student.id}
-              onClick={() => setSelectedStudent(item.student)}
-              width="w-20 md:w-full"
-            >
-              {confirmedComments &&
-              Object.values(confirmedComments?.[item.student.id]).some(
-                (comment: {} | undefined) => comment === undefined
-              ) ? (
-                <PiWarning color="red" />
-              ) : (
-                <FaCheck />
-              )}
-            </Button>
-          ))}
-          <ButtonLink
-            tooltipText={`Confirm all comments for each student before generating Pupil Reports`}
-            label="Generate Pupil Reports"
-            id="generate-pupils-btn"
-            ariaDescribedBy="generate-pupils-tooltip"
-            color="primary-button"
-            href={`/my-classes/${classId}/pupil-reports`}
-            disabled={Object.values(confirmedComments)
-              .flatMap((group) => Object.values(group))
-              .some((item) => item === undefined)}
-          />
+      <div className="flex flex-row flex-wrap md:flex-col gap-2 justify-around md:justify-normal m-4 md:m-0 md:gap-8 md:w-1/4">
+        {classStudents.map((item) => (
+          <Button
+            key={item.student.id}
+            label={`${item.student.surname}, ${item.student.forename}`}
+            color="secondary-button"
+            activeBorder={selectedStudent.id === item.student.id}
+            onClick={() => setSelectedStudent(item.student)}
+            width="w-20 md:w-full"
+          >
+            {confirmedComments &&
+            Object.values(confirmedComments?.[item.student.id]).some(
+              (comment: {} | undefined) => comment === undefined
+            ) ? (
+              <PiWarning color="red" />
+            ) : (
+              <FaCheck />
+            )}
+          </Button>
+        ))}
+        <ButtonLink
+          tooltipText={`Confirm all comments for each student before generating Pupil Reports`}
+          label="Generate Pupil Reports"
+          id="generate-pupils-btn"
+          ariaDescribedBy="generate-pupils-tooltip"
+          color="primary-button"
+          href={`/my-classes/${classId}/pupil-reports`}
+          disabled={Object.values(confirmedComments)
+            .flatMap((group) => Object.values(group))
+            .some((item) => item === undefined)}
+        />
+      </div>
+      <div className="md:w-3/4">
+        <div className="w-full flex flex-col gap-8">
+          {selectedStudentsGroupReports
+            .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
+            .map((classSubject) => {
+              return (
+                <PupilSubjectComment
+                  key={`${selectedStudent}.${classSubject.class_subject_group?.[0]?.id}`}
+                  classSubject={classSubject}
+                  classId={classId}
+                  studentNames={studentNames}
+                  studentComment={
+                    confirmedComments?.[selectedStudent.id][
+                      classSubject.class_subject_group?.[0]?.id
+                    ]
+                  }
+                  selectedStudent={selectedStudent}
+                  updateConfirmedComments={updateConfirmedComments}
+                />
+              );
+            })}
         </div>
-        <div className="md:w-3/4">
-          <div className="w-full flex flex-col gap-8">
-            {selectedStudentsGroupReports
-              .filter((i) => i.class_subject_group.length) // filter out subjects for which there is no entry in the class_subject_group array, having had all groups filtered out in getStudentReports function, as student id is not assigned to any of the groups
-              .map((classSubject) => {
-                return (
-                  <PupilSubjectComment
-                    key={`${selectedStudent}.${classSubject.class_subject_group?.[0]?.id}`}
-                    classSubject={classSubject}
-                    classId={classId}
-                    studentNames={studentNames}
-                    studentComment={
-                      confirmedComments?.[selectedStudent.id][
-                        classSubject.class_subject_group?.[0]?.id
-                      ]
-                    }
-                    selectedStudent={selectedStudent}
-                    updateConfirmedComments={updateConfirmedComments}
-                  />
-                );
-              })}
-          </div>
-        </div>
-      </>
+      </div>
     </div>
   );
 };
