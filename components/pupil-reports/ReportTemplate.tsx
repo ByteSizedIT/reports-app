@@ -17,11 +17,12 @@ const ReportTemplate = ({
 }) => {
   return (
     <article
-      aria-label={`End of year report for ${selectedStudent.forename} ${selectedStudent.surname}}`}
-      className="relative md:w-3/4 border border-slate-500 aspect-[210/297]"
+      aria-label={`End of year report for ${selectedStudent.forename} ${selectedStudent.surname}`}
+      className="a4-page relative md:w-3/4 border border-slate-500 aspect-[210/297] overflow-hidden"
     >
-      <header className="w-full h-[50mm] border-b-2 border-logo-blue flex items-center justify-start">
-        <div className="relative w-full h-full max-w-[40mm] max-h-[40mm]">
+      <header className="w-full h-[20vh] md:h-[15vh] border-b-2 border-logo-blue flex items-center justify-start">
+        {/* Logo */}
+        <div className="relative h-[9.33vh] md:h-[7vh] w-[9.33vh] md:w-[7vh] ml-[1.33vw] md:ml-[1vw]">
           <Image
             src={logo}
             alt="Header Logo"
@@ -29,21 +30,31 @@ const ReportTemplate = ({
             objectFit="contain"
           />
         </div>
-        <div className="flex flex-col flex-1 items-center h-full justify-center">
-          <h4 className="text-5xl  font-bold text-logo-blue text-center pb-4">
+
+        {/* Title Section */}
+        <div className="flex flex-col flex-1 items-center justify-center h-full">
+          <h4 className="text-[3.33vw] md:text-[2.5vw] font-bold text-logo-blue text-center leading-none">
             End Of Term Report
           </h4>
-          <h5 className="text-4xl  font-bold text-logo-blue text-center">{`${selectedStudent.forename} ${selectedStudent.surname}`}</h5>
-          <h6 className="text-2xl  text-logo-blue text-center">
+          <h5 className="text-[2.66vw] md:text-[2vw] font-bold text-logo-blue text-center leading-none">
+            {`${selectedStudent.forename} ${selectedStudent.surname}`}
+          </h5>
+          <h6 className="text-[2vw] md:text-[1.5vw] text-logo-blue text-center leading-none">
             {classByLine}
           </h6>
         </div>
       </header>
-      <section></section>
+
+      <section className="text-[2.66vw] md:p-[2vw]">
+        {/* Report Content Goes Here */}
+      </section>
+
       <footer className="absolute bottom-0 w-full text-center">
-        <p className="p-4">{`${organisation.name} | ${organisation.address1}, ${
-          organisation.address2 ? `${organisation.address2}, ` : ``
-        } ${organisation["town/city"]}, ${organisation.postcode}`}</p>
+        <p className="text-[1.33vw] p-[1.33vw] md:text-[1vw] md:p-[1vw]">
+          {`${organisation.name} | ${organisation.address1}, ${
+            organisation.address2 ? `${organisation.address2}, ` : ``
+          } ${organisation["town/city"]}, ${organisation.postcode}`}
+        </p>
       </footer>
     </article>
   );
