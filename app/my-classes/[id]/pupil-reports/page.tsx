@@ -56,6 +56,19 @@ const PupilReportsPage = async ({
 
   const studentComments = await getStudentComments(id);
 
+  const classSubjectGroupsDict = classData[0].class_subject.reduce(
+    (accum, subject) => {
+      const groups = subject.class_subject_group.map((group) => group.id);
+
+      let subjectsByGroupId = groups.reduce((innerAccum, group) => {
+        return { ...innerAccum, [group]: subject.subject.description };
+      }, {});
+
+      return { ...accum, ...subjectsByGroupId };
+    },
+    {}
+  );
+
   return (
     <div className="w-full md:m-8">
       <h1>Generated Pupil Reports</h1>
@@ -69,6 +82,8 @@ const PupilReportsPage = async ({
         classStudents={classData[0].class_student}
         classByLine={`${classData[0].description} | ${classData[0].year_group} | ${classData[0].academic_year_end}`}
         organisation={usersOrganisation}
+        studentComments={studentComments}
+        classSubjectGroupsDict={classSubjectGroupsDict}
       />
     </div>
   );

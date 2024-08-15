@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import { Organisation, Student } from "@/types/types";
+import { Organisation, Student, StudentComment } from "@/types/types";
 
 import logo from "../../utils/assets/logo.svg";
 
@@ -10,10 +10,14 @@ const ReportTemplate = ({
   organisation,
   classByLine,
   selectedStudent,
+  studentComments,
+  classSubjectGroupsDict,
 }: {
   organisation: Organisation;
   classByLine: string;
   selectedStudent: Student;
+  studentComments: Array<StudentComment>;
+  classSubjectGroupsDict: { [key: number]: string };
 }) => {
   return (
     <article
@@ -30,7 +34,6 @@ const ReportTemplate = ({
             objectFit="contain"
           />
         </div>
-
         {/* Title Section */}
         <div className="flex flex-col flex-1 items-center justify-center h-full">
           <h4 className="text-[3.33vw] md:text-[2.5vw] font-bold text-logo-blue text-center leading-none">
@@ -39,15 +42,25 @@ const ReportTemplate = ({
           <h5 className="text-[2.66vw] md:text-[2vw] font-bold text-logo-blue text-center leading-none">
             {`${selectedStudent.forename} ${selectedStudent.surname}`}
           </h5>
-          <h6 className="text-[2vw] md:text-[1.5vw] text-logo-blue text-center leading-none">
+          <p className="text-[2vw] md:text-[1.5vw] text-logo-blue text-center leading-none">
             {classByLine}
-          </h6>
+          </p>
         </div>
       </header>
-
-      <section className="text-[2.66vw] md:p-[2vw]">
-        {/* Report Content Goes Here */}
-      </section>
+      {/* Report Content */}
+      <div className="text-[2.66vw] md:p-[2vw]">
+        {studentComments
+          .filter((comment) => comment.student_id === selectedStudent.id)
+          .map((comment) => {
+            return (
+              <section key={comment.id}>
+                <h6 className="text-[2.66vw] md:text-[2vw] font-bold text-logo-blue text-center leading-none">
+                  {classSubjectGroupsDict[comment.class_subject_group_id]}
+                </h6>
+              </section>
+            );
+          })}
+      </div>
 
       <footer className="absolute bottom-0 w-full text-center">
         <p className="text-[1.33vw] p-[1.33vw] md:text-[1vw] md:p-[1vw]">
