@@ -34,6 +34,7 @@ export const PupilSubjectComment = ({
 
   const [editorState, setEditorState] = useState<EditorState>(initialEditor);
   const [savedState, setSavedState] = useState<EditorState>(initialEditor);
+  const [editorHTML, setEditorHTML] = useState<string | "">();
   const [revertedEditorState, setRevertedEditorState] = useState(undefined);
   const [isPending, setIsPending] = useState(false);
   const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -43,6 +44,10 @@ export const PupilSubjectComment = ({
 
   function updateEditorState(update: EditorState) {
     setEditorState(update);
+  }
+
+  function updateEditorHTML(update: string) {
+    setEditorHTML(update);
   }
 
   const supabase = createClient();
@@ -55,6 +60,7 @@ export const PupilSubjectComment = ({
           {
             student_comment: JSON.stringify(editorState),
             group_comment_updated: true,
+            html_student_comment: editorHTML,
           },
         ])
         .eq("id", studentComment?.id)
@@ -82,6 +88,7 @@ export const PupilSubjectComment = ({
             student_comment: JSON.stringify(editorState),
             class_subject_group_id: classSubject.class_subject_group[0].id,
             group_comment_updated: updated,
+            html_student_comment: editorHTML,
           },
         ])
         .select()
@@ -179,6 +186,7 @@ export const PupilSubjectComment = ({
           <Editor
             editorState={editorState}
             updateEditorState={updateEditorState}
+            updateEditorHTML={updateEditorHTML}
             studentNames={studentNames}
             parentModal={false}
             revertedEditorState={revertedEditorState}
