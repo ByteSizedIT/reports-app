@@ -120,4 +120,5 @@ export interface StudentComment {
   class_id: number;
   class_subject_group_id: number;
   group_comment_updated: boolean;
+  html_student_comment: string;
 }

@@ -1,11 +1,20 @@
-"use client";
-
 import Image from "next/image";
+
+import dynamic from "next/dynamic";
 
 import { Organisation, Student, StudentComment } from "@/types/types";
 
 import logo from "../../utils/assets/logo.svg";
+import Spinner from "../Spinner";
 
+const ReportComment = dynamic(() => import("./ReportComment"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full flex justify-center items-center">
+      <Spinner />
+    </div>
+  ),
+});
 const ReportTemplate = ({
   organisation,
   classByLine,
@@ -48,15 +57,20 @@ const ReportTemplate = ({
         </div>
       </header>
       {/* Report Content */}
-      <div className="text-[2.66vw] md:p-[2vw]">
+      <div>
         {studentComments
           .filter((comment) => comment.student_id === selectedStudent.id)
           .map((comment) => {
             return (
-              <section key={comment.id}>
-                <h6 className="text-[2.66vw] md:text-[2vw] font-bold text-logo-blue text-center leading-none">
+              <section
+                key={comment.id}
+                className="m-4 p-4 border-2 border-slate-500 rounded-md"
+              >
+                <h6 className="text-[2.66vw] md:text-[2vw] font-bold text-logo-blue text-center leading-none pb-4">
                   {classSubjectGroupsDict[comment.class_subject_group_id]}
                 </h6>
+
+                <ReportComment htmlComment={comment.html_student_comment} />
               </section>
             );
           })}
