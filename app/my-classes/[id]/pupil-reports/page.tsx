@@ -44,7 +44,7 @@ const PupilReportsPage = async ({
 
   console.log(userInfoData);
 
-  // Check if organisation_id is an array or an object - Will always be single as org_id is a unique identifier, but Supabase/ts seem tto infer that the type is an array. Therefore managed here and in
+  // Check if organisation_id is an array or an object - Will always be single as org_id is a unique identifier, but Supabase/ts seem to infer that the type is an array. Therefore managed here and in
   const usersOrganisation = Array.isArray(typedUserInfoData?.organisation_id)
     ? typedUserInfoData.organisation_id[0] // If it's an array, access the first element
     : typedUserInfoData?.organisation_id; // Otherwise, it's a single object
@@ -69,6 +69,32 @@ const PupilReportsPage = async ({
     {}
   );
 
+  const folderPath = `${classData?.[0].organisation_id}/${id}/`; // accessing organisation from classData and class from params
+
+  const { data: pdfReports, error: pdfError } = await supabase.storage
+    .from(`class-pdf-reports`)
+    .list(folderPath, { limit: 40 });
+
+  const signedUrls = await Promise.all(
+    (pdfReports || []).map(async (report) => {
+      const { data, error: urlError } = await supabase.storage
+        .from(`class-pdf-reports/${folderPath}`)
+        .createSignedUrl(report.name, 60 * 60); // URL valid for 1hr
+
+      if (urlError) {
+        console.error(
+          `Error generating signed URL for ${report.name}: ${urlError}`
+        );
+        return null;
+      }
+
+      return {
+        id: report.id, // this is the id from class_student table
+        signedUrl: data.signedUrl,
+      };
+    })
+  );
+
   return (
     <div className="w-full md:m-8">
       <h1>Generated Pupil Reports</h1>
@@ -84,6 +110,7 @@ const PupilReportsPage = async ({
         organisation={usersOrganisation}
         studentComments={studentComments}
         classSubjectGroupsDict={classSubjectGroupsDict}
+        signedUrls={signedUrls}
       />
     </div>
   );

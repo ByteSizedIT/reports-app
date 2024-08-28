@@ -17,6 +17,7 @@ export type ClassDetails = Array<{
     student: Student;
     class_id: number;
     student_id: number;
+    id: number;
   }>;
   class_subject: Array<{
     id: any;
@@ -122,3 +123,9 @@ export interface StudentComment {
   group_comment_updated: boolean;
   html_student_comment: string;
 }
+
+//
+
+export type PartialRecord<K extends keyof any, T> = {
+  [P in K]: T;
+};

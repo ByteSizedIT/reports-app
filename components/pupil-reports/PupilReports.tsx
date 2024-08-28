@@ -13,6 +13,7 @@ const PupilReports = ({
   classStudents,
   studentComments,
   classSubjectGroupsDict,
+  signedUrls,
 }: {
   organisation: Organisation;
   classByLine: string;
@@ -20,9 +21,11 @@ const PupilReports = ({
     student: Student;
     class_id: number;
     student_id: number;
+    id: number;
   }>;
   studentComments: Array<StudentComment>;
   classSubjectGroupsDict: { [key: number]: string };
+  signedUrls: Array<{ id: string; signedUrl: string } | null>; // this is the id from class_student table
 }) => {
   const [selectedStudent, setSelectedStudent] = useState<Student>(
     classStudents[0].student
