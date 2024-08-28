@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
+import { useResizeObserver } from "@wojtekmaj/react-hooks";
 
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
@@ -17,6 +18,8 @@ const options = {
   cMapUrl: "/cmaps/", // for correctly rendering fonts in PDFs, esp non-standard/complex scripts - e.g Chinese, Japanese.
   standardFontDataUrl: "/standard_fonts/", // location of standard font data files used by PDF.js to render fonts like Helvetica, Times, Courier etc. that are embedded in the doc
 };
+
+const resizeObserverOptions = {};
 
 const ReportPDF = ({
   signedUrls,
@@ -75,6 +78,18 @@ const ReportPDF = ({
   }: PDFDocumentProxy): void {
     setNumPages(nextNumPages);
   }
+
+  // update containerWidth when container’s size changes, helping to dynamically update width of rendered PDF pages (entries parameter = an array of ResizeObserverEntry objects)
+  const onResize = useCallback<ResizeObserverCallback>((entries) => {
+    // destructure 1st entry from the array
+    const [entry] = entries;
+    if (entry) {
+      setContainerWidth(entry.contentRect.width);
+    }
+  }, []);
+
+  // monitor container’s size and trigger onResize callback
+  useResizeObserver(containerRef, resizeObserverOptions, onResize);
 
   return (
     <div className="md:w-3/4">
