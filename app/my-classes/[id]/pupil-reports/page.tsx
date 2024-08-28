@@ -3,7 +3,6 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
-import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
 import { Organisation } from "@/types/types";
 
@@ -54,8 +53,6 @@ const PupilReportsPage = async ({
     notFound();
   }
 
-  const studentComments = await getStudentComments(id);
-
   const classSubjectGroupsDict = classData[0].class_subject.reduce(
     (accum, subject) => {
       const groups = subject.class_subject_group.map((group) => group.id);
@@ -89,7 +86,7 @@ const PupilReportsPage = async ({
       }
 
       return {
-        id: report.id, // this is the id from class_student table
+        id: report.name, // name of the report pdf file, which equals the id from class_student table
         signedUrl: data.signedUrl,
       };
     })
@@ -106,9 +103,6 @@ const PupilReportsPage = async ({
       </h3>
       <PupilReports
         classStudents={classData[0].class_student}
-        classByLine={`${classData[0].description} | ${classData[0].year_group} | ${classData[0].academic_year_end}`}
-        organisation={usersOrganisation}
-        studentComments={studentComments}
         classSubjectGroupsDict={classSubjectGroupsDict}
         signedUrls={signedUrls}
       />

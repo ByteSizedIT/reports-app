@@ -21,6 +21,9 @@ module.exports = {
 
         "logo-blue": "#3a4a69",
       },
+      maxWidth: {
+        "200": "800px",
+      },
     },
   },
   plugins: [],
