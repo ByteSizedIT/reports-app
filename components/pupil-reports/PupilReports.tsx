@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import { Student, Organisation, StudentComment } from "@/types/types";
+import { Student } from "@/types/types";
 
 import Button from "../Button";
 import ReportPDF from "./ReportPDF";
@@ -20,9 +20,36 @@ const PupilReports = ({
   classSubjectGroupsDict: { [key: number]: string };
   signedUrls: Array<{ id: string; signedUrl: string } | null>; // this is the id from class_student table
 }) => {
+  function selectReport() {
+    const classStudentId =
+      classStudents[
+        classStudents.findIndex(
+          (classStudent) => classStudent.student_id === selectedStudent.id
+        )
+      ].id;
+
+    const urlIndex = signedUrls.findIndex(
+      (pdf) =>
+        pdf?.id === // file name, without .pdf file type, equals the class_student table id
+        `${classStudentId}.pdf`
+    );
+
+    const selectedUrl = signedUrls[urlIndex]?.signedUrl;
+
+    return selectedUrl;
+  }
+
   const [selectedStudent, setSelectedStudent] = useState<Student>(
     classStudents[0].student
   );
+  const [selectedReport, setSelectedReport] = useState<
+    string | undefined // File type required for use with react-pdf lib in ReportPDF component; string required for printJS below
+  >(() => selectReport());
+
+  // update selectedPdf on selectedStudent change
+  useEffect(() => {
+    setSelectedReport(() => selectReport());
+  }, [selectedStudent]);
 
   return (
     <div className="flex flex-col item-center md:flex-row md:justify-between md:m-8 gap-8 xl:gap-0">
@@ -38,11 +65,7 @@ const PupilReports = ({
           />
         ))}
       </div>
-      <ReportPDF
-        signedUrls={signedUrls}
-        classStudents={classStudents}
-        selectedStudent={selectedStudent}
-      />
+      <ReportPDF selectedReport={selectedReport} />
     </div>
   );
 };

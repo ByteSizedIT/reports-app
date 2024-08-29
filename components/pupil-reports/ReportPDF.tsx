@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
 import { useResizeObserver } from "@wojtekmaj/react-hooks";
 
@@ -8,8 +8,6 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-
-import { Student } from "@/types/types";
 
 // set source for the PDF.js worker script, necessary for rendering PDFs
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
@@ -22,56 +20,13 @@ const options = {
 const resizeObserverOptions = {};
 
 const ReportPDF = ({
-  signedUrls,
-  classStudents,
-  selectedStudent,
+  selectedReport,
 }: {
-  signedUrls: Array<{ id: string; signedUrl: string } | null>;
-  classStudents: Array<{
-    student: Student;
-    class_id: number;
-    student_id: number;
-    id: number;
-  }>;
-  selectedStudent: Student;
+  selectedReport: string | undefined;
 }) => {
-  const [pdfFile, setPdfFile] = useState<string | undefined>(
-    signedUrls[
-      signedUrls.findIndex(
-        (item) =>
-          Number(item?.id) === // find file name that, without .pdf file type, equals class_student table id
-          classStudents[
-            classStudents.findIndex(
-              //
-              (classStudent) => classStudent.student_id === selectedStudent.id
-            )
-          ].id
-      )
-    ]?.signedUrl
-  );
   const [numPages, setNumPages] = useState<number>();
   const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>();
-
-  // update selectedPdf on selectedStudent change
-  useEffect(() => {
-    const classStudentId =
-      classStudents[
-        classStudents.findIndex(
-          (classStudent) => classStudent.student_id === selectedStudent.id
-        )
-      ].id;
-
-    const selectedUrl =
-      signedUrls[
-        signedUrls.findIndex(
-          (pdf) =>
-            pdf?.id === // file name, without .pdf file type, equals the class_student table id
-            `${classStudentId}.pdf`
-        )
-      ]?.signedUrl;
-    setPdfFile(selectedUrl);
-  }, [selectedStudent, classStudents, signedUrls]);
 
   function onDocumentLoadSuccess({
     numPages: nextNumPages,
@@ -95,7 +50,7 @@ const ReportPDF = ({
     <div className="md:w-3/4">
       <div className="md:max-w-200 m-auto" ref={setContainerRef}>
         <Document
-          file={pdfFile}
+          file={selectedReport}
           onLoadSuccess={onDocumentLoadSuccess}
           options={options}
         >
