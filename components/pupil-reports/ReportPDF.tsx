@@ -22,7 +22,7 @@ const resizeObserverOptions = {};
 const ReportPDF = ({
   selectedReport,
 }: {
-  selectedReport: string | undefined;
+  selectedReport: string | File | undefined;
 }) => {
   const [numPages, setNumPages] = useState<number>();
   const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);

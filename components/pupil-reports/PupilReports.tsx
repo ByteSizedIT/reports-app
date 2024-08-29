@@ -7,6 +7,8 @@ import { Student } from "@/types/types";
 import Button from "../Button";
 import ReportPDF from "./ReportPDF";
 
+import printJS from "print-js";
+
 const PupilReports = ({
   classStudents,
   signedUrls,
@@ -43,7 +45,7 @@ const PupilReports = ({
     classStudents[0].student
   );
   const [selectedReport, setSelectedReport] = useState<
-    string | undefined // File type required for use with react-pdf lib in ReportPDF component; string required for printJS below
+    string | File | undefined // File type required for use with react-pdf lib in ReportPDF component; string required for printJS below
   >(() => selectReport());
 
   // update selectedPdf on selectedStudent change
@@ -51,22 +53,40 @@ const PupilReports = ({
     setSelectedReport(() => selectReport());
   }, [selectedStudent]);
 
+  function printSelected() {
+    if (typeof selectedReport === "string") {
+      printJS(selectedReport);
+    }
+    // typeguard preferred to casting with as, selected report maybe undefined. TODO: throw error when mapping through fetched reports and one is missing - currently returning null, which wld result in undefined when using selectReport function above to set state
+  }
+
   return (
-    <div className="flex flex-col item-center md:flex-row md:justify-between md:m-8 gap-8 xl:gap-0">
-      <div className="flex flex-row flex-wrap md:flex-col gap-2 justify-around md:justify-normal items-center m-4 md:m-0 md:gap-8 md:w-1/4">
-        {classStudents.map((item) => (
-          <Button
-            key={item.student.id}
-            label={`${item.student.surname}, ${item.student.forename}`}
-            color="secondary-button"
-            activeBorder={selectedStudent.id === item.student.id}
-            onClick={() => setSelectedStudent(item.student)}
-            width="w-20 md:w-full md:max-w-48"
-          />
-        ))}
+    <>
+      <div className="flex justify-center my-4">
+        <Button
+          label="Print Selected"
+          color="primary-button"
+          onClick={() => printSelected()}
+          width="w-20 md:w-full md:max-w-48"
+        />
       </div>
-      <ReportPDF selectedReport={selectedReport} />
-    </div>
+
+      <div className="flex flex-col item-center md:flex-row md:justify-between md:m-8 gap-8 xl:gap-0">
+        <div className="flex flex-row flex-wrap md:flex-col gap-2 justify-around md:justify-normal items-center m-4 md:m-0 md:gap-8 md:w-1/4">
+          {classStudents.map((item) => (
+            <Button
+              key={item.student.id}
+              label={`${item.student.surname}, ${item.student.forename}`}
+              color="secondary-button"
+              activeBorder={selectedStudent.id === item.student.id}
+              onClick={() => setSelectedStudent(item.student)}
+              width="w-20 md:w-full md:max-w-48"
+            />
+          ))}
+        </div>
+        <ReportPDF selectedReport={selectedReport} />
+      </div>
+    </>
   );
 };
 export default PupilReports;

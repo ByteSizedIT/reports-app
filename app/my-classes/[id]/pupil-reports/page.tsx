@@ -83,6 +83,7 @@ const PupilReportsPage = async ({
           `Error generating signed URL for ${report.name}: ${urlError}`
         );
         return null;
+        // TODO: throw error when mapping through fetched reports and one is missing (see also pupilReports component)
       }
 
       return {
