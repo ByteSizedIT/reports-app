@@ -1,7 +1,8 @@
 "use client";
-const Spinner = () => {
+const Spinner = ({ text }: { text?: string }) => {
   return (
-    <div className="items-center justify-center">
+    <div className="flex flex-col items-center justify-center">
+      <p className="m-2 md:text-lg">{text}</p>
       <div className="w-4 h-4 border-color-[3px] rounded-full border-4 border-slate-400 border-t-black animate-spin" />
     </div>
   );

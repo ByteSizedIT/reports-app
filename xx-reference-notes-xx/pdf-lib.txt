@@ -1,0 +1,19 @@
+NOTES on pdfDocument:
+A specialized object provided by the PDF-lib library for working with PDFs. It is a proprietary object with methods and properties specific to handling PDF documents.Includes creating, loading, modifying, and saving PDFs...
+
+Creating a Document: You use create when you need to generate a new PDF from scratch. For example, creating a PDF to which you might add new pages or content.
+
+Loading a Document: You use load when you have an existing PDF file (represented as binary data) that you want to modify. This method reads the PDF data and allows you to work with the document's existing content.
+
+Copying Pages:
+const copiedPages = await targetDoc.copyPages(
+    sourceDoc,
+    pageIndices
+  );
+Source Document: The document from which you want to copy pages (sourceDoc).
+Target Document: The document to which the pages will be added (targetDoc).
+Page Indices: The indices of the pages you want to copy from the source document. You can use sourceDoc.getPageIndices() to get an array of all page indices in the source document.
+
+References: 
+https://pdf-lib.js.org
+https://pdf-lib.js.org/docs/api/classes/pdfdocument#copypages

@@ -76,12 +76,14 @@ const Editor = ({
   studentNames,
   parentModal,
   revertedEditorState,
+  updateEditorHTML,
 }: {
   editorState: EditorState | undefined;
   updateEditorState: (update: EditorState) => void;
   studentNames: Array<string>;
   parentModal: boolean;
   revertedEditorState?: undefined | string;
+  updateEditorHTML?: (update: string) => void;
 }) => {
   const initialConfig = {
     namespace: "MyEditor",
@@ -123,9 +125,9 @@ const Editor = ({
       {/* <PronounsPlugin /> */}
       <CompromisePlugin studentNames={studentNames} />
       <MyOnChangePlugin
-        onChange={(editorState) => {
-          updateEditorState(editorState);
-        }}
+        editorState={editorState}
+        updateEditorState={updateEditorState}
+        updateEditorHTML={updateEditorHTML}
       />
       <CheckListPlugin />
     </LexicalComposer>

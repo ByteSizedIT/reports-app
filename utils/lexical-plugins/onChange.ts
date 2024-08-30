@@ -1,4 +1,5 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { $generateHtmlFromNodes } from "@lexical/html";
 import { EditorState } from "lexical";
 import { useEffect } from "react";
 
@@ -10,17 +11,33 @@ import { useEffect } from "react";
 // useEffect is employed to be able to teardown the listener - The registerUpdateListerner returns a teardown function
 
 export function MyOnChangePlugin({
-  onChange,
+  // onChange,
+  editorState,
+  updateEditorState,
+  updateEditorHTML,
 }: {
-  onChange: (editorState: EditorState) => void;
+  // onChange: (editorState: EditorState) => void;
+  editorState: EditorState | undefined;
+  updateEditorState: (editorState: EditorState) => void;
+  updateEditorHTML?: (html: string) => void;
 }): null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
+    const onChange = (editorState: EditorState) => {
+      updateEditorState(editorState);
+      if (updateEditorHTML) {
+        editor.update(() => {
+          const htmlString = $generateHtmlFromNodes(editor, null);
+          updateEditorHTML(htmlString);
+        });
+      }
+    };
+
     return editor.registerUpdateListener(({ editorState }) =>
       onChange(editorState)
     );
-  }, [onChange, editor]);
+  }, [editor, editorState, updateEditorState, updateEditorHTML]);
 
   return null;
 }

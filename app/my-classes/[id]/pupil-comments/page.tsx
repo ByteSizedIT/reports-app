@@ -6,7 +6,11 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
-const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
+const PupilCommentsPage = async ({
+  params: { id },
+}: {
+  params: { id: string };
+}) => {
   const supabase = createClient();
 
   // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
@@ -50,4 +54,4 @@ const PupilReport = async ({ params: { id } }: { params: { id: string } }) => {
   );
 };
 
-export default PupilReport;
+export default PupilCommentsPage;

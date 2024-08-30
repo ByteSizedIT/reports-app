@@ -17,6 +17,7 @@ export type ClassDetails = Array<{
     student: Student;
     class_id: number;
     student_id: number;
+    id: number;
   }>;
   class_subject: Array<{
     id: any;
@@ -35,6 +36,15 @@ export type ClassSubjectGroupStudent = {
 };
 
 // Database table interfaces
+
+export interface Organisation {
+  id: number;
+  name: string;
+  address1: string;
+  address2: string;
+  "town/city": string;
+  postcode: string;
+}
 
 export interface User {
   id: string;
@@ -111,4 +121,11 @@ export interface StudentComment {
   class_id: number;
   class_subject_group_id: number;
   group_comment_updated: boolean;
+  html_student_comment: string;
 }
+
+//
+
+export type PartialRecord<K extends keyof any, T> = {
+  [P in K]: T;
+};
