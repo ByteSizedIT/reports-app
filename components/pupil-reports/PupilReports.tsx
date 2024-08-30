@@ -105,7 +105,10 @@ const PupilReports = ({
             />
           ))}
         </div>
-        <ReportPDF selectedReport={selectedReport} />
+        <ReportPDF
+          selectedReport={selectedReport}
+          selectedStudent={selectedStudent}
+        />
       </div>
     </>
   );
