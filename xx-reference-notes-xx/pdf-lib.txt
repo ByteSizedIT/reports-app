@@ -15,3 +15,5 @@ Target Document: The document to which the pages will be added (targetDoc).
 Page Indices: The indices of the pages you want to copy from the source document. You can use sourceDoc.getPageIndices() to get an array of all page indices in the source document.
 
 References: 
+https://pdf-lib.js.org
+https://pdf-lib.js.org/docs/api/classes/pdfdocument#copypages

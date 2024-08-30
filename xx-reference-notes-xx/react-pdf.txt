@@ -1,0 +1,37 @@
+1. Setting Up the PDF.js Worker Script:
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
+
+pdfjs.GlobalWorkerOptions.workerSrc: This property is used to specify the URL of the worker script for PDF.js. By setting this URL, you direct PDF.js to use this script for handling PDF rendering tasks in a background thread.
+URL: //unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs points to a hosted version of the PDF.js worker script on a Content Delivery Network (CDN). This makes the script available over the network.
+
+
+2. Web Worker Creation and Execution
+Worker Script: The script located at the URL you provided is a JavaScript file (e.g., pdf.worker.min.mjs). This script contains code that runs in a separate thread when instantiated as a Web Worker.
+Loading and Execution: When you set the workerSrc in PDF.js, the library will load this script and create a Web Worker using it. This worker runs in the background, executing tasks related to PDF processing independently of the main thread.
+This ensures that the main thread remains free to handle user interactions.
+
+3. Interaction with the Web Worker
+Creating the Web Worker: The creation of the Web Worker and its interaction with the script are managed internally by PDF.js. You, as a developer, typically don't instantiate the Web Worker directly. Instead, you use PDF.js API methods that internally handle the Web Worker creation and communication.
+Prompting Web Worker Creation: The Web Worker is created when you perform operations that require background processing. For example, when you call PDF.js methods to load and render a PDF, PDF.js will use the worker to handle these operations.
+
+Example Workflow...
+
+Configuration:
+You configure PDF.js to use the worker script by setting pdfjs.GlobalWorkerOptions.workerSrc.
+
+PDF Loading:
+When you call a PDF.js method to load a PDF (e.g., pdfjsLib.getDocument(url).promise), PDF.js internally creates a Web Worker using the script specified in workerSrc.
+
+Equally, when you use the Document and Page components from react-pdf, under the hood react-pdf internally calls PDF.js methods handle PDF loading and rendering and utilizes the Web Worker for these PDF processing tasks.
+
+Worker Operations:
+The Web Worker executes PDF parsing and rendering tasks, sending results back to the main thread using the postMessage API.
+
+Interaction:
+The main thread interacts with the PDF.js API, which abstracts away the details of Web Worker management. The API handles communication with the worker, processing results, and updating the UI as needed.
+
+Summary
+Worker Script: The URL you set in pdfjs.GlobalWorkerOptions.workerSrc points to a hosted worker script on a CDN. This script runs as a Web Worker in a separate thread.
+Web Worker Creation: The Web Worker is created by PDF.js internally when needed (e.g., during PDF processing). You do not create it directly; instead, you interact with PDF.js API, which handles worker instantiation and communication.
+Interaction: The Web Worker performs background tasks and communicates with the main thread via messages, allowing PDF.js to efficiently handle PDF processing without blocking the UI.
+This ensures that the main thread remains free to handle user interactions.

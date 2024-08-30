@@ -9,7 +9,7 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 
-// set source for the PDF.js worker script, necessary for rendering PDFs
+// set source for the PDF.js worker script, necessary for rendering PDFs. Because rendering PDF documents can be resource-intensive, PDF.js uses a web worker to offload this task to a separate thread.
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
 const options = {
