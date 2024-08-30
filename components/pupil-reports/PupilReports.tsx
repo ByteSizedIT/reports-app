@@ -75,25 +75,30 @@ const PupilReports = ({
     printJS(URL.createObjectURL(blob));
   }
 
+  const printButtons = (
+    <>
+      {" "}
+      <Button
+        label="Print Selected"
+        color="primary-button"
+        onClick={() => printSelected()}
+        width="w-1/3 md:max-w-48"
+      />
+      <Button
+        label="Print All"
+        color="primary-button"
+        onClick={() => printAll()}
+        width="w-1/3 md:max-w-48"
+      />
+    </>
+  );
+
   return (
     <>
-      <div className="flex justify-center my-2 md:my-4 gap-4 md:gap-8">
-        <Button
-          label="Print Selected"
-          color="primary-button"
-          onClick={() => printSelected()}
-          width="w-20 md:w-full md:max-w-48"
-        />
-        <Button
-          label="Print All"
-          color="primary-button"
-          onClick={() => printAll()}
-          width="w-20 md:w-full md:max-w-48"
-        />
-      </div>
-
-      <div className="flex flex-col item-center md:flex-row md:justify-between md:m-8 gap-8 xl:gap-0">
-        <div className="flex flex-row flex-wrap md:flex-col gap-2 justify-around md:justify-normal items-center m-4 md:m-0 md:gap-8 md:w-1/4">
+      <div className="m-4"></div>
+      <div className="hidden md:flex justify-center gap-8">{printButtons}</div>
+      <div className="flex flex-col item-center md:flex-row md:justify-between md:m-8 md:gap-8 xl:gap-0">
+        <div className="flex flex-row flex-wrap md:flex-col gap-2 justify-around md:justify-normal items-center md:gap-8 md:w-1/4">
           {classStudents.map((item) => (
             <Button
               key={item.student.id}
@@ -101,9 +106,12 @@ const PupilReports = ({
               color="secondary-button"
               activeBorder={selectedStudent.id === item.student.id}
               onClick={() => setSelectedStudent(item.student)}
-              width="w-20 md:w-full md:max-w-48"
+              width="w-24 md:w-full md:max-w-48"
             />
           ))}
+        </div>
+        <div className="flex justify-center my-2 gap-4 md:hidden">
+          {printButtons}
         </div>
         <ReportPDF
           selectedReport={selectedReport}
