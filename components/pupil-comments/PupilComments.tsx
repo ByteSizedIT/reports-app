@@ -10,6 +10,7 @@ import {
   Subject,
   ClassSubjectGroupStudent,
   StudentComment,
+  CommentsByStudentIds,
 } from "@/types/types";
 
 import Button from "../Button";
@@ -20,7 +21,7 @@ const PupilComments = ({
   classId,
   classStudents,
   classSubjects,
-  studentComments,
+  commentsByStudentIds,
 }: {
   classId: number;
   classStudents: Array<{
@@ -33,7 +34,7 @@ const PupilComments = ({
     subject: Subject;
     class_subject_group: Array<ClassSubjectGroupStudent>;
   }>;
-  studentComments: Array<StudentComment>;
+  commentsByStudentIds: CommentsByStudentIds;
 }) => {
   const initialConfirmedComments = useMemo(() => {
     // for each student...
@@ -56,9 +57,8 @@ const PupilComments = ({
         [] as number[]
       );
       // ... create array of their confirmed comments
-      const thisStudentsCommentsArr = studentComments.filter(
-        (comment) => comment.student_id === student.student.id
-      );
+      const thisStudentsCommentsArr = commentsByStudentIds[student.student.id];
+
       // ... combine the above into an object, incl an undefined property as placeholder for reportgroups with o/standing comment
       const thisStudentsCommentsObj: {
         [key: string]: StudentComment | undefined;
@@ -78,7 +78,7 @@ const PupilComments = ({
         [student.student.id]: thisStudentsCommentsObj,
       };
     }, {});
-  }, [classStudents, classSubjects, studentComments]);
+  }, [classStudents, classSubjects, commentsByStudentIds]);
 
   const [confirmedComments, setConfirmedComments] = useState<{
     [key: number]: { [key: number]: StudentComment | undefined };

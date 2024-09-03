@@ -6,8 +6,10 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
+import { CommentsByStudentIds } from "@/types/types";
+
 const PupilCommentsPage = async ({
-  params: { id },
+  params: { id: classId },
 }: {
   params: { id: string };
 }) => {
@@ -27,15 +29,26 @@ const PupilCommentsPage = async ({
   const { data: userInfoData, error: userInfoError } = await userQuery;
   // TODO: add error handling
 
-  const classData = await getClassDetails(id);
+  const classData = await getClassDetails(classId);
   if (classData?.[0]?.organisation_id !== userInfoData?.[0]?.organisation_id) {
     notFound();
   }
 
-  const studentComments = await getStudentComments(id);
+  const studentComments = await getStudentComments(classId);
+
+  // Create object that groups studentComments by student
+  const commentsByStudentIds = studentComments.reduce((acc, obj) => {
+    // If the group doesn't exist, create a new array
+    if (!acc[obj.student_id]) {
+      acc[obj.student_id] = [];
+    }
+    // Push the current object into the group array
+    acc[obj.student_id].push(obj);
+    return acc;
+  }, {} as CommentsByStudentIds);
 
   return (
-    <div className="w-full md:m-8">
+    <div className="w-full md:m-8 min-h-full flex flex-col">
       <h1>Personalise Pupil Comments</h1>
       <h2 className="text-center pb-4">
         {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
@@ -48,7 +61,7 @@ const PupilCommentsPage = async ({
         classId={classData[0].id}
         classStudents={classData[0].class_student}
         classSubjects={classData[0].class_subject}
-        studentComments={studentComments}
+        commentsByStudentIds={commentsByStudentIds}
       />
     </div>
   );
