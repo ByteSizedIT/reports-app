@@ -8,7 +8,11 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import ClientComponent from "@/components/class-pg/ClientComponent";
 
-const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
+const ClassPage = async ({
+  params: { id: classId },
+}: {
+  params: { id: string };
+}) => {
   const supabase = createClient();
 
   // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
@@ -25,8 +29,8 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
   const { data: userInfoData, error: userInfoError } = await userQuery;
   // TODO: add error handling
 
-  const classData = await getClassDetails(id);
-  if (classData?.[0]?.organisation_id !== userInfoData?.[0]?.organisation_id) {
+  const classData = await getClassDetails(classId);
+  if (classData.organisation_id !== userInfoData?.[0]?.organisation_id) {
     notFound();
   }
 
@@ -42,7 +46,7 @@ const ClassPage = async ({ params: { id } }: { params: { id: string } }) => {
     <div className="w-full mt-8">
       <h1>Create Group Comments</h1>
       <h2 className="text-center pb-4">
-        {`${classData?.[0]?.description} (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
+        {`${classData?.description} (${classData?.year_group} / ${classData?.academic_year_end})`}
       </h2>
       <h3>Create pupil groups by subject and write initial shared comments</h3>
       {classData && (

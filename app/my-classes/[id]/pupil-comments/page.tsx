@@ -30,7 +30,7 @@ const PupilCommentsPage = async ({
   // TODO: add error handling
 
   const classData = await getClassDetails(classId);
-  if (classData?.[0]?.organisation_id !== userInfoData?.[0]?.organisation_id) {
+  if (classData.organisation_id !== userInfoData?.[0]?.organisation_id) {
     notFound();
   }
 
@@ -51,16 +51,16 @@ const PupilCommentsPage = async ({
     <div className="w-full md:m-8 min-h-full flex flex-col">
       <h1>Personalise Pupil Comments</h1>
       <h2 className="text-center pb-4">
-        {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
+        {`${classData.description} Class (${classData.year_group} / ${classData.academic_year_end})`}
       </h2>
       <h3>
         Select individual pupils on left to review/edit their comments for each
         subject
       </h3>
       <PupilComments
-        classId={classData[0].id}
-        classStudents={classData[0].class_student}
-        classSubjects={classData[0].class_subject}
+        classId={classData.id}
+        classStudents={classData.class_student}
+        classSubjects={classData.class_subject}
         commentsByStudentIds={commentsByStudentIds}
       />
     </div>

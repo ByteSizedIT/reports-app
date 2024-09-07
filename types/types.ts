@@ -7,7 +7,7 @@ export type SubjectDetails = Array<{
   subject: Subject;
 }>;
 
-export type ClassDetails = Array<{
+export type ClassDetails = {
   id: any;
   description: any;
   academic_year_end: any;
@@ -24,7 +24,7 @@ export type ClassDetails = Array<{
     subject: Subject;
     class_subject_group: Array<ClassSubjectGroupStudent>;
   }>;
-}>;
+};
 
 export type ClassSubjectGroupStudent = {
   id: number;
@@ -62,7 +62,7 @@ export interface PreSaveClass {
   academic_year_end: number;
   year_group: string;
   organisation_id: number;
-  owner: string;
+  owner?: string;
 }
 
 export type Class = PreSaveClass & { id: number };
