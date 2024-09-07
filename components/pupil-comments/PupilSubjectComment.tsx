@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EditorState } from "lexical";
 
 import Editor from "../Editor";
@@ -26,7 +26,7 @@ export const PupilSubjectComment = ({
   studentNames: Array<string>;
   studentComment: StudentComment | undefined;
   selectedStudent: Student;
-  updateConfirmedComments: (data: StudentComment) => void;
+  updateConfirmedComments: (data: StudentComment, subjectId: number) => void;
 }) => {
   const initialEditor = studentComment
     ? JSON.parse(studentComment.student_comment)
@@ -104,7 +104,7 @@ export const PupilSubjectComment = ({
     setIsPending(true);
     try {
       const data = await updateDBStudentComments(editorState);
-      updateConfirmedComments(data);
+      updateConfirmedComments(data, classSubject.subject.id);
       setSavedState(JSON.parse(JSON.stringify(editorState)));
     } catch (error) {
       if (error instanceof Error) {
@@ -124,7 +124,7 @@ export const PupilSubjectComment = ({
     if (studentComment)
       try {
         const data = await deleteStudentCommentFromDB();
-        updateConfirmedComments(data);
+        updateConfirmedComments(data, classSubject.subject.id);
         setRevertedEditorState(
           classSubject.class_subject_group?.[0]?.group_comment
         );

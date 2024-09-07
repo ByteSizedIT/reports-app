@@ -10,20 +10,29 @@ import {
   Subject,
   ClassSubjectGroupStudent,
   StudentComment,
-  CommentsByStudentIds,
+  StudentsCommentsBySubject,
 } from "@/types/types";
 
 import Button from "../Button";
 import ButtonLink from "../ButtonLink";
+
 import { PupilSubjectComment } from "./PupilSubjectComment";
 
 const PupilComments = ({
+  orgId,
   classId,
+  className,
+  classYearGroup,
+  academicYearEnd,
   classStudents,
   classSubjects,
-  commentsByStudentIds,
+  studentsCommentsBySubject,
 }: {
+  orgId: number;
   classId: number;
+  className: string;
+  classYearGroup: string;
+  academicYearEnd: number;
   classStudents: Array<{
     student: Student;
     class_id: number;
@@ -34,56 +43,10 @@ const PupilComments = ({
     subject: Subject;
     class_subject_group: Array<ClassSubjectGroupStudent>;
   }>;
-  commentsByStudentIds: CommentsByStudentIds;
+  studentsCommentsBySubject: StudentsCommentsBySubject;
 }) => {
-  const initialConfirmedComments = useMemo(() => {
-    // for each student...
-    return classStudents.reduce((accum, student) => {
-      // ...create array of their assigned subject groups...
-      const thisStudentsClassSubjectGroups = classSubjects.reduce(
-        (accum, classSubject) => {
-          const classSubjectGroupIds = classSubject.class_subject_group
-            .filter(
-              (classSubjectGroup) =>
-                classSubjectGroup.class_subject_group_student.some(
-                  (groupStudent) =>
-                    student.student_id === groupStudent.student.id
-                ) && classSubjectGroup.report_group.id !== 160 // filter out ClassRegisters (not report groups)
-            )
-            .map((classSubjectGroup) => classSubjectGroup.id);
-
-          return [...accum, ...classSubjectGroupIds];
-        },
-        [] as number[]
-      );
-      // ... create array of their confirmed comments
-      const thisStudentsCommentsArr = commentsByStudentIds[student.student.id];
-
-      // ... combine the above into an object, incl an undefined property as placeholder for reportgroups with o/standing comment
-      const thisStudentsCommentsObj: {
-        [key: string]: StudentComment | undefined;
-      } = {};
-      thisStudentsClassSubjectGroups.forEach((classGroup) => {
-        const index = thisStudentsCommentsArr.findIndex(
-          (comment) => comment.class_subject_group_id === classGroup
-        );
-        index === -1
-          ? (thisStudentsCommentsObj[classGroup] = undefined)
-          : (thisStudentsCommentsObj[classGroup] =
-              thisStudentsCommentsArr[index]);
-      });
-
-      return {
-        ...accum,
-        [student.student.id]: thisStudentsCommentsObj,
-      };
-    }, {});
-  }, [classStudents, classSubjects, commentsByStudentIds]);
-
-  const [confirmedComments, setConfirmedComments] = useState<{
-    [key: number]: { [key: number]: StudentComment | undefined };
-  }>(initialConfirmedComments);
-
+  const [confirmedComments, setConfirmedComments] =
+    useState<StudentsCommentsBySubject>(studentsCommentsBySubject);
   const [selectedStudent, setSelectedStudent] = useState<Student>(
     classStudents[0].student
   );
@@ -102,11 +65,10 @@ const PupilComments = ({
   );
 
   const updateConfirmedComments = useCallback(
-    (data: StudentComment) => {
-      const { class_subject_group_id } = data;
+    (data: StudentComment, subjectId: number) => {
       setConfirmedComments((prev) => {
         const newState = { ...prev };
-        newState[selectedStudent.id][class_subject_group_id] = { ...data };
+        newState[selectedStudent.id][subjectId] = { ...data };
         return newState;
       });
     },
@@ -179,13 +141,15 @@ const PupilComments = ({
             .map((classSubject) => {
               return (
                 <PupilSubjectComment
-                  key={`${selectedStudent}.${classSubject.class_subject_group?.[0]?.id}`}
+                  key={`${selectedStudent}.${
+                    classSubject.class_subject_group?.[0]?.id as number
+                  }`}
                   classSubject={classSubject}
                   classId={classId}
                   studentNames={studentNames}
                   studentComment={
                     confirmedComments?.[selectedStudent.id][
-                      classSubject.class_subject_group?.[0]?.id
+                      classSubject.subject.id
                     ]
                   }
                   selectedStudent={selectedStudent}

@@ -119,13 +119,20 @@ export interface StudentComment {
   student_id: number;
   student_comment: string;
   class_id: number;
-  class_subject_group_id: number;
+  class_subject_group_id: {
+    id: number;
+    class_subject: { subject: { id: number; description: string } };
+  };
   group_comment_updated: boolean;
   html_student_comment: string;
 }
 
 export interface CommentsByStudentIds {
   [key: number]: Array<StudentComment>;
+}
+
+export interface StudentsCommentsBySubject {
+  [key: string]: { [key: number]: StudentComment | undefined };
 }
 
 //

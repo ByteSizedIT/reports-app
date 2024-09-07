@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
-import { CommentsByStudentIds } from "@/types/types";
+import { StudentsCommentsBySubject } from "@/types/types";
 
 const PupilCommentsPage = async ({
   params: { id: classId },
@@ -34,34 +34,48 @@ const PupilCommentsPage = async ({
     notFound();
   }
 
+  const {
+    organisation_id: orgId,
+    description: className,
+    year_group: classYearGroup,
+    academic_year_end: academicYearEnd,
+    class_student: classStudents,
+    class_subject: classSubjects,
+  } = classData;
+
   const studentComments = await getStudentComments(classId);
 
-  // Create object that groups studentComments by student
-  const commentsByStudentIds = studentComments.reduce((acc, obj) => {
-    // If the group doesn't exist, create a new array
-    if (!acc[obj.student_id]) {
-      acc[obj.student_id] = [];
-    }
-    // Push the current object into the group array
-    acc[obj.student_id].push(obj);
-    return acc;
-  }, {} as CommentsByStudentIds);
+  // Create object that groups studentComments by student, then classId
+  const studentCommentsBySubject = studentComments.reduce(
+    (accum, obj) => ({
+      ...accum,
+      [obj.student_id]: {
+        ...accum[obj.student_id],
+        [obj.class_subject_group_id.class_subject.subject.id]: obj,
+      },
+    }),
+    {} as StudentsCommentsBySubject
+  );
 
   return (
     <div className="w-full md:m-8 min-h-full flex flex-col">
       <h1>Personalise Pupil Comments</h1>
       <h2 className="text-center pb-4">
-        {`${classData.description} Class (${classData.year_group} / ${classData.academic_year_end})`}
+        {`${className} Class (${classYearGroup} / ${academicYearEnd})`}
       </h2>
       <h3>
         Select individual pupils on left to review/edit their comments for each
         subject
       </h3>
       <PupilComments
-        classId={classData.id}
-        classStudents={classData.class_student}
-        classSubjects={classData.class_subject}
-        commentsByStudentIds={commentsByStudentIds}
+        orgId={orgId}
+        classId={Number(classId)}
+        className={className}
+        classYearGroup={classYearGroup}
+        academicYearEnd={academicYearEnd}
+        classStudents={classStudents}
+        classSubjects={classSubjects}
+        studentsCommentsBySubject={studentCommentsBySubject}
       />
     </div>
   );
