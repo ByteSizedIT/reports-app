@@ -28,16 +28,15 @@ const SubjectReportGroups = ({
   const [warningMessage, setWarningMessage] = useState("");
   const [groupReportsComplete, setGroupReportsComplete] = useState(false);
 
-  const displayedSubjectIndex = classDataState[0].class_subject.findIndex(
+  const displayedSubjectIndex = classDataState.class_subject.findIndex(
     (s) => s.id === displayedSubjectId
   );
   const displayedSubjectReportGroups =
-    classDataState[0]?.class_subject?.[displayedSubjectIndex]
-      ?.class_subject_group;
+    classDataState.class_subject?.[displayedSubjectIndex]?.class_subject_group;
 
   useEffect(() => {
     if (displayedSubjectId) {
-      const reportsWritten = classDataState[0].class_subject
+      const reportsWritten = classDataState.class_subject
         .flatMap((subject) => subject.class_subject_group)
         .filter(
           (subject) => subject.report_group.description !== "Class Register"
@@ -96,7 +95,7 @@ const SubjectReportGroups = ({
         )
       ];
 
-    const newClassData = [...classDataState];
+    const newClassData = { ...classDataState };
 
     // create copy of studentsArr in start column
     const newStartStudentsArr = Array.from(
@@ -119,7 +118,7 @@ const SubjectReportGroups = ({
       newFinishStudentsArr.splice(newColumnIndex, 0, ...movedItem);
 
       // update destination studentArr in a copy of classData
-      newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
+      newClassData.class_subject[displayedSubjectIndex].class_subject_group[
         displayedSubjectReportGroups.findIndex(
           (group) => group.id === Number(newColumn)
         )
@@ -127,7 +126,7 @@ const SubjectReportGroups = ({
     }
 
     // update startStudentsArr in a copy of classData
-    newClassData[0].class_subject[displayedSubjectIndex].class_subject_group[
+    newClassData.class_subject[displayedSubjectIndex].class_subject_group[
       displayedSubjectReportGroups.findIndex(
         (group) => group.id === Number(oldColumn)
       )
@@ -242,7 +241,7 @@ const SubjectReportGroups = ({
           </DragDropContext>
 
           <Link
-            href={`/my-classes/${classDataState[0].id}/pupil-comments`}
+            href={`/my-classes/${classDataState.id}/pupil-comments`}
             prefetch={false}
           >
             <Button

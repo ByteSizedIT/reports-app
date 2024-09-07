@@ -124,6 +124,10 @@ export interface StudentComment {
   html_student_comment: string;
 }
 
+export interface CommentsByStudentIds {
+  [key: number]: Array<StudentComment>;
+}
+
 //
 
 export type PartialRecord<K extends keyof any, T> = {
