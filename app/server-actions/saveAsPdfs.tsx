@@ -115,11 +115,42 @@ export async function saveAsPDFs(
             console.error(
               `Upload failed for student ${studentName}: ${error.message}`
             );
+            return {
+              //Object shaped to match successful uploads
+              data: {
+                path: null, // Field as per supabase fulfilled response.data: Explicitly set to null
+                fullPath: null, // Field as per supabase fulfilled response.data: Explicitly set to null
+              },
+              error: error.message, // Field as per supabase fulfilled response.error. Include error message for caught errors
+              studentId, // Add studentID
+              studentName, // Add studentName
+              pdfFilename, // Add pdfFilename
+            };
           })
       );
     }
 
-    await Promise.all(uploadPromises);
+    //   // **********
+    //   // TESTING ERROR HANDLING: Mimicking a Promise Resolving with an Error Property
+    //   const randomNumber = Math.random();
+
+    //   uploadPromises[0] = new Promise((resolve) => {
+    //     resolve({
+    //       data: { path: null, fullPath: null },
+    //       error: randomNumber ? "Simulated upload error" : null, // Include error message for failed uploads
+    //       studentId: "60",
+    //       studentName: "Maximoff, Wanda",
+    //       pdfFilename: 60,
+    //       key: 0,
+    //     });
+    //   });
+    //   // **********
+
+    const results = await Promise.all(uploadPromises);
+    const successfulUploads = results.filter((result) => !result.error);
+    const unsuccessfulUploads = results.filter((result) => result.error);
+
+    return { successfulUploads, unsuccessfulUploads };
   } catch (error) {
     if (error instanceof Error)
       console.error("Error in saveAsPDFs:", error.message);
