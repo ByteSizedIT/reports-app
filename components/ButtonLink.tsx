@@ -14,6 +14,7 @@ type Props = {
   height?: string;
   id?: string;
   ariaDescribedBy?: string;
+  onClickFunction?: (e: React.MouseEvent) => void;
 };
 
 const ButtonLink = ({
@@ -26,6 +27,7 @@ const ButtonLink = ({
   height,
   id,
   ariaDescribedBy,
+  onClickFunction,
 }: Props) => {
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
@@ -33,12 +35,14 @@ const ButtonLink = ({
     if (disabled) {
       e.preventDefault();
       return;
+    } else if (onClickFunction) {
+      onClickFunction(e);
     }
   };
 
   return (
     <div className="relative text-center">
-      <Link
+      <a
         className={`block rounded-md no-underline px-4 py-2
               ${color}
               ${disabled ? "opacity-50" : ""}
@@ -55,7 +59,7 @@ const ButtonLink = ({
         onBlur={() => setTooltipVisible(false)}
       >
         {label}
-      </Link>
+      </a>
       {disabled && tooltipVisible && (
         <div
           id={ariaDescribedBy}

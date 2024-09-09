@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 
+import { useRouter } from "next/navigation";
+
 import { PiWarning } from "react-icons/pi";
 import { FaCheck } from "react-icons/fa6";
 
@@ -17,6 +19,8 @@ import Button from "../Button";
 import ButtonLink from "../ButtonLink";
 
 import { PupilSubjectComment } from "./PupilSubjectComment";
+
+import { saveAsPDFs } from "@/app/server-actions/saveAsPdfs";
 
 const PupilComments = ({
   orgId,
@@ -92,6 +96,8 @@ const PupilComments = ({
     [classSubjects]
   );
 
+  const router = useRouter();
+
   useEffect(() => {
     async function getReports() {
       const pupilReports = await getStudentsGroupReports(selectedStudent.id);
@@ -99,6 +105,28 @@ const PupilComments = ({
     }
     getReports();
   }, [selectedStudent, getStudentsGroupReports]);
+
+  async function generatePupilReports(e: React.MouseEvent) {
+    e.preventDefault();
+
+    try {
+      await saveAsPDFs(
+        orgId,
+        classId,
+        className,
+        classYearGroup,
+        academicYearEnd,
+        classStudents,
+        confirmedComments
+      );
+    } catch (error) {
+      if (error instanceof Error)
+        console.error("Error generating reports: ", error.message);
+      else console.error("Error generating reports: ", error);
+    }
+
+    router.push(`/my-classes/${classId}/pupil-reports`);
+  }
 
   return (
     <div className="flex flex-col item-center md:flex-row md:gap-8 md:m-8">
@@ -132,6 +160,7 @@ const PupilComments = ({
           disabled={Object.values(confirmedComments)
             .flatMap((group) => Object.values(group))
             .some((item) => item === undefined)}
+          onClickFunction={generatePupilReports}
         />
       </div>
       <div className="md:w-3/4">
@@ -152,6 +181,7 @@ const PupilComments = ({
                       classSubject.subject.id
                     ]
                   }
+                  // studentComments={confirmedComments?.[selectedStudent.id]}
                   selectedStudent={selectedStudent}
                   updateConfirmedComments={updateConfirmedComments}
                 />
