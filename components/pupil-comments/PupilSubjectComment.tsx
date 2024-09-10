@@ -24,7 +24,7 @@ export const PupilSubjectComment = ({
   classSubject: any;
   classId: number;
   studentNames: Array<string>;
-  studentComment: StudentComment | undefined;
+  studentComment?: StudentComment | undefined;
   selectedStudent: Student;
   updateConfirmedComments: (data: StudentComment, subjectId: number) => void;
 }) => {

@@ -84,6 +84,9 @@ const PupilComments = ({
     (data: StudentComment, subjectId: number) => {
       setConfirmedComments((prev) => {
         const newState = { ...prev };
+        if (!newState[selectedStudent.id]) {
+          newState[selectedStudent.id] = {};
+        }
         newState[selectedStudent.id][subjectId] = { ...data };
         return newState;
       });
@@ -210,10 +213,12 @@ const PupilComments = ({
                 onClick={() => setSelectedStudent(item.student)}
                 width="w-20 md:w-full"
               >
-                {confirmedComments &&
-                Object.values(confirmedComments?.[item.student.id]).some(
-                  (comment: {} | undefined) => comment === undefined
-                ) ? (
+                {!confirmedComments?.[item.student.id] ||
+                (Object.values(confirmedComments?.[item.student.id]).length &&
+                  Object.values(confirmedComments?.[item.student.id])?.some(
+                    (comment: StudentComment | undefined) =>
+                      comment === undefined
+                  )) ? (
                   <PiWarning color="red" />
                 ) : (
                   <FaCheck />
@@ -240,14 +245,12 @@ const PupilComments = ({
                 .map((classSubject) => {
                   return (
                     <PupilSubjectComment
-                      key={`${selectedStudent}.${
-                        classSubject.class_subject_group?.[0]?.id as number
-                      }`}
+                      key={`${selectedStudent.id}.${classSubject.id}`}
                       classSubject={classSubject}
                       classId={classId}
                       studentNames={studentNames}
                       studentComment={
-                        confirmedComments?.[selectedStudent.id][
+                        confirmedComments?.[selectedStudent.id]?.[
                           classSubject.subject.id
                         ]
                       }
