@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-
 import { useRouter } from "next/navigation";
 
 import { PiWarning } from "react-icons/pi";
@@ -59,7 +58,7 @@ const PupilComments = ({
   const [selectedStudentsGroupReports, setSelectedStudentsGroupReports] =
     useState<
       {
-        id: any;
+        id: number;
         class_subject_group: ClassSubjectGroupStudent[];
         subject: Subject;
       }[]
@@ -254,7 +253,6 @@ const PupilComments = ({
                           classSubject.subject.id
                         ]
                       }
-                      // studentComments={confirmedComments?.[selectedStudent.id]}
                       selectedStudent={selectedStudent}
                       updateConfirmedComments={updateConfirmedComments}
                     />
