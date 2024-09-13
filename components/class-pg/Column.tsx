@@ -99,12 +99,12 @@ const Column = ({
 
   function deleteReportGroupFromGroupedSubjectState() {
     const copyGroupedSubjectDataState = deepClone(classDataState);
-    const index = copyGroupedSubjectDataState[0].class_subject[
+    const index = copyGroupedSubjectDataState.class_subject[
       displayedSubjectIndex
     ].class_subject_group.findIndex(
       (item) => item.report_group.id === group.report_group.id
     );
-    copyGroupedSubjectDataState[0].class_subject[
+    copyGroupedSubjectDataState.class_subject[
       displayedSubjectIndex
     ].class_subject_group.splice(index, 1);
     updateClassDataState(copyGroupedSubjectDataState);
@@ -132,8 +132,8 @@ const Column = ({
   function saveReportToState(updatedComment: EditorState | {}) {
     console.log({ classDataState });
     const classDataCopy = deepClone(classDataState);
-    classDataCopy[0].class_subject[displayedSubjectIndex].class_subject_group[
-      classDataCopy[0].class_subject[
+    classDataCopy.class_subject[displayedSubjectIndex].class_subject_group[
+      classDataCopy.class_subject[
         displayedSubjectIndex
       ].class_subject_group.findIndex((item) => item.id === group.id)
     ].group_comment = JSON.stringify(updatedComment);
@@ -201,7 +201,7 @@ const Column = ({
           <WriteReportModal
             group={group}
             thisClassDataState={
-              classDataState[0].class_subject[displayedSubjectIndex]
+              classDataState.class_subject[displayedSubjectIndex]
             }
             updateShowReportModal={updateShowReportModal}
             saveGroupCommentToState={saveReportToState}

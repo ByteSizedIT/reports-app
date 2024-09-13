@@ -35,8 +35,8 @@ const Subjects = ({
     <>
       <p className="mb-2">Select or add a subject to report...</p>
       <div className="flex items-center justify-center gap-2 flex-wrap mb-6 sm:mb-8">
-        {classDataState[0].class_subject.length > 0 &&
-          classDataState[0].class_subject?.map(
+        {classDataState.class_subject.length > 0 &&
+          classDataState.class_subject?.map(
             (c: { id: number; subject: any }, index: number) => (
               <Button
                 key={c.id}

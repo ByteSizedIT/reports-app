@@ -6,9 +6,9 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 import { ClassDetails } from "@/types/types";
 
 // Fetch data for given class
-export const getClassDetails = async (id: string) => {
+export const getClassDetails = async (classId: string) => {
   const supabase = createClient();
-  const response = await supabase
+  const response = (await supabase
     .from("class")
     .select(
       `
@@ -32,18 +32,10 @@ export const getClassDetails = async (id: string) => {
       )
         `
     )
-    .eq("id", id)
-    .returns<ClassDetails>();
-  // type ClassSubjectGroups = QueryData<typeof classQuery>;
-  const { data: classData, error } = response;
+    .eq("id", classId)
+    .single()) as { data: ClassDetails; error: any };
 
-  console.log(
-    classData?.map((item) => ({
-      ...item,
-      class_student: JSON.stringify(item.class_student),
-      class_subject: JSON.stringify(item.class_subject),
-    }))
-  );
+  const { data: classData, error } = response;
 
   if (!error) return classData;
   console.log(`Error fetching class details: `, error);

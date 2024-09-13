@@ -7,7 +7,7 @@ export type SubjectDetails = Array<{
   subject: Subject;
 }>;
 
-export type ClassDetails = Array<{
+export type ClassDetails = {
   id: any;
   description: any;
   academic_year_end: any;
@@ -24,7 +24,7 @@ export type ClassDetails = Array<{
     subject: Subject;
     class_subject_group: Array<ClassSubjectGroupStudent>;
   }>;
-}>;
+};
 
 export type ClassSubjectGroupStudent = {
   id: number;
@@ -44,6 +44,7 @@ export interface Organisation {
   address2: string;
   "town/city": string;
   postcode: string;
+  tel_num: string;
 }
 
 export interface User {
@@ -54,7 +55,7 @@ export interface User {
 export interface UserInfo {
   uuid: string;
   role: string;
-  organisation_id: number;
+  organisation_id: Organisation;
 }
 
 export interface PreSaveClass {
@@ -62,7 +63,7 @@ export interface PreSaveClass {
   academic_year_end: number;
   year_group: string;
   organisation_id: number;
-  owner: string;
+  owner?: string;
 }
 
 export type Class = PreSaveClass & { id: number };
@@ -119,9 +120,20 @@ export interface StudentComment {
   student_id: number;
   student_comment: string;
   class_id: number;
-  class_subject_group_id: number;
+  class_subject_group_id: {
+    id: number;
+    class_subject: { subject: { id: number; description: string } };
+  };
   group_comment_updated: boolean;
   html_student_comment: string;
+}
+
+export interface CommentsByStudentIds {
+  [key: number]: Array<StudentComment>;
+}
+
+export interface StudentsCommentsBySubject {
+  [key: string]: { [key: number]: StudentComment | undefined };
 }
 
 //

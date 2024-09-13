@@ -7,7 +7,7 @@ async function mergePdfs(pdfUrls: Array<string>) {
     // arrayBuffer = JS object type used to represent generic, fixed-length raw binary data - you can use typed arrays (e.g., Uint8Array, Float32Array) or DataView to provide views to interpret and manipulate the binary data.
     const pdfBytes = await response.arrayBuffer();
     // Bytes converted in to a PDFDocument object for manipulating:
-    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
     const copiedPages = await mergedPdf.copyPages(
       pdfDoc,
       pdfDoc.getPageIndices()

@@ -15,7 +15,7 @@ type UserOrgDetails = {
 };
 
 const PupilReportsPage = async ({
-  params: { id },
+  params: { id: classId },
 }: {
   params: { id: string };
 }) => {
@@ -48,12 +48,12 @@ const PupilReportsPage = async ({
     ? typedUserInfoData.organisation_id[0] // If it's an array, access the first element
     : typedUserInfoData?.organisation_id; // Otherwise, it's a single object
 
-  const classData = await getClassDetails(id);
-  if (classData?.[0]?.organisation_id !== usersOrganisation.id) {
+  const classData = await getClassDetails(classId);
+  if (classData?.organisation_id !== usersOrganisation.id) {
     notFound();
   }
 
-  const classSubjectGroupsDict = classData[0].class_subject.reduce(
+  const classSubjectGroupsDict = classData.class_subject.reduce(
     (accum, subject) => {
       const groups = subject.class_subject_group.map((group) => group.id);
 
@@ -66,7 +66,7 @@ const PupilReportsPage = async ({
     {}
   );
 
-  const folderPath = `${classData?.[0].organisation_id}/${id}/`; // accessing organisation from classData and class from params
+  const folderPath = `${classData?.organisation_id}/${classId}/`; // accessing organisation from classData and class from params
 
   const { data: pdfReports, error: pdfError } = await supabase.storage
     .from(`class-pdf-reports`)
@@ -97,13 +97,13 @@ const PupilReportsPage = async ({
     <div className="w-full md:m-8">
       <h1>Generated Pupil Reports</h1>
       <h2 className="text-center pb-4">
-        {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
+        {`${classData.description} Class (${classData.year_group} / ${classData.academic_year_end})`}
       </h2>
       <h3>
         Select individual pupils on left to view/print their generated report
       </h3>
       <PupilReports
-        classStudents={classData[0].class_student}
+        classStudents={classData.class_student}
         classSubjectGroupsDict={classSubjectGroupsDict}
         signedUrls={signedUrls}
       />

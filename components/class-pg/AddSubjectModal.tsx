@@ -71,7 +71,7 @@ const AddSubjectModal = ({
       }))
       // Filter out subjects that are already used by this class
       .filter((option) => {
-        const classSubjects = classDataState[0].class_subject.map(
+        const classSubjects = classDataState.class_subject.map(
           (classSubject) => classSubject.subject.id
         );
         return !classSubjects.includes(option.value.id);
@@ -104,7 +104,7 @@ const AddSubjectModal = ({
     const copyOrganisationSubjectState: SubjectDetails | [] = [
       ...organisationSubjectDataState,
       {
-        organisation_id: classDataState[0].organisation_id,
+        organisation_id: classDataState.organisation_id,
         subject: { ...insertedSubjectData },
       },
     ];
@@ -116,7 +116,7 @@ const AddSubjectModal = ({
     insertedClassSubjectData: ClassSubject,
     insertedOrganisationSubjectData?: OrganisationSubject
   ) {
-    const classData = await getClassDetails(classDataState?.[0].id);
+    const classData = await getClassDetails(classDataState.id);
     if (classData) updateClassDataState(classData);
     if (insertedOrganisationSubjectData)
       addToOrganisationSubjectDataState(insertedSubjectData);
@@ -129,7 +129,7 @@ const AddSubjectModal = ({
     insertedClassSubjectGroupData: ClassSubjectGroup,
     insertedOrganisationSubjectData?: OrganisationSubject
   ) {
-    let classStudents = classDataState[0].class_student.map((student) => ({
+    let classStudents = classDataState.class_student.map((student) => ({
       student_comment: null,
       class_subject_group_id: insertedClassSubjectGroupData.id,
       student_id: student.student_id,
@@ -192,7 +192,7 @@ const AddSubjectModal = ({
       const { data: insertedClassSubjectData } = await supabase
         .from("class_subject")
         .insert({
-          class_id: classDataState[0].id,
+          class_id: classDataState.id,
           subject_id: insertedSubjectData.id,
         })
         .select()
@@ -220,7 +220,7 @@ const AddSubjectModal = ({
       const { data: insertedOrganisationSubjectData } = await supabase
         .from("organisation_subject")
         .insert({
-          organisation_id: classDataState[0].organisation_id,
+          organisation_id: classDataState.organisation_id,
           subject_id: insertedSubjectData.id,
         })
         .select()
@@ -304,7 +304,7 @@ const AddSubjectModal = ({
       height="h-1/2 md:h-1/3"
       width="w-3/4 md:w-1/3"
     >
-      <h2>{`Add a new Subject for ${classDataState[0].description}`}</h2>
+      <h2>{`Add a new Subject for ${classDataState.description}`}</h2>
       <form
         // action={formAction}
         className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"

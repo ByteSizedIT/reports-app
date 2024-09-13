@@ -6,12 +6,12 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 import { StudentComment } from "@/types/types";
 
 // Fetch data for given class
-export const getStudentComments = async (id: string) => {
+export const getStudentComments = async (classId: string) => {
   const supabase = createClient();
   const response = await supabase
     .from("student_comment")
-    .select("*")
-    .eq("class_id", id)
+    .select(`*, class_subject_group_id(class_subject(subject(*)))`)
+    .eq("class_id", classId)
     .returns<Array<StudentComment>>();
   const { data: studentComments, error } = response;
 

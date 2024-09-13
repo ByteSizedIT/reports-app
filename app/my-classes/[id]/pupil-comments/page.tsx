@@ -6,8 +6,10 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
+import { StudentsCommentsBySubject } from "@/types/types";
+
 const PupilCommentsPage = async ({
-  params: { id },
+  params: { id: classId },
 }: {
   params: { id: string };
 }) => {
@@ -23,32 +25,61 @@ const PupilCommentsPage = async ({
   }
 
   // Protect page, checking users's organisation matches that requested
-  const userQuery = supabase.from("user_info").select("*").eq("uuid", user.id);
-  const { data: userInfoData, error: userInfoError } = await userQuery;
+  const { data: userInfoData, error: userInfoError } = await supabase
+    .from("user_info")
+    .select("*")
+    .eq("uuid", user.id)
+    .single();
+  // const { data: userInfoData, error: userInfoError } = await userQuery;
   // TODO: add error handling
 
-  const classData = await getClassDetails(id);
-  if (classData?.[0]?.organisation_id !== userInfoData?.[0]?.organisation_id) {
+  const classData = await getClassDetails(classId);
+  if (classData.organisation_id !== userInfoData?.organisation_id) {
     notFound();
   }
 
-  const studentComments = await getStudentComments(id);
+  const {
+    organisation_id: orgId,
+    description: className,
+    year_group: classYearGroup,
+    academic_year_end: academicYearEnd,
+    class_student: classStudents,
+    class_subject: classSubjects,
+  } = classData;
+
+  const studentComments = await getStudentComments(classId);
+
+  // Create object that groups studentComments by student, then classId
+  const studentCommentsBySubject = studentComments.reduce(
+    (accum, obj) => ({
+      ...accum,
+      [obj.student_id]: {
+        ...accum[obj.student_id],
+        [obj.class_subject_group_id.class_subject.subject.id]: obj,
+      },
+    }),
+    {} as StudentsCommentsBySubject
+  );
 
   return (
-    <div className="w-full md:m-8">
+    <div className="w-full md:m-8 min-h-full flex flex-col">
       <h1>Personalise Pupil Comments</h1>
       <h2 className="text-center pb-4">
-        {`${classData?.[0]?.description} Class (${classData?.[0]?.year_group} / ${classData?.[0]?.academic_year_end})`}
+        {`${className} Class (${classYearGroup} / ${academicYearEnd})`}
       </h2>
       <h3>
         Select individual pupils on left to review/edit their comments for each
         subject
       </h3>
       <PupilComments
-        classId={classData[0].id}
-        classStudents={classData[0].class_student}
-        classSubjects={classData[0].class_subject}
-        studentComments={studentComments}
+        orgId={orgId}
+        classId={Number(classId)}
+        className={className}
+        classYearGroup={classYearGroup}
+        academicYearEnd={academicYearEnd}
+        classStudents={classStudents}
+        classSubjects={classSubjects}
+        studentsCommentsBySubject={studentCommentsBySubject}
       />
     </div>
   );

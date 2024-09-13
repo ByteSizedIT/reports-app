@@ -44,7 +44,7 @@ const AddColumnModal = ({
       value: ReportGroup;
     }>
   >(
-    classDataState[0].class_subject
+    classDataState.class_subject
       .flatMap((subject) => subject.class_subject_group)
       .map((group) => {
         return {
@@ -82,7 +82,7 @@ const AddColumnModal = ({
     newClassSubjectGroup: ClassSubjectGroupStudent
   ) {
     const copyGroupedSubjectDataState = deepClone(classDataState);
-    copyGroupedSubjectDataState[0].class_subject[
+    copyGroupedSubjectDataState.class_subject[
       displayedSubjectIndex
     ].class_subject_group.push({
       id: newClassSubjectGroup.id,
@@ -101,7 +101,7 @@ const AddColumnModal = ({
         .insert([
           {
             class_subject_id:
-              classDataState[0].class_subject[displayedSubjectIndex].id,
+              classDataState.class_subject[displayedSubjectIndex].id,
             report_group_id: newReportGroup.id,
             group_comment: null,
           },
@@ -150,7 +150,7 @@ const AddColumnModal = ({
         value: {
           id: 0, // temp value
           organisation_id:
-            classDataState[0].class_subject[displayedSubjectIndex]
+            classDataState.class_subject[displayedSubjectIndex]
               .class_subject_group[0]?.report_group?.organisation_id,
           description: inputValue,
         },
@@ -168,7 +168,7 @@ const AddColumnModal = ({
       height="h-1/2 md:h-1/3"
       width="w-3/4 md:w-1/3"
     >
-      <h2>{`Add a new Subject for ${classDataState[0].description}`}</h2>
+      <h2>{`Add a new Subject for ${classDataState.description}`}</h2>
       <form
         // action={formAction}
         className="w-full h-full flex flex-col sm:w-3/4 md:w-1/2 mt-4 md:mt-8"

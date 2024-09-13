@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { EditorState } from "lexical";
 
 import Editor from "../Editor";
 import Button from "../Button";
 import DeleteModal from "../class-pg/DeleteModal";
 
-import { Student, StudentComment } from "@/types/types";
+import {
+  ClassSubjectGroupStudent,
+  Student,
+  StudentComment,
+  Subject,
+} from "@/types/types";
 
 import useEditorCounts from "@/app/hooks/lexical/useEditorCounts";
 import { createClient } from "@/utils/supabase/clients/browserClient";
@@ -21,44 +26,50 @@ export const PupilSubjectComment = ({
   selectedStudent,
   updateConfirmedComments,
 }: {
-  classSubject: any;
+  classSubject: {
+    id: number;
+    subject: Subject;
+    class_subject_group: Array<ClassSubjectGroupStudent>;
+  };
   classId: number;
   studentNames: Array<string>;
-  studentComment: StudentComment | undefined;
+  studentComment?: StudentComment | undefined;
   selectedStudent: Student;
-  updateConfirmedComments: (data: StudentComment) => void;
+  updateConfirmedComments: (data: StudentComment, subjectId: number) => void;
 }) => {
   const initialEditor = studentComment
     ? JSON.parse(studentComment.student_comment)
-    : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment);
+    : JSON.parse(classSubject.class_subject_group?.[0]?.group_comment ?? "");
 
   const [editorState, setEditorState] = useState<EditorState>(initialEditor);
   const [savedState, setSavedState] = useState<EditorState>(initialEditor);
   const [editorHTML, setEditorHTML] = useState<string | "">();
-  const [revertedEditorState, setRevertedEditorState] = useState(undefined);
+  const [revertedEditorState, setRevertedEditorState] = useState<
+    undefined | string
+  >(undefined);
   const [isPending, setIsPending] = useState(false);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { words, chars } = useEditorCounts(editorState);
 
-  function updateEditorState(update: EditorState) {
+  const updateEditorState = useCallback((update: EditorState) => {
     setEditorState(update);
-  }
+  }, []);
 
-  function updateEditorHTML(update: string) {
+  const updateEditorHTML = useCallback((update: string) => {
     setEditorHTML(update);
-  }
+  }, []);
 
   const supabase = createClient();
 
-  async function updateDBStudentComments(editorState: EditorState) {
+  async function updateDBStudentComments(serializedEditorState: string) {
     if (studentComment) {
       const { error, data } = await supabase
         .from("student_comment")
         .update([
           {
-            student_comment: JSON.stringify(editorState),
+            student_comment: serializedEditorState,
             group_comment_updated: true,
             html_student_comment: editorHTML,
           },
@@ -94,7 +105,9 @@ export const PupilSubjectComment = ({
         .select()
         .single();
       if (error) {
-        throw new Error(`Error inserting new Student Comment`);
+        throw new Error(
+          `Error inserting new Student Comment: ${error.message}`
+        );
       }
       return data;
     }
@@ -102,15 +115,17 @@ export const PupilSubjectComment = ({
 
   async function saveStudentComment(editorState: EditorState) {
     setIsPending(true);
+    const serializedEditorState = JSON.stringify(editorState);
     try {
-      const data = await updateDBStudentComments(editorState);
-      updateConfirmedComments(data);
-      setSavedState(JSON.parse(JSON.stringify(editorState)));
+      const data = await updateDBStudentComments(serializedEditorState);
+      updateConfirmedComments(data, classSubject.subject.id);
+      setSavedState(JSON.parse(serializedEditorState));
     } catch (error) {
       if (error instanceof Error) {
         console.error(
           `Error updating individual student comment: ${error.message}`
         );
+        throw new Error();
       } else {
         console.error("An unexpected error occurred:", error);
       }
@@ -124,9 +139,9 @@ export const PupilSubjectComment = ({
     if (studentComment)
       try {
         const data = await deleteStudentCommentFromDB();
-        updateConfirmedComments(data);
+        updateConfirmedComments(data, classSubject.subject.id);
         setRevertedEditorState(
-          classSubject.class_subject_group?.[0]?.group_comment
+          classSubject.class_subject_group?.[0]?.group_comment ?? ""
         );
       } catch (error) {
         console.error("Failed to delete student comment from DB:", error);
