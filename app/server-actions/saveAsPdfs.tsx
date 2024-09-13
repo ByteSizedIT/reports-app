@@ -6,9 +6,13 @@ import puppeteer from "puppeteer";
 
 import { redirect } from "next/navigation";
 
-import { Student, StudentsCommentsBySubject } from "@/types/types";
+import { Student, StudentsCommentsBySubject, UserInfo } from "@/types/types";
+
+import generateHeader from "@/utils/htmlTemplates/generateHeader";
+import generateFooter from "@/utils/htmlTemplates/generateFooter";
 
 import { logo as logoSvg } from "../../utils/assets/logo";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
 export async function saveAsPDFs(
   orgId: number,
@@ -39,40 +43,28 @@ export async function saveAsPDFs(
     }
 
     // Protect page, checking users's organisation matches that requested
-    const userInfoResponse = await supabase
+    const {
+      data: userInfoData,
+      error: userInfoError,
+    }: PostgrestSingleResponse<UserInfo> = await supabase
       .from("user_info")
       .select(
         `uuid, role_id, organisation_id(id, name, address1, address2, postcode, tel_num)`
       )
       .eq("uuid", user?.id)
-      .returns<
-        Array<{
-          uuid: string;
-          role_id: number;
-          organisation_id: {
-            id: number;
-            name: string;
-            address1: string;
-            address2: string;
-            postcode: string;
-            tel_num: string;
-          };
-        }>
-      >();
-
-    const { data: userInfoData, error: userInfoError } = userInfoResponse;
+      .single();
 
     if (userInfoError) {
       console.error("Error fetching user info:", userInfoError.message);
       throw new Error("Failed to fetch user information.");
     }
 
-    if (!userInfoData[0].organisation_id) {
+    if (!userInfoData.organisation_id) {
       console.error("No user information found.");
       redirect("/login?error=user_info_missing");
     }
 
-    if (orgId !== userInfoData[0]?.organisation_id.id) {
+    if (orgId !== userInfoData?.organisation_id.id) {
       redirect("/unauthorized");
     }
 
@@ -86,21 +78,20 @@ export async function saveAsPDFs(
         address2,
         postcode,
         tel_num,
-      } = userInfoData[0].organisation_id;
+      } = userInfoData.organisation_id;
       const schoolLogo = logoSvg(schoolName);
 
       const student =
         classStudents[
           classStudents.findIndex((s) => s.student_id === Number(studentId))
         ].student;
-
       const studentName = `${student.forename} ${student.surname}`;
       const studentComments = confirmedComments[studentId];
 
-      // TODO: Update with additional comment, to be written into a fresh Lexical Editor on the pipil-comments page
+      // TODO: Update with additional comment, to be written into a fresh Lexical Editor on the pupil-comments page
       const htmlIntro = ` 
       <h4 style="font-family:verdana; font-size: 22px; color: #3a4a69; text-align: center">${studentName}</h4>
-      <p>Comments from a lexical editor to be added .... In accumsan orci scelerisque dolor interdum ullamcorper. Cras sed orci tortor. Suspendisse a lobortis ligula. In fringilla nisi et ultricies facilisis. Donec elementum in dui quis facilisis. Sed mollis dignissim libero, rutrum aliquet orci euismod ac. Aenean mauris turpis, convallis sit amet mattis quis, dictum ac nunc. Pellentesque elementum vehicula nibh, vel ornare urna. Praesent mollis purus id lorem rhoncus imperdiet. Sed vel risus dolor. Proin quis interdum leo.</p>
+      <p>${student.forename} has performed well this term ....Introductory comments from an lexical editor to be added on the pupil-comments page.... In accumsan orci scelerisque dolor interdum ullamcorper. Cras sed orci tortor. Suspendisse a lobortis ligula. In fringilla nisi et ultricies facilisis. Donec elementum in dui quis facilisis. Sed mollis dignissim libero, rutrum aliquet orci euismod ac. Aenean mauris turpis, convallis sit amet mattis quis, dictum ac nunc. Pellentesque elementum vehicula nibh, vel ornare urna. Praesent mollis purus id lorem rhoncus imperdiet. Sed vel risus dolor. Proin quis interdum leo.</p>
       
       `;
 
@@ -118,6 +109,20 @@ export async function saveAsPDFs(
       }
 
       const htmlComments = htmlCommentArr.join("<hr />");
+      const htmlHeader = generateHeader(
+        schoolLogo,
+        schoolName,
+        className,
+        classYearGroup,
+        academicYearEnd
+      );
+      const htmlFooter = generateFooter(
+        schoolName,
+        address1,
+        address2,
+        postcode,
+        tel_num
+      );
 
       // Generate the PDF
       const browser = await puppeteer.launch();
@@ -127,41 +132,8 @@ export async function saveAsPDFs(
         path: "document.pdf",
         format: "A4",
         displayHeaderFooter: true,
-        headerTemplate: `
-        <header style="
-            width: 100%; 
-            height: 100px; 
-            border-bottom: 2px solid #3a4a69;
-            font-family: Verdana, sans-serif;
-            display: flex; 
-            align-items: center;
-            padding: 0 20px;
-            ">
-            ${schoolLogo}   
-            <div style="
-              display: flex; 
-              flex: 1; 
-              flex-direction: column; 
-              align-items: center; 
-              justify-content: center; 
-              height: 100%;">
-              <h1 style="font-size: 24px; color: #3a4a69; text-align: center; margin: 0;">End of Year Report</h1>
-              <h2 style="font-size: 18px; color: #3a4a69; text-align: center; margin: 0;">${schoolName}</h2>
-               <h3 style="font-family:verdana; font-size: 18px; color: #3a4a69; text-align: center; margin: 0;">${className} | ${classYearGroup} | ${academicYearEnd}</h3>
-            </div>
-            <div style="font-size: 14px; color: #3a4a69; text-align: center; margin: 0; padding-right: 20px; font-weight: bold" >
-              <p><span class="pageNumber"></span> / <span class="totalPages"></p>
-            </div>
-        </header>`,
-        footerTemplate: `
-            <footer style="font-size:12px; text-align:center; width:100%; font-family: Verdana, sans-serif; color: #3a4a69;">
-              <p className="text-[1.33vw] p-[1.33vw] md:text-[1vw] md:p-[1vw]">
-                 ${schoolName} | ${address1},  ${
-          address2 ? address2 : ""
-        }, ${postcode} | ☎ ${tel_num}
-                   
-              </p>
-            </footer>`,
+        headerTemplate: htmlHeader,
+        footerTemplate: htmlFooter,
         margin: {
           top: "140px",
           bottom: "80px",

@@ -44,6 +44,7 @@ export interface Organisation {
   address2: string;
   "town/city": string;
   postcode: string;
+  tel_num: string;
 }
 
 export interface User {
@@ -54,7 +55,7 @@ export interface User {
 export interface UserInfo {
   uuid: string;
   role: string;
-  organisation_id: number;
+  organisation_id: Organisation;
 }
 
 export interface PreSaveClass {

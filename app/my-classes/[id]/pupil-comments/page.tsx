@@ -25,12 +25,16 @@ const PupilCommentsPage = async ({
   }
 
   // Protect page, checking users's organisation matches that requested
-  const userQuery = supabase.from("user_info").select("*").eq("uuid", user.id);
-  const { data: userInfoData, error: userInfoError } = await userQuery;
+  const { data: userInfoData, error: userInfoError } = await supabase
+    .from("user_info")
+    .select("*")
+    .eq("uuid", user.id)
+    .single();
+  // const { data: userInfoData, error: userInfoError } = await userQuery;
   // TODO: add error handling
 
   const classData = await getClassDetails(classId);
-  if (classData.organisation_id !== userInfoData?.[0]?.organisation_id) {
+  if (classData.organisation_id !== userInfoData?.organisation_id) {
     notFound();
   }
 
