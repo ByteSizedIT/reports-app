@@ -2,7 +2,8 @@
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
-import puppeteer from "puppeteer";
+// import puppeteer from "puppeteer";
+import { chromium } from "playwright";
 
 import { redirect } from "next/navigation";
 
@@ -125,7 +126,8 @@ export async function saveAsPDFs(
       );
 
       // Generate the PDF
-      const browser = await puppeteer.launch();
+      // const browser = await puppeteer.launch();
+      const browser = await chromium.launch();
       const page = await browser.newPage();
       await page.setContent(htmlComments);
       const pdfBuffer = await page.pdf({
