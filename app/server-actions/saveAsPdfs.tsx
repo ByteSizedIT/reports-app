@@ -2,18 +2,22 @@
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
-// import puppeteer from "puppeteer";
-import { chromium } from "playwright";
-
 import { redirect } from "next/navigation";
-
-import { Student, StudentsCommentsBySubject, UserInfo } from "@/types/types";
 
 import generateHeader from "@/utils/htmlTemplates/generateHeader";
 import generateFooter from "@/utils/htmlTemplates/generateFooter";
 
 import { logo as logoSvg } from "../../utils/assets/logo";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
+
+import { Student, StudentsCommentsBySubject, UserInfo } from "@/types/types";
+interface StudentPdfReportData {
+  studentId: number | undefined;
+  studentName: string | undefined;
+  htmlHeader: string | undefined;
+  htmlComments: string | undefined;
+  htmlFooter: string | undefined;
+}
 
 export async function saveAsPDFs(
   orgId: number,
@@ -69,8 +73,8 @@ export async function saveAsPDFs(
       redirect("/unauthorized");
     }
 
-    // Create & Upload documents
-    const uploadPromises: Array<Promise<any>> = [];
+    // Create Array of objects, each containing the data needed for the AWS Lambda function to create a PDF for one student
+    const allStudentReportsData: Array<StudentPdfReportData> = [];
 
     for (const studentId in confirmedComments) {
       const {
@@ -109,15 +113,23 @@ export async function saveAsPDFs(
         htmlCommentArr.push(`${subjectHtml}  ${studentCommentHtml}`);
       }
 
-      const htmlComments = htmlCommentArr.join("<hr />");
-      const htmlHeader = generateHeader(
+      const thisStudentPdfReportData: StudentPdfReportData = {
+        studentId: student.id,
+        studentName: studentName,
+        htmlHeader: undefined,
+        htmlComments: undefined,
+        htmlFooter: undefined,
+      };
+
+      thisStudentPdfReportData.htmlComments = htmlCommentArr.join("<hr />");
+      thisStudentPdfReportData.htmlHeader = generateHeader(
         schoolLogo,
         schoolName,
         className,
         classYearGroup,
         academicYearEnd
       );
-      const htmlFooter = generateFooter(
+      thisStudentPdfReportData.htmlFooter = generateFooter(
         schoolName,
         address1,
         address2,
@@ -125,59 +137,69 @@ export async function saveAsPDFs(
         tel_num
       );
 
-      // Generate the PDF
-      // const browser = await puppeteer.launch();
-      const browser = await chromium.launch();
-      const page = await browser.newPage();
-      await page.setContent(htmlComments);
-      const pdfBuffer = await page.pdf({
-        path: "document.pdf",
-        format: "A4",
-        displayHeaderFooter: true,
-        headerTemplate: htmlHeader,
-        footerTemplate: htmlFooter,
-        margin: {
-          top: "140px",
-          bottom: "80px",
-          left: "80px",
-          right: "80px",
-        },
-      });
-      await browser.close();
-
-      const pdfFilename = `${studentId}`;
-
-      uploadPromises.push(
-        supabase.storage
-          .from("class-pdf-reports")
-          .upload(`${orgId}/${classId}/${pdfFilename}.pdf`, pdfBuffer, {
-            contentType: "application/pdf",
-            upsert: true,
-          })
-          .then((response) => ({
-            ...response,
-            studentId,
-            studentName,
-            pdfFilename,
-          }))
-          .catch((error) => {
-            console.error(
-              `Upload failed for student ${studentName}: ${error.message}`
-            );
-            return {
-              //Object shaped to match successful uploads
-              data: {
-                path: null, // Field as per supabase fulfilled response.data: Explicitly set to null
-                fullPath: null, // Field as per supabase fulfilled response.data: Explicitly set to null
-              },
-              error: error.message, // Field as per supabase fulfilled response.error. Include error message for caught errors
-              studentId, // Add studentID
-              studentName, // Add studentName
-              pdfFilename, // Add pdfFilename
-            };
-          })
-      );
+      allStudentReportsData.push(thisStudentPdfReportData);
     }
+
+    const response = await fetch(
+      "https://50htzsk0hk.execute-api.eu-west-2.amazonaws.com/dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.API_KEY || "",
+        },
+        body: JSON.stringify(allStudentReportsData),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(`Error: ${data.error}`);
+    }
+
+    // Create & Upload documents
+    const uploadPromises: Array<Promise<any>> = [];
+
+    data.forEach(
+      (pdf: { studentId: number; studentName: string; pdfBase64: string }) => {
+        const { studentId, studentName, pdfBase64 } = pdf;
+        const pdfFilename = studentId;
+
+        const pdfBuffer = Buffer.from(pdfBase64, "base64");
+
+        uploadPromises.push(
+          supabase.storage
+            .from("class-pdf-reports")
+            .upload(`${orgId}/${classId}/${pdfFilename}.pdf`, pdfBuffer, {
+              contentType: "application/pdf",
+              upsert: true,
+            })
+            .then((response) => ({
+              ...response,
+              studentId,
+              studentName,
+              pdfFilename,
+            }))
+            .catch((error) => {
+              console.error(
+                `Upload failed for student ${studentName}: ${error.message}`
+              );
+              return {
+                //Object shaped to match successful uploads
+                data: {
+                  path: null, // Field as per supabase fulfilled response.data: Explicitly set to null
+                  fullPath: null, // Field as per supabase fulfilled response.data: Explicitly set to null
+                },
+                error: error.message, // Field as per supabase fulfilled response.error. Include error message for caught errors
+                studentId, // Add studentID
+                studentName, // Add studentName
+                pdfFilename, // Add pdfFilename
+              };
+            })
+        );
+      }
+    );
 
     const results = await Promise.all(uploadPromises);
     const successfulUploads = results.filter((result) => !result.error);
