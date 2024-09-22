@@ -1,0 +1,43 @@
+Use AWS Lamda / API Gateway for PDF generation to address it erroring in the saveAsPDF server function when deployed to Vercel (working on localhost).
+
+2 layers added to the AWS Lambda:
+
+- playwright-core
+Installed package locally:
+mkdir playwright-layer
+cd playwright-layer
+npm init -y
+npm install playwright-core
+
+Created folder structure required by Lambda layer:
+mkdir -p layer/nodejs
+
+Move installed module:
+cp -r node_modules/ layer/nodejs/
+
+Package layer in .zip file:
+cd layer
+zip -r9 ../playwright-layer.zip .
+
+Create Layer on AWS and upload zip.
+
+
+
+- @sparticuz/chromium-min (https://github.com/Sparticuz/chromium?tab=readme-ov-file#usage-with-playwright).
+Nb This was too big when installed in same layer as playwright or created locally by installing/zipping locally for uploading in its own layer.
+
+"The -min package DOES NOT include the chromium brotli files. This is useful due to Lamda as host having file size limit of 50mb. When using the -min package, you need to specify the location of the brotli files.
+Generally, this would be a location on S3, or another very fast downloadable location, that is in close proximity to your function's execution location.
+On the initial iteration, @sparticuz/chromium will download the pack tar file, untar the files to /tmp/chromium-pack, then will un-brotli the chromium binary to /tmp/chromium. The following iterations will see that /tmp/chromium exists and will use the already downloaded files.
+The latest chromium-pack.tar file will be on the latest release."
+
+However, followed the process below:
+
+"The latest release (chromium-v127.0.0-layer.zip file at the time of dev/deployment) may be uploaded directly as a layer in AWS Lambda using the following code:
+bucketName="chromiumUploadBucket" && \
+aws s3 cp chromium-v127.0.0-layer.zip "s3://${bucketName}/chromiumLayers/chromium-v127.0.0-layer.zip" && \
+aws lambda publish-layer-version --layer-name chromium --description "Chromium v127.0.0" --content "S3Bucket=${bucketName},S3Key=chromiumLayers/chromium-v127.0.0-layer.zip" --compatible-runtimes nodejs --compatible-architectures x86_64"
+
+- Add'l RAM (total 1024) allocated to the Lambda to improve compute time. Recommended that at least 512 MB, ideally 1600+MB, of RAM is added to your instance by @sparticuz/chromium.
+
+- TODO: Load any fonts needed, to reflect those available/selected in the Lexical Editor. Only Open Sans seems to be included by default in AWS Lambda instances (https://github.com/Sparticuz/chromium?tab=readme-ov-file#usage). 
