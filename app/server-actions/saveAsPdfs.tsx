@@ -1,5 +1,10 @@
 "use server";
 
+import {
+  getAuthenticatedUser,
+  getUserInfo,
+} from "@/utils/supabase/auth/authService";
+
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import { redirect } from "next/navigation";
@@ -8,7 +13,6 @@ import generateHeader from "@/utils/htmlTemplates/generateHeader";
 import generateFooter from "@/utils/htmlTemplates/generateFooter";
 
 import { logo as logoSvg } from "../../utils/assets/logo";
-import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
 import { Student, StudentsCommentsBySubject, UserInfo } from "@/types/types";
 interface StudentsHtmlReportData {
@@ -25,8 +29,6 @@ interface PdfArray {
   pdfBase64: string;
 }
 
-const supabase = createClient();
-
 export async function saveAsPDFs(
   orgId: number,
   classId: number,
@@ -41,40 +43,10 @@ export async function saveAsPDFs(
   confirmedComments: StudentsCommentsBySubject
 ) {
   try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError) {
-      console.warn(
-        "No user found or user is not authenticated",
-        userError.message
-      );
-      throw new Error("Failed to fetch user information.");
-    }
+    const user = await getAuthenticatedUser();
 
-    // Protect page, checking users's organisation matches that requested
-    const {
-      data: userInfoData,
-      error: userInfoError,
-    }: PostgrestSingleResponse<UserInfo> = await supabase
-      .from("user_info")
-      .select(
-        `uuid, role_id, organisation_id(id, name, address1, address2, postcode, tel_num)`
-      )
-      .eq("uuid", user?.id)
-      .single();
-
-    if (userInfoError) {
-      console.error("Error fetching user info:", userInfoError.message);
-      throw new Error("Failed to fetch user information.");
-    }
-
-    if (!userInfoData.organisation_id) {
-      console.error("No user information found.");
-      redirect("/login?error=user_info_missing");
-    }
-
+    // Protect page, checking users' organisation matches that requested
+    const userInfoData = await getUserInfo(user?.id);
     if (orgId !== userInfoData?.organisation_id.id) {
       redirect("/unauthorized");
     }
@@ -223,6 +195,8 @@ async function savePdfsToSupabase(
   classId: number,
   pdfArray: Array<PdfArray>
 ) {
+  const supabase = createClient();
+
   const uploadPromises: Array<Promise<any>> = [];
 
   pdfArray.forEach((pdf: PdfArray) => {
