@@ -43,10 +43,11 @@ export async function saveAsPDFs(
   confirmedComments: StudentsCommentsBySubject
 ) {
   try {
-    const user = await getAuthenticatedUser();
+    // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
+    const { id: userId } = await getAuthenticatedUser();
 
     // Protect page, checking users' organisation matches that requested
-    const userInfoData = await getUserInfo(user?.id);
+    const userInfoData = await getUserInfo(userId);
     if (orgId !== userInfoData?.organisation_id.id) {
       redirect("/unauthorized");
     }

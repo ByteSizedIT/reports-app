@@ -1,7 +1,10 @@
+import { redirect } from "next/navigation";
+
 import { createClient } from "@/utils/supabase/clients/serverClient";
 import { UserInfo } from "@/types/types";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
+// Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
 export async function getAuthenticatedUser() {
   const supabase = createClient();
 
@@ -11,11 +14,7 @@ export async function getAuthenticatedUser() {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    console.warn(
-      "No user found or user is not authenticated",
-      userError?.message
-    );
-    throw new Error("Failed to fetch user information.");
+    redirect("/login");
   }
 
   return user;
@@ -35,14 +34,9 @@ export async function getUserInfo(userId: string): Promise<UserInfo | null> {
     .eq("uuid", userId)
     .single();
 
-  if (userInfoError) {
+  if (userInfoError || !userInfoData) {
     console.error("Error fetching user info:", userInfoError.message);
-    throw new Error("Failed to fetch user information.");
-  }
-
-  if (!userInfoData.organisation_id) {
-    console.error("No organisation ID found for user:", userId);
-    throw new Error("User information is incomplete.");
+    throw new Error("Error fetching user information.");
   }
 
   return userInfoData;
