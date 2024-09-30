@@ -2,7 +2,7 @@
 
 import {
   getAuthenticatedUser,
-  getUserInfo,
+  getUserInfoOrgData,
 } from "@/utils/supabase/auth/authService";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
@@ -46,7 +46,7 @@ export async function saveAsPDFs(
   const { id: userId } = await getAuthenticatedUser();
 
   // Protect page, checking users' organisation matches that requested
-  const userInfoData = await getUserInfo(userId);
+  const userInfoData = await getUserInfoOrgData(userId);
   if (orgId !== userInfoData?.organisation_id.id) {
     notFound();
   }

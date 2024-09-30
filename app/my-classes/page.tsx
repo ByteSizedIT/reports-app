@@ -1,4 +1,7 @@
-import { redirect } from "next/navigation";
+import {
+  getAuthenticatedUser,
+  getUserInfo,
+} from "@/utils/supabase/auth/authService";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
@@ -8,32 +11,22 @@ const MyClasses = async () => {
   const supabase = createClient();
 
   // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { id: userId } = await getAuthenticatedUser();
 
-  if (userError || !user) {
-    redirect("/login");
-  }
-
-  const { data: userInfo } = await supabase
-    .from("user_info")
-    .select("*")
-    .eq("uuid", user.id)
-    .single();
+  // Check users' organisation to request matching classes
+  const userInfoData = await getUserInfo(userId);
 
   const { data: myClasses } = await supabase
     .from("class")
     .select("*")
-    .eq("organisation_id", userInfo.organisation_id);
+    .eq("organisation_id", userInfoData?.organisation_id);
 
   return (
     <div className="w-full flex flex-col mt-8">
       <h1 className="text-center text-3xl sm:text-4xl font-bold">My Classes</h1>
       <ClassCards
         myClasses={myClasses}
-        organisationId={userInfo.organisation_id}
+        organisationId={userInfoData?.organisation_id}
       />
     </div>
   );

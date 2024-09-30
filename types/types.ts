@@ -55,6 +55,12 @@ export interface User {
 export interface UserInfo {
   uuid: string;
   role: string;
+  organisation_id: number;
+}
+
+export interface UserInfoOrgData {
+  uuid: string;
+  role: string;
   organisation_id: Organisation;
 }
 
