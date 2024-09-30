@@ -28,9 +28,7 @@ export async function getUserInfo(userId: string): Promise<UserInfo | null> {
     error: userInfoError,
   }: PostgrestSingleResponse<UserInfo> = await supabase
     .from("user_info")
-    .select(
-      `uuid, role_id, organisation_id(id, name, address1, address2, postcode, tel_num)`
-    )
+    .select("*")
     .eq("uuid", userId)
     .single();
 
@@ -40,4 +38,28 @@ export async function getUserInfo(userId: string): Promise<UserInfo | null> {
   }
 
   return userInfoData;
+}
+
+export async function getUserInfoOrgData(
+  userId: string
+): Promise<UserInfo | null> {
+  const supabase = createClient();
+
+  const {
+    data: userInfoOrgData,
+    error: userInfoOrgError,
+  }: PostgrestSingleResponse<UserInfo> = await supabase
+    .from("user_info")
+    .select(
+      `uuid, role_id, organisation_id(id, name, address1, address2, postcode, tel_num)`
+    )
+    .eq("uuid", userId)
+    .single();
+
+  if (userInfoOrgError || !userInfoOrgData) {
+    console.error("Error fetching user info:", userInfoOrgError.message);
+    throw new Error("Error fetching user information.");
+  }
+
+  return userInfoOrgData;
 }

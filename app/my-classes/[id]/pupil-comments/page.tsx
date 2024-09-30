@@ -1,8 +1,11 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import PupilComments from "@/components/pupil-comments/PupilComments";
 
-import { createClient } from "@/utils/supabase/clients/serverClient";
+import {
+  getAuthenticatedUser,
+  getUserInfo,
+} from "@/utils/supabase/auth/authService";
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 import { getStudentComments } from "@/utils/supabase/db-server-queries/getStudentComments";
 
@@ -13,26 +16,11 @@ const PupilCommentsPage = async ({
 }: {
   params: { id: string };
 }) => {
-  const supabase = createClient();
-
   // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-  if (userError || !user) {
-    redirect("/login");
-  }
+  const { id: userId } = await getAuthenticatedUser();
 
-  // Protect page, checking users's organisation matches that requested
-  const { data: userInfoData, error: userInfoError } = await supabase
-    .from("user_info")
-    .select("*")
-    .eq("uuid", user.id)
-    .single();
-  // const { data: userInfoData, error: userInfoError } = await userQuery;
-  // TODO: add error handling
-
+  // Protect page, checking users' organisation matches that requested
+  const userInfoData = await getUserInfo(userId);
   const classData = await getClassDetails(classId);
   if (classData.organisation_id !== userInfoData?.organisation_id) {
     notFound();
