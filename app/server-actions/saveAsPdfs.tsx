@@ -7,7 +7,7 @@ import {
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import generateHeader from "@/utils/htmlTemplates/generateHeader";
 import generateFooter from "@/utils/htmlTemplates/generateFooter";
@@ -42,16 +42,16 @@ export async function saveAsPDFs(
   }>,
   confirmedComments: StudentsCommentsBySubject
 ) {
+  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
+  const { id: userId } = await getAuthenticatedUser();
+
+  // Protect page, checking users' organisation matches that requested
+  const userInfoData = await getUserInfo(userId);
+  if (orgId !== userInfoData?.organisation_id.id) {
+    notFound();
+  }
+
   try {
-    // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
-    const { id: userId } = await getAuthenticatedUser();
-
-    // Protect page, checking users' organisation matches that requested
-    const userInfoData = await getUserInfo(userId);
-    if (orgId !== userInfoData?.organisation_id.id) {
-      redirect("/unauthorized");
-    }
-
     const allStudentReportsHtmlData = generateReportHtmlData(
       userInfoData,
       classStudents,
@@ -83,7 +83,7 @@ export async function saveAsPDFs(
     if (error instanceof Error)
       console.error("Error in saveAsPDFs:", error.message);
     else console.error("Error in saveAsPDFs", error);
-    throw error; // Re-throw the error to be handled by the calling function`
+    throw error; // Re-throw the error to be handled by the calling function
   }
 }
 
@@ -185,7 +185,8 @@ async function generatePdfReports(htmlData: Array<StudentsHtmlReportData>) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(`Error: ${data.error}`);
+    console.error(`Error: ${data.error}`);
+    throw new Error();
   }
 
   return data;
