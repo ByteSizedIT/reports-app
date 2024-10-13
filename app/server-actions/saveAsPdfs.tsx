@@ -14,7 +14,12 @@ import generateFooter from "@/utils/htmlTemplates/generateFooter";
 
 import { logo as logoSvg } from "../../utils/assets/logo";
 
-import { Student, StudentsCommentsBySubject, UserInfo } from "@/types/types";
+import {
+  Student,
+  StudentsCommentsBySubject,
+  UserInfo,
+  UserInfoOrgData,
+} from "@/types/types";
 interface StudentsHtmlReportData {
   studentId: number | undefined;
   studentName: string | undefined;
@@ -89,7 +94,7 @@ export async function saveAsPDFs(
 
 // Create Array of objects, each containing the data needed for the AWS Lambda function to create a PDF for one student
 function generateReportHtmlData(
-  userInfoData: UserInfo,
+  userInfoOrgData: UserInfoOrgData,
   classStudents: Array<{
     student: Student;
     class_id: number;
@@ -109,7 +114,7 @@ function generateReportHtmlData(
       address2,
       postcode,
       tel_num,
-    } = userInfoData.organisation_id;
+    } = userInfoOrgData.organisation_id;
     const schoolLogo = logoSvg(schoolName);
 
     const student =
