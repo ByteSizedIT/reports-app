@@ -1,18 +1,15 @@
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+
+import {
+  getAuthenticatedUser,
+  getUserInfo,
+} from "@/utils/supabase/auth/authService";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDetails";
 
-import { Organisation } from "@/types/types";
-
 import PupilReports from "@/components/pupil-reports/PupilReports";
-
-type UserOrgDetails = {
-  uuid: string;
-  role_id: string;
-  organisation_id: Organisation | Organisation[]; // Allow for both single obj and array. Will always be single as org_id is a unique identifier, but Supabase/ts seem to infer that the type is an array. Therefore managed here and bolow
-};
 
 const PupilReportsPage = async ({
   params: { id: classId },
@@ -21,35 +18,14 @@ const PupilReportsPage = async ({
 }) => {
   const supabase = createClient();
 
-  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-  if (userError || !user) {
-    redirect("/login");
-  }
+  const userId = await getAuthenticatedUser();
 
-  // Protect page, checking users's organisation matches that requested
-  const userQuery = supabase
-    .from("user_info")
-    .select(`uuid, role_id, organisation_id(*)`)
-    .eq("uuid", user.id)
-    .single();
-  const { data: userInfoData, error: userInfoError } = await userQuery;
-  // TODO: add error handling
-
-  const typedUserInfoData = userInfoData as UserOrgDetails;
-
-  console.log(userInfoData);
-
-  // Check if organisation_id is an array or an object - Will always be single as org_id is a unique identifier, but Supabase/ts seem to infer that the type is an array. Therefore managed here and in
-  const usersOrganisation = Array.isArray(typedUserInfoData?.organisation_id)
-    ? typedUserInfoData.organisation_id[0] // If it's an array, access the first element
-    : typedUserInfoData?.organisation_id; // Otherwise, it's a single object
+  // Protect page, checking users' organisation matches that requested
+  const userInfoData = await getUserInfo(userId);
 
   const classData = await getClassDetails(classId);
-  if (classData?.organisation_id !== usersOrganisation.id) {
+
+  if (classData?.organisation_id !== userInfoData?.organisation_id) {
     notFound();
   }
 

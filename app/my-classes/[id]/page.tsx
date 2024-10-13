@@ -2,44 +2,38 @@ import { getClassDetails } from "@/utils/supabase/db-server-queries/getClassDeta
 import { getOrganisationSubjects } from "@/utils/supabase/db-server-queries/getOrganisationSubjects";
 import { getOrganisationReportGroups } from "@/utils/supabase/db-server-queries/getOrganisationReportGroups";
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/clients/serverClient";
 
 import ClientComponent from "@/components/class-pg/ClientComponent";
+import {
+  getAuthenticatedUser,
+  getUserInfo,
+} from "@/utils/supabase/auth/authService";
 
 const ClassPage = async ({
   params: { id: classId },
 }: {
   params: { id: string };
 }) => {
-  const supabase = createClient();
+  const userId = await getAuthenticatedUser();
 
-  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-  if (userError || !user) {
-    redirect("/login");
-  }
-
-  // Protect page, checking users's organisation matches that requested
-  const userQuery = supabase.from("user_info").select("*").eq("uuid", user.id);
-  const { data: userInfoData, error: userInfoError } = await userQuery;
-  // TODO: add error handling
+  const userInfoData = await getUserInfo(userId);
 
   const classData = await getClassDetails(classId);
-  if (classData.organisation_id !== userInfoData?.[0]?.organisation_id) {
+
+  // Protect page, checking users' organisation matches that requested in params
+  if (classData.organisation_id !== userInfoData?.organisation_id) {
     notFound();
   }
 
   const organisationSubjectData = await getOrganisationSubjects(
-    userInfoData?.[0].organisation_id
+    userInfoData?.organisation_id
   );
 
   const organisationReportGroupData = await getOrganisationReportGroups(
-    userInfoData?.[0].organisation_id
+    userInfoData?.organisation_id
   );
 
   return (
