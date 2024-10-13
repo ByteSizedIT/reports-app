@@ -41,8 +41,26 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
+  // IMPORTANT: Avoid writing any logic between createServerClient and
+  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  // issues with users being randomly logged out. ref: https://supabase.com/docs/guides/auth/server-side/nextjs
+
   // (i) Refresh the Auth token
-  await supabase.auth.getUser();
+  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (
+    !user &&
+    request.nextUrl.pathname !== "/" &&
+    !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/signup")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
   return response;
 }
