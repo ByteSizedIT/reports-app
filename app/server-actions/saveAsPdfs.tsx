@@ -17,7 +17,6 @@ import { logo as logoSvg } from "../../utils/assets/logo";
 import {
   Student,
   StudentsCommentsBySubject,
-  UserInfo,
   UserInfoOrgData,
 } from "@/types/types";
 interface StudentsHtmlReportData {
@@ -47,8 +46,7 @@ export async function saveAsPDFs(
   }>,
   confirmedComments: StudentsCommentsBySubject
 ) {
-  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
-  const { id: userId } = await getAuthenticatedUser();
+  const userId = await getAuthenticatedUser();
 
   // Protect page, checking users' organisation matches that requested
   const userInfoData = await getUserInfoOrgData(userId);

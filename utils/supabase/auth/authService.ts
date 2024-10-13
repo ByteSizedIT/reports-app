@@ -4,20 +4,26 @@ import { createClient } from "@/utils/supabase/clients/serverClient";
 import { UserInfo, UserInfoOrgData } from "@/types/types";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
 
-// Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
 export async function getAuthenticatedUser() {
   const supabase = createClient();
 
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (userError || !user) {
-    redirect("/login");
-  }
+  // * see Notes below
+  // const {
+  //   data: { user },
+  //   error: userError,
+  // } = await supabase.auth.getUser();
 
-  return user;
+  // if (userError || !user) {
+  //   redirect("/login");
+  // }
+
+  if (!session?.user.id) redirect("/login");
+
+  return session?.user.id;
 }
 
 export async function getUserInfo(userId: string): Promise<UserInfo> {
@@ -63,3 +69,12 @@ export async function getUserInfoOrgData(
 
   return userInfoOrgData;
 }
+
+// * Notes
+// ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs:
+// Be careful when protecting pages. The server gets the user session from the cookies, which can be spoofed by anyone.
+// Always use supabase.auth.getUser() to protect pages and user data.
+// Never trust supabase.auth.getSession() inside Server Components. It isn't guaranteed to revalidate the Auth token.
+// It's safe to trust getUser() because it sends a request to the Supabase Auth server every time to revalidate the Auth token.
+
+// Nb using getUser to revalidate Auth token and therefore protect pages in middleware. Therefore using getSession from cookies to ascertain user id in individual server components, rather than a repeated server request

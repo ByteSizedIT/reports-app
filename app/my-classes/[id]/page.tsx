@@ -17,10 +17,7 @@ const ClassPage = async ({
 }: {
   params: { id: string };
 }) => {
-  const supabase = createClient();
-
-  // Protect page, checking user is authenticated - ref supabase docs https://supabase.com/docs/guides/auth/server-side/nextjs *
-  const { id: userId } = await getAuthenticatedUser();
+  const userId = await getAuthenticatedUser();
 
   const userInfoData = await getUserInfo(userId);
 
