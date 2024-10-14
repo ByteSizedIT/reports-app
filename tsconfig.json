@@ -28,7 +28,9 @@
     ".next/types/**/*.ts",
     "**/*.mjs",
     "next.config.js",
-    "app/error.js"
+    "app/error.js",
+    "jest.config.ts",
+    "jest.setup.ts"
   ],
   "exclude": ["node_modules"]
 }
