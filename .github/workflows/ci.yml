@@ -1,0 +1,38 @@
+name: Run Jest Tests on PRs
+
+# Trigger the workflow on pull requests targeting the main branch
+on:
+  pull_request:
+    branches:
+      - main # Runs tests when a PR is opened/updated on the main branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest # Use the latest Ubuntu environment for the job
+
+    steps:
+      # Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Use Node.js version 18 as preferred version
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Run Jest tests
+      - name: Run Jest tests
+        run: npm run test:ci # Runs Jest tests and collects coverage
+
+      # Upload test results or coverage to GitHub Actions (optional)
+      - name: Upload Jest Coverage Report
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage/ # Path to coverage directory
