@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <div className="flex flex-col w-full justify-center items-center">
       <div className="flex flex-col justify-center items-center max-w-4xl px-8">
-        <h1 className="p-4">PRODUCT NAME</h1>
+        {/* <h1 className="p-4">PRODUCT NAME</h1> */}
         <p className="text-center">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu
           scelerisque dui. Aliquam erat volutpat. Interdum et malesuada fames ac
