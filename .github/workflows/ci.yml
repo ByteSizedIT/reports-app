@@ -27,7 +27,7 @@ jobs:
 
       # Run Jest tests
       - name: Run Jest tests
-        run: npm test -- --coverage # Runs Jest tests and collects coverage
+        run: npm run test:ci # Runs Jest tests and collects coverage
 
       # Upload test results or coverage to GitHub Actions (optional)
       - name: Upload Jest Coverage Report
